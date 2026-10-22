@@ -1,0 +1,19 @@
+{
+  "results": [
+    "emotion UI choice is written and read back through HTTP",
+    "parent posts, likes and comments reach persistent API storage",
+    "parent note is acknowledged by the write API",
+    "settings selection persists through API",
+    "records screen uploads file bytes, lists metadata and downloads via API",
+    "emotion diary restores from server when browser cache is removed",
+    "family content restores through read API after cache removal",
+    "saved settings survive a reload without localStorage",
+    "failed write keeps an unsaved local draft and shows an error",
+    "online retry writes the preserved draft successfully",
+    "stale UI write cannot overwrite a newer server version",
+    "explicit conflict recovery loads server value and backs up the local draft",
+    "uploaded image returns to the records screen after full reload",
+    "no uncaught UI exceptions during API success, offline and conflict flows"
+  ],
+  "errors": []
+}

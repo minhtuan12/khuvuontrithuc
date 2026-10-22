@@ -1,0 +1,31 @@
+{
+  "results": [
+    "check-in fits 390px",
+    "Escape closes check-in without recording",
+    "emotion choice is saved",
+    "parent is the single active bottom tab",
+    "parent diary shows selected emotion",
+    "dialog restores focus to parent opener",
+    "family share saves locally",
+    "local likes and comments persist",
+    "teacher discussion note saves without pretending to send",
+    "five-day reference menu is reachable",
+    "settings returns to parent space",
+    "study timer pauses in parent space",
+    "English is the single active bottom tab",
+    "roadmap fits mobile viewport",
+    "roadmap displays curriculum topics and lesson actions",
+    "English deactivates on entering parent space",
+    "parent Back returns to Home rather than stale English",
+    "selected session duration stays at fifteen minutes",
+    "search opens the selected playable math game",
+    "rapid correct-answer clicks award one game star",
+    "math completion reaches global rewards and parent totals once",
+    "parent space fits desktop viewport",
+    "earned stars survive reload",
+    "saved parent conversation survives reload",
+    "emotion diary survives reload",
+    "no uncaught browser exceptions during audited flows"
+  ],
+  "errors": []
+}

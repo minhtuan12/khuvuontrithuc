@@ -1,0 +1,42 @@
+.emotion-check-in {
+  --leaf-deep: #138e65; --paint-green: #43ab69; --leaf: #c9f3af; --sun: #ffe884; --sun-deep: #ffa21c; --cream: #fffdf2;
+  width: min(680px, calc(100% - 24px)); max-height: calc(100dvh - 32px); margin: auto; padding: 0; overflow-y: auto;
+  border: 6px solid white; border-radius: 36px; background: #fffdf2; color: #193b65;
+  box-shadow: 0 24px 80px #193b6540; text-align: center;
+}
+.emotion-check-in::backdrop { background: #16334b85; backdrop-filter: blur(6px); }
+.emotion-check-in button { cursor: pointer; }
+.emotion-check-in button:focus-visible { outline: 3px solid #047857; outline-offset: 4px; }
+.emotion-close { position: absolute; right: 12px; top: 12px; z-index: 1; display: grid; place-items: center; width: 44px; height: 44px; background: white; border: 2px solid #e2edf4; border-radius: 50%; }
+.emotion-landscape { position: relative; height: 150px; border-radius: 28px 28px 42% 15%; }
+.emotion-landscape > img { width: 100%; height: 100%; object-fit: cover; object-position: center 64%; border-radius: inherit; }
+.emotion-mascot { position: absolute; right: 12%; bottom: -24px; width: 100px; filter: drop-shadow(0 5px 3px #193b6520); }
+.emotion-content { padding: 24px 28px 18px; }
+.emotion-eyebrow { display: inline-flex; align-items: center; gap: 6px; color: #047857; font-size: 11px; letter-spacing: .1em; font-weight: 900; }
+.emotion-content h2 { font-size: clamp(26px, 4vw, 36px); color: #047857; margin: 9px 0; }
+.emotion-content > p { font-size: 15px; line-height: 1.6; }
+.emotion-options { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin: 24px 0 16px; }
+.emotion-choice { display: flex; flex-direction: column; align-items: center; padding: 18px 8px; border: 3px solid white; border-radius: 28px; box-shadow: 0 5px 0 #193b6512; transition: transform .18s; }
+.emotion-choice:hover { transform: translateY(-4px); }
+.emotion-choice:active { transform: translateY(2px); }
+.emotion-choice--sun { background: #fff0b1; }
+.emotion-choice--sky { background: #daf2ff; }
+.emotion-choice--coral { background: #ffe1e6; }
+.emotion-face { font-size: 60px; line-height: 1.3; }
+.emotion-choice strong { font-family: 'Baloo 2', 'Nunito', sans-serif; font-size: 22px; margin-top: 6px; }
+.emotion-description { font-size: 12px; line-height: 1.4; margin-top: 4px; }
+.emotion-later { padding: 12px 20px; min-height: 44px; border-radius: 99px; color: #47617d; font-weight: 800; }
+.emotion-later:hover { background: #eaf2ec; }
+.emotion-content > .emotion-privacy { font-size: 11px; color: #5a6d80; margin-top: 10px; }
+@media (max-width: 480px) {
+  .emotion-check-in { border-width: 4px; border-radius: 28px; }
+  .emotion-content { padding: 24px 12px 14px; }
+  .emotion-landscape { height: 115px; }
+  .emotion-mascot { width: 80px; right: 8%; }
+  .emotion-options { gap: 7px; margin-top: 18px; }
+  .emotion-choice { border-radius: 20px; padding: 14px 4px; }
+  .emotion-face { font-size: 43px; }
+  .emotion-choice strong { font-size: 18px; }
+  .emotion-description { font-size: 10px; }
+}
+@media (prefers-reduced-motion: reduce) { .emotion-choice { transition: none; } .emotion-choice:hover { transform: none; } }

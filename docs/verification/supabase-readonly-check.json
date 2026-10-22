@@ -1,0 +1,17 @@
+{
+  "readonly": true,
+  "results": [
+    {
+      "table": "english_lesson_progress",
+      "status": 401,
+      "code": "42501",
+      "missingSchema": false
+    },
+    {
+      "table": "teacher_english_plans",
+      "status": 401,
+      "code": "42501",
+      "missingSchema": false
+    }
+  ]
+}

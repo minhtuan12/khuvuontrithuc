@@ -1,0 +1,11 @@
+{
+  "name": "Remix Mầm Non Vui Học - Bạn Đồng Hành Học Tập 1",
+  "description": "Ứng dụng học tập thông minh cho trẻ mầm non 3-6 tuổi, phát triển toàn diện 5 lĩnh vực thông qua trợ lý AI và các hoạt động tương tác vui nhộn.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone"
+  ],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

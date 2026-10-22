@@ -1,0 +1,20 @@
+{
+  "results": [
+    "Vận động & Sức khỏe: age selection and lessons render",
+    "Toán học & Khoa học: age selection and lessons render",
+    "Chữ cái & Truyện kể: age selection and lessons render",
+    "Cảm xúc & Kỹ năng sống: age selection and lessons render",
+    "Nghệ thuật & Âm nhạc: age selection and lessons render",
+    "progress report shows six real counters without fabricated percentages",
+    "microphone denial gives a retry message and no reward",
+    "English game completion records the exact lesson",
+    "English completion reaches the parent overview",
+    "AI microphone denial leaves text input available",
+    "AI microphone can be retried after denied permission",
+    "unconfigured AI shows a recoverable error and unlocks input",
+    "check-in fits 360px narrow viewport",
+    "check-in can scroll on short screens",
+    "no uncaught exceptions during learning and failure flows"
+  ],
+  "errors": []
+}

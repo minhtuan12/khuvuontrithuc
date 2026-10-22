@@ -1,0 +1,9 @@
+{
+  "results": [
+    "empty audio is rejected",
+    "unsupported recording type is rejected",
+    "missing AI configuration returns a recoverable service status",
+    "catalog exposes all three curricula",
+    "unknown lesson returns404"
+  ]
+}
