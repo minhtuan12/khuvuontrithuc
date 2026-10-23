@@ -27,7 +27,12 @@
 .teacher-workspace :is(input,select,textarea) { min-width: 0; width: 100%; min-height: 46px; padding: 10px 12px; border: 2px solid #d3e0e8; border-radius: 13px; background: white; color: var(--tw-ink); font: inherit; font-size: 16px; }
 .teacher-workspace textarea { resize: none; min-height: 130px; overflow-y: auto; font-weight: 500; line-height: 1.7; }
 .teacher-workspace .tw-editor-content { min-height: 360px; }
-.teacher-workspace .tw-toolbar { display: grid; grid-template-columns: minmax(180px,2fr) minmax(130px,1fr) auto; gap: 12px; align-items: end; margin-bottom: 20px; }
+.teacher-workspace .tw-toolbar { display: grid; grid-template-columns: minmax(210px,2fr) minmax(145px,1fr) minmax(135px,1fr) auto; gap: 12px; align-items: end; margin: 20px 0; }
+.teacher-workspace .tw-search-control { position: relative; display: block; }
+.teacher-workspace .tw-search-control > svg { position: absolute; left: 13px; top: 50%; z-index: 1; transform: translateY(-50%); color: var(--tw-muted); pointer-events: none; }
+.teacher-workspace .tw-search-control input { padding-left: 42px; padding-right: 46px; }
+.teacher-workspace .tw-clear-search { position: absolute; right: 3px; top: 50%; min-height: 40px; width: 40px; padding: 0; border: 0; transform: translateY(-50%); background: transparent; color: var(--tw-muted); }
+.teacher-workspace .tw-clear-search:hover:not(:disabled) { background: #eef7f1; }
 .teacher-workspace .tw-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 14px; }
 .teacher-workspace .tw-metrics { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 12px; }
 .teacher-workspace .tw-metrics > div { background: #e8f5ff; border-radius: 18px; padding: 16px; }

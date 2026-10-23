@@ -1,5 +1,5 @@
 import { useEffect, useId, useRef, useState, type FormEvent } from 'react';
-import { Eye, EyeOff, Flower2, LogOut, X } from 'lucide-react';
+import { AtSign, Eye, EyeOff, Flower2, GraduationCap, LogOut, UserRound, X } from 'lucide-react';
 import './account-modal.css';
 
 export interface AccountModalProps {
@@ -116,7 +116,15 @@ export default function AccountModal({ open, onClose, user, onLogin, onRegister,
       <h2 id={`${id}-title`}>{user ? 'Tài khoản của bạn' : registering ? 'Cùng gieo mầm tri thức' : 'Mừng bạn trở lại!'}</h2>
       <p id={`${id}-description`} className="account-description">{description}</p>
       {user ? <>
-        <dl className="account-profile"><div><dt>Họ và tên</dt><dd>{user.fullName}</dd></div><div><dt>Tên đăng nhập</dt><dd>{user.username}</dd></div><div><dt>Loại tài khoản</dt><dd>{user.role==='teacher'?'Giáo viên':'Học sinh / gia đình'}</dd></div></dl>
+        <div className={`account-profile-summary account-profile-summary--${user.role}`}>
+          <span className="account-avatar" aria-hidden="true">{user.fullName.trim().charAt(0).toLocaleUpperCase('vi-VN') || <UserRound size={26} />}</span>
+          <div><strong>{user.fullName}</strong><span>{user.role === 'teacher' ? 'Tài khoản giáo viên' : 'Tài khoản học sinh'}</span></div>
+        </div>
+        <dl className="account-profile">
+          <div><dt><UserRound size={18} aria-hidden="true" /> Họ và tên</dt><dd>{user.fullName}</dd></div>
+          <div><dt><AtSign size={18} aria-hidden="true" /> Tên đăng nhập</dt><dd>{user.username}</dd></div>
+          <div><dt><GraduationCap size={18} aria-hidden="true" /> Loại tài khoản</dt><dd><span className={`account-role account-role--${user.role}`}>{user.role === 'teacher' ? 'Giáo viên' : 'Học sinh / gia đình'}</span></dd></div>
+        </dl>
         <p className="account-note">Khi đăng xuất, bạn sẽ trở về khu vườn khách trước đó trên thiết bị này.</p>
         <button className="account-primary" type="button" disabled={pending} onClick={() => void perform(onLogout)}><LogOut size={18} aria-hidden="true" />{pending ? 'Đang đăng xuất…' : 'Đăng xuất'}</button>
       </> : <>

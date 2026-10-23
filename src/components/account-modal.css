@@ -36,12 +36,24 @@
 .account-primary { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; min-height: 48px !important; padding: 10px 18px; border: 2px solid var(--account-green); border-radius: 16px; background: var(--account-green); color: white; }
 .account-primary:hover:not(:disabled) { background: #065f46; }
 .account-note { padding: 12px 14px; margin: 16px 0 0; background: var(--account-pink); border-radius: 14px; font-size: 12px; line-height: 1.6; color: var(--account-muted); }
-.account-profile { display: grid; gap: 14px; margin: 16px 0; padding: 18px; border-radius: 18px; background: var(--account-sky); }
-.account-profile dt { color: var(--account-muted); font-size: 12px; }
-.account-profile dd { margin: 3px 0 0; overflow-wrap: anywhere; font-size: 18px; font-weight: 800; }
+.account-profile-summary { display: flex; align-items: center; gap: 13px; margin-top: 18px; padding: 15px 16px; border: 2px solid #cae8d7; border-radius: 20px; background: linear-gradient(135deg, #edfbf3, #f7fcf1); }
+.account-profile-summary--teacher { border-color: #d8d0ed; background: linear-gradient(135deg, #f6f0ff, #fff9ee); }
+.account-avatar { display: grid; place-items: center; width: 52px; height: 52px; flex: 0 0 52px; border-radius: 17px; background: var(--account-green); color: white; font-family: 'Baloo 2', 'Nunito', sans-serif; font-size: 27px; font-weight: 900; box-shadow: 0 5px 14px #04785725; }
+.account-profile-summary > div { min-width: 0; }
+.account-profile-summary strong,.account-profile-summary span { display: block; }
+.account-profile-summary strong { overflow-wrap: anywhere; color: var(--account-ink); font-size: 18px; line-height: 1.25; }
+.account-profile-summary > div span { margin-top: 2px; color: var(--account-muted); font-size: 13px; font-weight: 700; }
+.account-profile { display: grid; gap: 0; margin: 12px 0 16px; padding: 4px 18px; border: 2px solid #dce9e4; border-radius: 20px; background: white; }
+.account-profile > div { display: grid; grid-template-columns: minmax(130px, .9fr) minmax(0, 1.15fr); gap: 14px; align-items: center; min-height: 64px; padding: 11px 0; }
+.account-profile > div + div { border-top: 1px solid #e6eee9; }
+.account-profile dt { display: flex; align-items: center; gap: 8px; color: var(--account-muted); font-size: 13px; font-weight: 750; }
+.account-profile dt svg { flex: 0 0 auto; color: var(--account-green); }
+.account-profile dd { margin: 0; overflow-wrap: anywhere; color: var(--account-ink); font-size: 16px; font-weight: 850; text-align: right; }
+.account-role { display: inline-flex; justify-content: center; padding: 6px 10px; border-radius: 999px; background: #e8f7ee; color: #05724f; font-size: 12px; line-height: 1.2; text-align: center; }
+.account-role--teacher { background: #f1eaff; color: #7045a0; }
 .account-profile + .account-note { margin-bottom: 18px; }
 .account-feedback { min-height: 24px; margin-top: 8px; }
 .account-feedback p { padding: 10px 12px; margin: 0 0 8px; border-radius: 12px; color: #a3193c; background: #fff0f3; font-size: 13px; line-height: 1.5; overflow-wrap: anywhere; }
-@media (max-width: 480px) { .account-content { padding: 18px 17px 6px; } .account-content h2 { font-size: 27px; } }
+@media (max-width: 480px) { .account-content { padding: 18px 17px 6px; } .account-content h2 { font-size: 27px; } .account-profile { padding: 5px 14px; } .account-profile > div { grid-template-columns: 1fr; gap: 4px; padding: 13px 0; } .account-profile dd { padding-left: 26px; text-align: left; } .account-role { justify-content: flex-start; } }
 @media (max-height: 650px) { .account-landscape { height: 65px; } .account-content { padding-top: 14px; } }
 @media (prefers-reduced-motion: reduce) { .account-modal button { transition: none; } }
