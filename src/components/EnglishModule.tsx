@@ -33,6 +33,7 @@ import { useDeviceDocument } from '../lib/useDeviceDocument';
 interface EnglishModuleProps {
   onBack: () => void;
   onLessonComplete?: (lesson: EnglishLessonTheme) => void;
+  onGameComplete?: (title: string) => void;
   initialTarget?: 'kids' | 'teachers' | 'games' | 'songs' | 'phonics';
   initialAge?: '3-4' | '4-5' | '5-6';
 }
@@ -93,7 +94,7 @@ export function createEnglishPracticeLifetime(onDispose: () => void = () => {}) 
   };
 }
 
-export default function EnglishModule({ onBack, onLessonComplete, initialTarget = 'kids', initialAge = '3-4' }: EnglishModuleProps) {
+export default function EnglishModule({ onBack, onLessonComplete, onGameComplete, initialTarget = 'kids', initialAge = '3-4' }: EnglishModuleProps) {
   // Main Tab State: 'kids' (Bé yêu) | 'teachers' (Tiếng Anh cùng cô giáo) | 'games' (Trò chơi) | 'songs' (Bài hát) | 'phonics' (Bảng âm)
   const [activeMainTab, setActiveMainTab] = useState<'kids' | 'roadmap' | 'teachers' | 'games' | 'songs' | 'phonics'>(initialTarget === 'kids' ? 'roadmap' : initialTarget);
   const [lessonOpenedFromRoadmap, setLessonOpenedFromRoadmap] = useState(false);
@@ -1287,6 +1288,7 @@ export default function EnglishModule({ onBack, onLessonComplete, initialTarget 
         {/* ================================================= */}
         {activeMainTab === 'games' && (
           <EnglishGamesPlayground
+            onGameComplete={onGameComplete}
             speakEnglish={speakEnglish}
             playAudioChime={playAudioChime}
             onBack={() => setActiveMainTab('kids')}
@@ -1578,9 +1580,6 @@ export default function EnglishModule({ onBack, onLessonComplete, initialTarget 
                               <p className="text-xs font-mono text-purple-700 font-bold">
                                 <strong>IPA:</strong> {selectedTeacherThematicTopic.warmupScript.phonetic}
                               </p>
-                              <p className="text-xs text-pink-700 font-bold">
-                                <strong>Phiên âm bồi cho cô:</strong> {selectedTeacherThematicTopic.warmupScript.vietnamesePhonetic}
-                              </p>
                             </div>
                           </div>
 
@@ -1649,7 +1648,6 @@ export default function EnglishModule({ onBack, onLessonComplete, initialTarget 
 
                                 <div className="space-y-1 mb-3 text-xs">
                                   <p className="font-mono text-purple-700 font-bold">{prompt.phonetic}</p>
-                                  <p className="text-pink-700 font-bold">Bồi: {prompt.vietnamesePhonetic}</p>
                                   <p className="text-slate-800 font-extrabold text-sm mt-1">{prompt.vietnamese}</p>
                                 </div>
 
@@ -1768,7 +1766,6 @@ export default function EnglishModule({ onBack, onLessonComplete, initialTarget 
                                 </div>
 
                                 <p className="text-xs font-mono text-purple-700 font-bold mb-0.5">{vocab.phonetic}</p>
-                                <p className="text-xs text-pink-700 font-bold mb-2">Đọc bồi: {vocab.vietnamesePhonetic}</p>
                                 <p className="text-sm font-black text-slate-800 mb-3">{vocab.meaning}</p>
 
                                 {/* Pronunciation Caution Box */}

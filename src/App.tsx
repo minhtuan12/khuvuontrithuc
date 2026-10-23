@@ -3124,6 +3124,7 @@ export default function App({ startAtHome = false }: { startAtHome?: boolean }) 
             >
               <EnglishModule 
                 onLessonComplete={lesson => triggerCompletionReward(lesson.name, 'english')}
+                onGameComplete={title => triggerCompletionReward(title, 'english')}
                 initialTarget={englishInitialTarget}
                 initialAge={englishInitialAge}
                 onBack={() => {

@@ -1,5 +1,8 @@
 import { learnerStorage as localStorage } from '../lib/learnerStorage';
 import React, { useState, useEffect, useRef } from 'react';
+import EnglishGardenGames, { GardenGameCards } from './EnglishGardenGames';
+import EnglishAdventureGames, { AdventureGameCards } from './EnglishAdventureGames';
+import { applyGardenResult, emptyGardenProgress, type GardenCompletion } from '../lib/gardenProgress';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   Sparkles, Star, Trophy, RotateCcw, Volume2, ArrowLeft, 
@@ -9,6 +12,7 @@ import confetti from 'canvas-confetti';
 
 interface EnglishGamesPlaygroundProps {
   onBack?: () => void;
+  onGameComplete?: (title: string) => void;
   speakEnglish: (text: string, rate?: number) => void;
   playAudioChime: (isSuccess?: boolean) => void;
 }
@@ -209,6 +213,7 @@ const MYSTERY_QUESTIONS = [
 
 export const EnglishGamesPlayground: React.FC<EnglishGamesPlaygroundProps> = ({
   onBack,
+  onGameComplete,
   speakEnglish,
   playAudioChime,
 }) => {
@@ -227,7 +232,16 @@ export const EnglishGamesPlayground: React.FC<EnglishGamesPlaygroundProps> = ({
   useEffect(() => clearGameTasks, []);
 
   // Game Selector: 'menu' | 'memory' | 'balloon' | 'rocket' | 'mystery'
-  const [selectedGame, setSelectedGame] = useState<'menu' | 'memory' | 'balloon' | 'rocket' | 'mystery'>('menu');
+  const [selectedGame, setSelectedGame] = useState<'menu' | 'memory' | 'balloon' | 'rocket' | 'mystery' | 'match' | 'reveal' | 'bee' | 'basket' | 'odd' | 'train'>('menu');
+  const previousGame = useRef(selectedGame);
+  useEffect(() => {
+    const previous = previousGame.current;
+    previousGame.current = selectedGame;
+    if (selectedGame === 'menu' && ['match', 'reveal', 'bee', 'basket', 'odd', 'train'].includes(previous)) {
+      document.querySelector<HTMLButtonElement>(`.gg-entry-card--${previous}, .ag-entry-card--${previous}`)?.focus();
+    }
+  }, [selectedGame]);
+  const [gardenProgress, setGardenProgress, gardenSync] = useDeviceDocument('english-garden-progress', emptyGardenProgress);
   const [totalStars, setTotalStars, starsSync] = useDeviceDocument<number>('game-stars', () => {
     try {
       const value = Number(localStorage.getItem('mamnon_game_stars') || '0');
@@ -255,6 +269,13 @@ export const EnglishGamesPlayground: React.FC<EnglishGamesPlaygroundProps> = ({
         origin: { y: 0.6 }
       });
     } catch {}
+  };
+
+  const completeGardenGame = (result: GardenCompletion) => {
+    setGardenProgress(previous => applyGardenResult(previous, result));
+    addStars(5);
+    onGameComplete?.({match:'Nối hình với từ',reveal:'Bức tranh bí mật',bee:'Ong chăm chỉ đánh vần',basket:'Giỏ hàng của bé',odd:'Tìm bạn khác nhóm',train:'Đoàn tàu câu ngắn'}[result.game]);
+    if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) fireConfetti();
   };
 
   // ==========================================
@@ -520,6 +541,7 @@ export const EnglishGamesPlayground: React.FC<EnglishGamesPlaygroundProps> = ({
   return (
     <div className="space-y-6">
       {starsSync.error && <p role="status" className="rounded-xl bg-amber-50 p-3 text-amber-900">{starsSync.error} <button type="button" onClick={starsSync.retry} className="underline">Thử lại</button><button type="button" onClick={starsSync.restoreRemote} className="ml-3 underline">Tải bản đã lưu</button></p>}
+      {gardenSync.error && <p role="status" className="rounded-xl bg-amber-50 p-3 text-amber-900">{gardenSync.error} <button type="button" onClick={gardenSync.retry} className="min-h-11 px-3 underline">Thử lưu lại</button><button type="button" onClick={gardenSync.restoreRemote} className="min-h-11 px-3 underline">Tải bản đã lưu</button></p>}
       {/* Playground Header Banner */}
       <div className="bg-gradient-to-r from-purple-600 via-indigo-600 to-sky-500 rounded-3xl p-6 sm:p-8 text-white shadow-xl relative overflow-hidden border-4 border-white">
         <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
@@ -533,7 +555,7 @@ export const EnglishGamesPlayground: React.FC<EnglishGamesPlaygroundProps> = ({
               <span className="text-3xl sm:text-4xl">🎮</span>
             </h2>
             <p className="text-sm sm:text-base text-indigo-100 font-medium max-w-2xl leading-relaxed">
-              Học tiếng Anh qua các trò chơi tương tác đa giác quan: Lật thẻ siêu trí nhớ, Bắt bóng từ vựng, Bắn tên lửa ghép chữ Phonics và Thám tử hộp quà bí ẩn!
+              Nhìn hình, nghe từ và chạm để khám phá. Bé chọn trò yêu thích, học từng chút và cùng Mầm gom sao nhé!
             </p>
           </div>
 
@@ -555,6 +577,10 @@ export const EnglishGamesPlayground: React.FC<EnglishGamesPlaygroundProps> = ({
       {/* A. GAME MENU SELECTOR                                     */}
       {/* ========================================================= */}
       {selectedGame === 'menu' && (
+        <div className="space-y-6">
+        <GardenGameCards onSelect={game => startGame(game)} disabled={starsSync.loading || gardenSync.loading} />
+        <AdventureGameCards onSelect={game => startGame(game)} disabled={starsSync.loading || gardenSync.loading} />
+        <p role="status" className="text-center text-sm font-bold text-emerald-800">{gardenSync.loading ? 'Mầm đang mở sổ trò chơi…' : `${Object.values(gardenProgress).reduce((sum,item)=>sum+item.runs,0)} lượt khám phá đã hoàn thành`}{gardenSync.saving ? ' · Đang lưu…' : ''}</p>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {/* Game 1: Memory Cards */}
           <motion.div
@@ -652,7 +678,11 @@ export const EnglishGamesPlayground: React.FC<EnglishGamesPlaygroundProps> = ({
             </button>
           </motion.div>
         </div>
+        </div>
       )}
+
+      {(selectedGame === 'match' || selectedGame === 'reveal' || selectedGame === 'bee') && <div key={selectedGame}><EnglishGardenGames game={selectedGame} onBack={() => startGame('menu')} onComplete={completeGardenGame} disabled={starsSync.loading || gardenSync.loading} /></div>}
+      {(selectedGame === 'basket' || selectedGame === 'odd' || selectedGame === 'train') && <div key={selectedGame}><EnglishAdventureGames game={selectedGame} onBack={() => startGame('menu')} onComplete={completeGardenGame} disabled={starsSync.loading || gardenSync.loading} /></div>}
 
       {/* ========================================================= */}
       {/* B. GAME 1: 3D MEMORY MATCH                                */}

@@ -1,0 +1,29 @@
+{
+  "passed": true,
+  "checks": [
+    "games do not automatically narrate",
+    "match wrong answer keeps board available",
+    "match awards once despite rapid repeat click",
+    "back restores keyboard focus to matching entry card",
+    "reveal has relationship clue",
+    "reveal wrong answer can retry",
+    "reveal has relationship clue",
+    "reveal has relationship clue",
+    "reveal has relationship clue",
+    "small topic caps rounds to unique available vocabulary",
+    "bee wrong spelling gives retry",
+    "mobile has no horizontal overflow",
+    "game touch targets are at least 44px",
+    "bee repeated letters work across full six-word round",
+    "three game completions award fifteen playground stars",
+    "completed games reach real English learning counters",
+    "replay starts a fresh playable run",
+    "abandoned replay does not award",
+    "menu survives reload",
+    "family matching shows explicit relationship labels",
+    "unavailable audio shows error without blocking play",
+    "earned stars persist after reload",
+    "no browser runtime exceptions"
+  ],
+  "consoleErrors": []
+}

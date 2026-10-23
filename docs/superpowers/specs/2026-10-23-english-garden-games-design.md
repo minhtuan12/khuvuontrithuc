@@ -1,0 +1,15 @@
+# Three English garden games
+
+User request: choose three fun, easy English games for preschool children, prepare diverse learnable data, implement against the existing design/rules. The user delegates the game choices and asks for implementation. Builder rulings below fill reversible details without another approval round.
+
+Chosen games: Picture Match (tap picture then matching word, hear either), Secret Picture (reveal tiles then choose one of three words), Spelling Bee (hear/see a word then fill missing letters from large letter buttons). These complement the existing four games. Preserve those games and existing navigation.
+
+Content: one curated shared vocabulary set with at least 64 entries across eight familiar topics, English word, Vietnamese meaning, clear emoji pictogram, short English clue and Vietnamese clue, example sentence, age band. Words and clues must be factual, positive, unambiguous within options; every question's answer appears exactly once. Bee words are alphabetic and use repeated-letter-safe indexed letter choices. Younger modes provide more letters as scaffolding; older modes fill more blanks. No typing, microphone permission, mandatory timer or sign-in.
+
+Visual: existing Nunito/Baloo 2, green garden headings, cream/white panels, pastel topic chips, local garden artwork, large pictograms. Signature elements: matching flower pairs, a tiled secret picture, honeycomb letter slots. Existing artwork and emoji are intentional offline-safe illustrations; no remote assets or new paid generation. Native age/topic selects, buttons >=44px, visible focus, keyboard support, reduced motion, Vietnamese instructions and inline status. Game entry cards in English Games; back returns to the same menu. Speech starts on explicit listen taps; unavailable speech leaves a usable game with visible feedback.
+
+Rounds: brief sessions with unique question targets, selectable age/topic, deterministic pure helpers with injected RNG for tests. Wrong answer permits retry without reward. Completion lock is synchronous; revisiting completion cannot award twice, new run may earn again. Six-round maximum (match uses one board), replay shuffles. Stop speech/tasks on exit/account switch. No artificial scores for elapsed time or revealing a hint.
+
+Persistence: `english-garden-progress` owner-scoped versioned document stores bounded summaries by game/topic/age (runs, words practiced, best accuracy, last played). Existing `game-stars` document stores earned stars, once per finished run. Same account and guest separation/failed-save/retry/backed-up restore contract as sibling screens. Local SQLite and Supabase Edge share validation. No Vercel deploy or Git push unless requested. Updating backward-compatible Edge validation is permitted as required API integration; do not change auth/cookies.
+
+Validation: corpus coverage and distractors/repeated letters; progression and duplicate completion; server document schema/bounds; existing tests/typecheck/build; browser all three flows with wrong/correct/replay/back, progress reload, mobile controls, console errors; strict design audit. Deliver data documentation and screenshots.

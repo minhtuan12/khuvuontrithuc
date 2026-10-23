@@ -1,5 +1,6 @@
 import { BADGES_LIST } from '../src/constants/badgesData.ts';
 import { findEnglishLesson } from '../src/lib/englishCatalog.ts';
+import { validGardenProgress } from '../src/lib/gardenProgress.ts';
 
 export const object = (value: unknown): value is Record<string, any> => !!value && typeof value === 'object' && !Array.isArray(value);
 export const number = (value: unknown, max = 1_000_000_000) => typeof value === 'number' && Number.isSafeInteger(value) && value >= 0 && value <= max;
@@ -9,6 +10,7 @@ const statsKeys = ['mathCount', 'mathStreak', 'speechCount', 'speechStreak', 'st
 export const validators: Record<string, (value: unknown) => boolean> = {
   stars: value => number(value),
   'game-stars': value => number(value),
+  'english-garden-progress': validGardenProgress,
   'learning-stats': value => object(value) && statsKeys.every(key => number(value[key])),
   badges: value => Array.isArray(value) && value.length <= BADGES_LIST.length && value.every(id => BADGES_LIST.some(badge => badge.id === id)),
   emotions: value => Array.isArray(value) && value.length <= 20 && value.every(item => object(item) && ['vui', 'buon', 'tuc-gian'].includes(item.emotion) && date(item.date) && text(item.feedback, 2000)),

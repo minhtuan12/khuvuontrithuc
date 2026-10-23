@@ -41,6 +41,17 @@ test('stale writes fail without overwriting a newer value', async () => {
   expect(data.version).toBe(1);
 });
 
+test('garden game summaries persist by owner and reject invalid progress', async () => {
+  const path='/api/device/documents/english-garden-progress';
+  const value={'match:all:3-4':{runs:1,words:3,bestAccuracy:100,lastPlayed:'2026-10-23T08:00:00.000Z'}};
+  const save=(data:unknown,baseVersion:number)=>request(path,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({value:data,baseVersion})});
+  expect((await save(value,0)).status).toBe(200);
+  expect((await (await request(path)).json()).value).toEqual(value);
+  expect((await (await fetch(base+path)).json()).version).toBe(0);
+  expect((await save(value,0)).status).toBe(409);
+  expect((await save({'match:all:3-4':{...value['match:all:3-4'],bestAccuracy:101}},1)).status).toBe(400);
+});
+
 test('teacher preparation saves without email and validates age and content size', async () => {
   const value = { age: '4-5', activity: 'Bé khám phá màu sắc', plan: 'Giáo án', selfStudy: 'Từ vựng' };
   const write = (data: unknown) => request('/api/device/documents/teacher-preparation', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ value: data, baseVersion: 0 }) });

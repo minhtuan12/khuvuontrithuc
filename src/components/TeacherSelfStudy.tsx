@@ -67,7 +67,6 @@ export default function TeacherSelfStudy({ onListen }: TeacherSelfStudyProps) {
                       <button type="button" onClick={() => onListen(word.word, 0.8)} aria-label={`Nghe từ ${word.word}`} className="flex size-11 shrink-0 items-center justify-center rounded-full bg-pink-100 text-pink-700 hover:bg-pink-200 focus-visible:outline focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-pink-500"><Volume2 size={20} aria-hidden="true" /></button>
                     </div>
                     <p className="mt-2 text-sm text-slate-700"><strong>Phiên âm:</strong> {word.phonetic}</p>
-                    {word.vietnamesePronunciation && <p className="text-sm text-slate-700"><strong>Đọc gần đúng:</strong> {word.vietnamesePronunciation} <span className="text-slate-500">(chỉ để tham khảo; nghe mẫu để phát âm)</span></p>}
                     {word.exampleSentence && <div className="mt-3 rounded-xl bg-white p-3 text-sm text-slate-700"><BookOpen size={16} className="mr-1 inline text-pink-600" aria-hidden="true" /><strong>{word.exampleSentence}</strong>{word.exampleMeaning && <p className="mt-1">{word.exampleMeaning}</p>}<button type="button" onClick={() => onListen(word.exampleSentence!)} className="mt-2 min-h-11 rounded-xl bg-pink-100 px-3 py-2 font-bold text-pink-800 hover:bg-pink-200">Nghe câu mẫu</button></div>}
                   </div>
                 ))}
