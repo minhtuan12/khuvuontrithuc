@@ -8,7 +8,7 @@ test('each selected emotion explicitly reads its own Vietnamese feedback', async
   const previousUtterance = globalThis.SpeechSynthesisUtterance;
   const spoken = [];
   globalThis.SpeechSynthesisUtterance = class { constructor(text) { this.text = text; } };
-  globalThis.window = { speechSynthesis: { cancel() {}, resume() {}, getVoices: () => [], speak(value) { spoken.push(value); queueMicrotask(() => value.onend()); } } };
+  globalThis.window = { speechSynthesis: { cancel() {}, resume() {}, getVoices: () => [{ lang: 'vi-VN', name: 'Microsoft HoaiMy Online' }], speak(value) { spoken.push(value); queueMicrotask(() => value.onend()); } } };
   try {
     for (const emotion of EMOTIONS) await readEmotionFeedback(emotion.id);
     expect(spoken.map(value => value.text)).toEqual(EMOTIONS.map(value => value.feedback));

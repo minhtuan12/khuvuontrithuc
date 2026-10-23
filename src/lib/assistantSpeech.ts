@@ -1,6 +1,29 @@
 let activeUtterance: SpeechSynthesisUtterance | null = null;
 let cancelPlayback: (() => void) | null = null;
 
+const VIETNAMESE_FEMALE_VOICE_NAMES = [
+  'hoaima',
+  'hoaimy',
+  'linh',
+  'lien',
+  'female',
+  'nữ',
+  'google tiếng việt',
+  'google tieng viet',
+];
+
+function normalizedVoiceName(voice: SpeechSynthesisVoice): string {
+  return voice.name.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+}
+
+export function findSafeVietnameseVoice(voices: SpeechSynthesisVoice[]): SpeechSynthesisVoice | undefined {
+  return voices.find(voice => {
+    if (!voice.lang.toLowerCase().startsWith('vi')) return false;
+    const name = normalizedVoiceName(voice);
+    return VIETNAMESE_FEMALE_VOICE_NAMES.some(candidate => name.includes(candidate.normalize('NFD').replace(/[\u0300-\u036f]/g, '')));
+  });
+}
+
 export function stopAssistantSpeech() {
   cancelPlayback?.();
   cancelPlayback = null;
@@ -20,7 +43,12 @@ export async function readAssistantMessage(text: string, requested = false, lang
   activeUtterance = utterance;
   utterance.lang = lang === 'vi' ? 'vi-VN' : lang;
   utterance.rate = 0.9;
-  const voice = synthesis.getVoices().find(item => item.lang.toLowerCase().startsWith(lang.toLowerCase()));
+  const voice = lang === 'vi'
+    ? findSafeVietnameseVoice(synthesis.getVoices())
+    : synthesis.getVoices().find(item => item.lang.toLowerCase().startsWith(lang.toLowerCase()));
+  if (lang === 'vi' && !voice) {
+    throw new Error('Thiết bị chưa có giọng nữ tiếng Việt phù hợp. Ứng dụng đã ngắt giọng đọc mặc định để tránh phát sai giọng.');
+  }
   if (voice) utterance.voice = voice;
   await new Promise<void>((resolve, reject) => {
     const finish = (error?: Error) => {

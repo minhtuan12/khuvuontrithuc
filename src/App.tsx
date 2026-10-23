@@ -3067,6 +3067,9 @@ export default function App({ startAtHome = false }: { startAtHome?: boolean }) 
                 }
                 setShowSplash(false);
                 setShowCheckIn(true);
+                window.speechSynthesis?.cancel();
+                const welcomeAudio = new Audio('/audio/welcome.wav');
+                welcomeAudio.play().catch(e => console.error('Welcome audio play failed', e));
               }}
               className="bg-white text-sky-600 font-black text-xl sm:text-4xl py-5 sm:py-8 px-6 sm:px-16 rounded-full shadow-2xl border-4 sm:border-8 border-white hover:bg-sky-50 transition-colors flex items-center gap-4 shrink-0"
               disabled={dataLoading}

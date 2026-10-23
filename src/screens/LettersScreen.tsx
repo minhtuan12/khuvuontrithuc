@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ArrowLeft, Volume2, Star } from 'lucide-react';
 import { Button } from '../components/ui/Button';
+import { readAssistantMessage } from '../lib/assistantSpeech';
 
 const ALPHABET = [
   { letter: 'A', word: 'Quả Táo', emoji: '🍎', color: 'bg-red-100 text-red-600' },
@@ -17,13 +18,7 @@ export default function LettersScreen({ onBack }: { onBack: () => void }) {
   const prev = () => setCurrentIndex((prev) => (prev - 1 + ALPHABET.length) % ALPHABET.length);
 
   const speak = (text: string) => {
-    if ('speechSynthesis' in window) {
-      window.speechSynthesis.cancel();
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.lang = 'vi-VN';
-      utterance.rate = 0.85;
-      window.speechSynthesis.speak(utterance);
-    }
+    readAssistantMessage(text, true, 'vi').catch(() => {});
   };
 
   return (
