@@ -9,6 +9,8 @@ import './english-roadmap.css';
 
 interface EnglishRoadmapProps {
   initialAge: EnglishAge;
+  initialGroup?: string;
+  onGroupChange?: (group: string) => void;
   onOpenLesson: (age: EnglishAge, lesson: EnglishLessonTheme) => void;
 }
 
@@ -18,7 +20,7 @@ const topicArtwork: Record<string, string> = {
   plants: '/illustrations/garden-card.webp',
 };
 
-export default function EnglishRoadmap({ initialAge, onOpenLesson }: EnglishRoadmapProps) {
+export default function EnglishRoadmap({ initialAge, initialGroup = '', onGroupChange, onOpenLesson }: EnglishRoadmapProps) {
   const [age, setAge] = useState<EnglishAge>(initialAge);
   const [progress, setProgress] = useState<Record<string, EnglishProgress>>(getGuestEnglishProgress);
   const [syncError, setSyncError] = useState(getEnglishProgressSyncError);
@@ -42,7 +44,7 @@ export default function EnglishRoadmap({ initialAge, onOpenLesson }: EnglishRoad
       window.removeEventListener('storage', synchronize);
     };
   }, []);
-  const [selectedGroup, setSelectedGroup] = useState('');
+  const [selectedGroup, setSelectedGroup] = useState(initialGroup);
   const groups = getEnglishRoadmap(age);
   const group = groups.find(item => item.id === selectedGroup) ?? groups[0];
   const lessonCount = groups.reduce((total, item) => total + item.lessons.length, 0);
@@ -72,7 +74,7 @@ export default function EnglishRoadmap({ initialAge, onOpenLesson }: EnglishRoad
         </div>
         <div className="roadmap-context">
           <label className="roadmap-age">Lộ trình dành cho bé
-            <select value={age} onChange={event => { setAge(event.target.value as EnglishAge); setSelectedGroup(''); }}>
+            <select value={age} onChange={event => { setAge(event.target.value as EnglishAge); setSelectedGroup(''); onGroupChange?.(''); }}>
               {ENGLISH_AGES.map(item => <option key={item.id} value={item.id}>{item.title} · {item.id} tuổi</option>)}
             </select>
           </label>
@@ -80,7 +82,7 @@ export default function EnglishRoadmap({ initialAge, onOpenLesson }: EnglishRoad
         </div>
         <nav className="roadmap-worlds" aria-label="Chọn chủ đề">
           {groups.map((item, index) => (
-            <button type="button" key={item.id} className={`roadmap-world ${group.id === item.id ? 'is-selected' : ''}`} aria-pressed={group.id === item.id} onClick={() => setSelectedGroup(item.id)}>
+            <button type="button" key={item.id} className={`roadmap-world ${group.id === item.id ? 'is-selected' : ''}`} onClick={() => { setSelectedGroup(item.id); onGroupChange?.(item.id); onOpenLesson(age, item.lessons[0]); }} aria-label={`Khám phá chủ đề ${item.name}`}>
               <span className="roadmap-world-icon" aria-hidden="true">{topicArtwork[item.id] ? <img src={topicArtwork[item.id]} alt="" width="58" height="58" className="roadmap-world-artwork" /> : item.icon}</span>
               <span><small>Khu vườn {index + 1}</small><strong>{item.name}</strong></span>
               {group.id === item.id && <Check size={18} aria-hidden="true" />}

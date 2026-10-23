@@ -1,4 +1,4 @@
-export { TEACHER_THEMATIC_TOPICS, type TeacherThematicTopic } from './teacherThematicData';
+export { TEACHER_THEMATIC_TOPICS, type TeacherThematicTopic } from './teacherThematicData.ts';
 
 export interface EnglishWord {
   id: string;

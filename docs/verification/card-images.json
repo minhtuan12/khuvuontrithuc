@@ -1,0 +1,97 @@
+{
+  "base": "https://khu-vuon-tri-thuc.vercel.app/",
+  "images": [
+    {
+      "src": "https://khu-vuon-tri-thuc.vercel.app/school-logo.jpg",
+      "alt": "Logo Trường Mầm Non Tô Hiến Thành",
+      "width": 447,
+      "height": 447
+    },
+    {
+      "src": "https://khu-vuon-tri-thuc.vercel.app/assets/pixar_magical_tree_1792640359460-CBVJ2wkL.jpg",
+      "alt": "Vườn Cây Tri Thức Mầm Non Phong Cách Pixar 3D Ngập Tràn Hoa Tươi",
+      "width": 1024,
+      "height": 1024
+    },
+    {
+      "src": "https://khu-vuon-tri-thuc.vercel.app/assets/pixar_icon_physical_1792641321569-DCwzSHQr.jpg",
+      "alt": "Phát triển thể chất phong cách Pixar 3D",
+      "width": 1024,
+      "height": 1024
+    },
+    {
+      "src": "https://khu-vuon-tri-thuc.vercel.app/assets/pixar_icon_cognitive_1792641322103-BzSUX33b.jpg",
+      "alt": "Phát triển nhận thức phong cách Pixar 3D",
+      "width": 1024,
+      "height": 1024
+    },
+    {
+      "src": "https://khu-vuon-tri-thuc.vercel.app/assets/pixar_icon_language_1792641322494-D1gqoDt9.jpg",
+      "alt": "Phát triển ngôn ngữ phong cách Pixar 3D",
+      "width": 1024,
+      "height": 1024
+    },
+    {
+      "src": "https://khu-vuon-tri-thuc.vercel.app/assets/pixar_icon_social_1792641322497-D4mbzO5X.jpg",
+      "alt": "Tình cảm - Kỹ năng xã hội phong cách Pixar 3D",
+      "width": 1024,
+      "height": 1024
+    },
+    {
+      "src": "https://khu-vuon-tri-thuc.vercel.app/assets/pixar_icon_aesthetic_1792641322367-CI6Ssb_S.jpg",
+      "alt": "Phát triển thẩm mỹ phong cách Pixar 3D",
+      "width": 1024,
+      "height": 1024
+    }
+  ],
+  "responses": [
+    {
+      "url": "https://khu-vuon-tri-thuc.vercel.app/school-logo.jpg",
+      "status": 200,
+      "type": "image/jpeg"
+    },
+    {
+      "url": "https://khu-vuon-tri-thuc.vercel.app/assets/pixar_magical_tree_1792640359460-CBVJ2wkL.jpg",
+      "status": 200,
+      "type": "image/jpeg"
+    },
+    {
+      "url": "https://khu-vuon-tri-thuc.vercel.app/assets/pixar_icon_physical_1792641321569-DCwzSHQr.jpg",
+      "status": 200,
+      "type": "image/jpeg"
+    },
+    {
+      "url": "https://khu-vuon-tri-thuc.vercel.app/assets/pixar_icon_cognitive_1792641322103-BzSUX33b.jpg",
+      "status": 200,
+      "type": "image/jpeg"
+    },
+    {
+      "url": "https://khu-vuon-tri-thuc.vercel.app/assets/pixar_icon_language_1792641322494-D1gqoDt9.jpg",
+      "status": 200,
+      "type": "image/jpeg"
+    },
+    {
+      "url": "https://khu-vuon-tri-thuc.vercel.app/assets/pixar_icon_social_1792641322497-D4mbzO5X.jpg",
+      "status": 200,
+      "type": "image/jpeg"
+    },
+    {
+      "url": "https://khu-vuon-tri-thuc.vercel.app/assets/pixar_icon_aesthetic_1792641322367-CI6Ssb_S.jpg",
+      "status": 200,
+      "type": "image/jpeg"
+    }
+  ],
+  "extra": [
+    {
+      "path": "/assets/preschool/art_english.png",
+      "width": 345,
+      "height": 120
+    },
+    {
+      "path": "/assets/preschool/art_teacher.png",
+      "width": 345,
+      "height": 120
+    }
+  ],
+  "mobilePassed": true
+}

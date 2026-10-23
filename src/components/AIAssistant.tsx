@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { stopAssistantSpeech } from '../lib/assistantSpeech';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   Send, Sparkles, Mic, Square, Volume2, RotateCcw, 
@@ -44,6 +45,8 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ onBack, speak }) => {
   const [isRecording, setIsRecording] = useState(false);
   const [activeMode, setActiveMode] = useState<'kids' | 'story' | 'parents'>('kids');
   const [playingMessageId, setPlayingMessageId] = useState<string | null>(null);
+  const [playbackError, setPlaybackError] = useState('');
+  const playbackId = useRef(0);
 
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
@@ -57,6 +60,8 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ onBack, speak }) => {
     mounted.current = true;
     return () => {
     mounted.current = false;
+    playbackId.current++;
+    stopAssistantSpeech();
     requestController.current?.abort();
     const recorder = mediaRecorderRef.current;
     if (recorder) {
@@ -155,13 +160,20 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ onBack, speak }) => {
   };
 
   const handleSpeakMessage = async (msgId: string, text: string) => {
+    const requestId = ++playbackId.current;
+    if (playingMessageId === msgId) {
+      stopAssistantSpeech();
+      setPlayingMessageId(null);
+      return;
+    }
+    setPlaybackError('');
     setPlayingMessageId(msgId);
     try {
-      await speak(text);
-    } catch {
-      // Playback failure must not interrupt the conversation.
+      await speak(text, true);
+    } catch (error) {
+      if (mounted.current && requestId === playbackId.current) setPlaybackError(error instanceof Error ? error.message : 'Chưa phát được âm thanh. Hãy thử lại.');
     } finally {
-      setPlayingMessageId(null);
+      if (mounted.current && requestId === playbackId.current) setPlayingMessageId(null);
     }
   };
 
@@ -421,7 +433,7 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ onBack, speak }) => {
                           }`}
                         >
                           <Volume2 size={14} className={isPlaying ? 'animate-bounce' : ''} />
-                          <span>{isPlaying ? 'Đang đọc...' : 'Nghe đọc 🔊'}</span>
+                          <span>{isPlaying ? 'Dừng đọc' : 'Nghe đọc 🔊'}</span>
                         </motion.button>
                       </div>
                     )}
@@ -435,6 +447,7 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ onBack, speak }) => {
             );
           })}
 
+          {playbackError && <p role="alert" className="rounded-2xl bg-amber-50 p-4 text-sm font-bold text-amber-900">{playbackError}</p>}
           {/* AI Thinking Animation */}
           {isLoading && (
             <motion.div

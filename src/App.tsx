@@ -20,6 +20,8 @@ import { useDeviceDocument } from './lib/useDeviceDocument';
 import { deviceFetch } from './lib/deviceData';
 import { EMOTIONS, getTodayStudySeconds, localDay, readEmotionHistory, readStoredNumber, type EmotionId, type EmotionRecord } from './lib/wellbeing';
 import AIAssistant from './components/AIAssistant';
+import AuthorFooter from './components/AuthorFooter';
+import { readAssistantMessage } from './lib/assistantSpeech';
 import { Mascot3DBunny, Hero3DScene, Category3DIcon } from './components/Illustrations3D';
 import { BADGES_LIST, BadgeItem, LearningProgressStats } from './constants/badgesData';
 import { BadgesGallery, BadgeUnlockModal } from './components/BadgesGallery';
@@ -2975,7 +2977,7 @@ export default function App() {
                 }
                 setShowSplash(false);
                 setShowCheckIn(true);
-                const welcomeAudio = new Audio("https://www.image2url.com/r2/default/audio/1777165663864-315575aa-1f2b-4861-8ba0-2156a1611036.wav");
+                const welcomeAudio = new Audio('/audio/welcome.wav');
                 welcomeAudio.play().catch(e => console.error("Audio play failed", e));
               }}
               className="bg-white text-sky-600 font-black text-xl sm:text-4xl py-5 sm:py-8 px-6 sm:px-16 rounded-full shadow-2xl border-4 sm:border-8 border-white hover:bg-sky-50 transition-colors flex items-center gap-4 shrink-0"
@@ -2991,7 +2993,7 @@ export default function App() {
               setCurrentView('home');
               speak('Chào mừng bé quay lại trang chủ!');
             }}
-            speak={speak}
+            speak={readAssistantMessage}
             isSpeaking={isGeneratingAudio}
           />
         ) : currentTab === 'parents' ? (
@@ -3440,6 +3442,7 @@ export default function App() {
         )}
       </AnimatePresence>
 
+      {!showSplash && <AuthorFooter />}
       {renderBottomNav()}
 
       {/* Eye Exercise Modal */}

@@ -1,0 +1,30 @@
+{
+  "results": [
+    "start gesture uses supplied WAV",
+    "welcome WAV downloads and decodes",
+    "footer has exact author and contact links",
+    "roadmap is the only child learning tab",
+    "topic opens lesson inside active roadmap section",
+    "back restores age and chosen topic",
+    "age change resets stale topic before opening a trail lesson",
+    "teacher preparation has no email or password fields",
+    "empty activity gives inline validation",
+    "unconfigured provider displays recoverable error",
+    "AI suggestion fills editable activity",
+    "AI generation submits selected activity",
+    "edited lesson saves through real device API",
+    "provider failure keeps previous edited plan",
+    "self-study uses its own generation mode",
+    "teacher UI fits 390px",
+    "footer contact links fit mobile width",
+    "listen invokes Vietnamese speech with message text",
+    "listen can stop playback",
+    "speech failure is visible and retryable",
+    "leaving assistant cancels speech",
+    "no browser exceptions: "
+  ],
+  "limitations": [
+    "AI success is simulated; local GEMINI_API_KEY is absent.",
+    "Speech calls verified with browser API mock; audible device output requires manual listening."
+  ]
+}

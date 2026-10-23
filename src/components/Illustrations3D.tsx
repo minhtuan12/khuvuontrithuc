@@ -1,5 +1,11 @@
 import React from 'react';
 import { motion } from 'motion/react';
+import magicalTreeImage from '../assets/images/pixar_magical_tree_1792640359460.jpg';
+import physicalImage from '../assets/images/pixar_icon_physical_1792641321569.jpg';
+import cognitiveImage from '../assets/images/pixar_icon_cognitive_1792641322103.jpg';
+import languageImage from '../assets/images/pixar_icon_language_1792641322494.jpg';
+import socialImage from '../assets/images/pixar_icon_social_1792641322497.jpg';
+import aestheticImage from '../assets/images/pixar_icon_aesthetic_1792641322367.jpg';
 
 // ==========================================
 // 1. MASCOT 3D BUNNY (THỎ BÔNG MIU MIU)
@@ -356,7 +362,7 @@ export const Hero3DScene: React.FC<{
             {/* Pixar 3D Image Container */}
             <div className="w-full h-full rounded-[28px] sm:rounded-[36px] overflow-hidden relative shadow-inner">
               <img
-                src="/src/assets/images/pixar_magical_tree_1792640359460.jpg"
+                src={magicalTreeImage}
                 alt="Vườn Cây Tri Thức Mầm Non Phong Cách Pixar 3D Ngập Tràn Hoa Tươi"
                 referrerPolicy="no-referrer"
                 className="w-full h-full object-cover object-center group-hover:scale-106 transition-transform duration-700 ease-out"
@@ -418,49 +424,49 @@ export const Category3DIcon: React.FC<{
 }> = ({ type, size = 76, className = '' }) => {
   const pixarImages: Record<string, { src: string; alt: string; glow: string; border: string; bgBadge: string }> = {
     physical: {
-      src: '/src/assets/images/pixar_icon_physical_1792641321569.jpg',
+      src: physicalImage,
       alt: 'Phát triển thể chất phong cách Pixar 3D',
       glow: 'shadow-emerald-500/25',
       border: 'border-emerald-300',
       bgBadge: 'bg-emerald-50'
     },
     cognitive: {
-      src: '/src/assets/images/pixar_icon_cognitive_1792641322103.jpg',
+      src: cognitiveImage,
       alt: 'Phát triển nhận thức phong cách Pixar 3D',
       glow: 'shadow-amber-500/25',
       border: 'border-amber-300',
       bgBadge: 'bg-amber-50'
     },
     language: {
-      src: '/src/assets/images/pixar_icon_language_1792641322494.jpg',
+      src: languageImage,
       alt: 'Phát triển ngôn ngữ phong cách Pixar 3D',
       glow: 'shadow-pink-500/25',
       border: 'border-pink-300',
       bgBadge: 'bg-pink-50'
     },
     social: {
-      src: '/src/assets/images/pixar_icon_social_1792641322497.jpg',
+      src: socialImage,
       alt: 'Tình cảm - Kỹ năng xã hội phong cách Pixar 3D',
       glow: 'shadow-purple-500/25',
       border: 'border-purple-300',
       bgBadge: 'bg-purple-50'
     },
     aesthetic: {
-      src: '/src/assets/images/pixar_icon_aesthetic_1792641322367.jpg',
+      src: aestheticImage,
       alt: 'Phát triển thẩm mỹ phong cách Pixar 3D',
       glow: 'shadow-indigo-500/25',
       border: 'border-indigo-300',
       bgBadge: 'bg-indigo-50'
     },
     english: {
-      src: '/public/assets/preschool/art_english.png',
+      src: '/assets/preschool/art_english.png',
       alt: 'Tiếng Anh mầm non Pixar 3D',
       glow: 'shadow-indigo-500/25',
       border: 'border-indigo-300',
       bgBadge: 'bg-indigo-50'
     },
     teacher: {
-      src: '/public/assets/preschool/art_teacher.png',
+      src: '/assets/preschool/art_teacher.png',
       alt: 'Góc cô giáo mầm non 3D',
       glow: 'shadow-rose-500/25',
       border: 'border-rose-300',

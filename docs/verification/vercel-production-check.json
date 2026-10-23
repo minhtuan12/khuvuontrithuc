@@ -1,0 +1,44 @@
+{
+  "base": "https://khuvuontrithuc.vercel.app",
+  "deploymentId": "dpl_8AZWQtDAMwbaK7LEqXW11ydqk5X4",
+  "results": [
+    {
+      "name": "domain serves verified frontend",
+      "ok": true,
+      "host": "khuvuontrithuc.vercel.app",
+      "status": 200
+    },
+    {
+      "name": "domain serves verified frontend",
+      "ok": true,
+      "host": "khu-vuon-tri-thuc.vercel.app",
+      "status": 200
+    },
+    {
+      "name": "production serves exact supplied welcome WAV",
+      "ok": true
+    },
+    {
+      "name": "production AI responds",
+      "ok": true,
+      "path": "/api/assistant/chat",
+      "status": 200,
+      "textLength": 148
+    },
+    {
+      "name": "production AI responds",
+      "ok": true,
+      "path": "/api/teacher/plan",
+      "status": 200,
+      "textLength": 104
+    },
+    {
+      "name": "production catalog exposes three ages",
+      "ok": true
+    },
+    {
+      "name": "unknown lesson stays an API 404",
+      "ok": true
+    }
+  ]
+}

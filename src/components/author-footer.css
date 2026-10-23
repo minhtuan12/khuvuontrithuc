@@ -1,0 +1,44 @@
+.author-footer {
+  position: relative;
+  margin: 2rem 1rem 0;
+  padding: 2rem 1.25rem 8rem;
+  border: 2px solid #f5d882;
+  border-bottom: 0;
+  border-radius: 3rem 3rem 0 0;
+  background: linear-gradient(180deg, #234c2620, #163c3580), url('/illustrations/garden-story.jpg') center 65% / cover;
+  font-family: Nunito, sans-serif;
+}
+.author-footer__card {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 1.5rem;
+  border: 2px solid #fff;
+  border-radius: 2rem;
+  background: #fffffff2;
+  box-shadow: 0 8px 30px #133b3526;
+}
+.author-footer__identity { flex: 1 1 240px; }
+.author-footer__copyright { display: inline-block; padding: .25rem .6rem; border-radius: 1rem; background: #fff0b4; color: #75450d; font-size: .75rem; font-weight: 900; }
+.author-footer__identity p { margin-top: .5rem; font-size: 1.2rem; color: #334155; }
+.author-footer__identity strong { color: #be1244; font-family: 'Baloo 2', Nunito, sans-serif; font-size: 1.6rem; }
+.author-footer__contact { display: flex; align-items: center; gap: .75rem; min-height: 64px; padding: .65rem 1rem; border: 1px solid; border-radius: 1rem; }
+.author-footer__contact small { display: block; font-size: .75rem; }
+.author-footer__contact strong { overflow-wrap: anywhere; font-weight: 900; }
+.author-footer__contact span { min-width: 0; }
+.author-footer__contact svg { flex-shrink: 0; }
+.author-footer__contact:hover { text-decoration: underline; }
+.author-footer__phone { color: #126445; background: #e8fff3; border-color: #a6d9c5; }
+.author-footer__email { color: #075573; background: #effaff; border-color: #add5e4; }
+.author-footer__tagline { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: .4rem; width: fit-content; max-width: 100%; margin: 1rem auto 0; padding: .5rem 1rem; border-radius: 1.5rem; background: #fffffff2; color: #334155; text-align: center; font-size: .8rem; font-weight: 800; }
+.author-footer__tagline svg { color: #d32e62; fill: currentColor; }
+@media (max-width: 600px) {
+  .author-footer { margin-inline: .5rem; padding-inline: .75rem; border-radius: 2rem 2rem 0 0; }
+  .author-footer__card { padding: 1rem; gap: .75rem; }
+  .author-footer__identity { text-align: center; }
+  .author-footer__contact { width: 100%; font-size: .875rem; }
+}

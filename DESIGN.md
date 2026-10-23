@@ -2,7 +2,9 @@
 
 The English roadmap follows the reference at `D:/khu-vuon-tri-thuc-source/khu-vuon-tri-thuc-source/src/routes/roadmap.tsx`: cream storybook garden, green headings, Mầm mascot, pastel stepping stones, dotted paths and flower progress. Styles and palette are scoped under `.english-roadmap`. Use existing Nunito and Baloo 2 fonts.
 
-Current English lesson objects, IDs, age groups, progress events and `onOpenLesson` remain the canonical content and behavior owners. Topic buttons select a garden; the native labeled age select chooses the curriculum. Lesson buttons and the continue action both call the existing lesson opener. Completed flowers represent played lessons. Mobile uses a vertical alternating path; keyboard focus and reduced motion must remain supported. Application scrollbars remain owned by `src/index.css`.
+Current English lesson objects, IDs, age groups, progress events and `onOpenLesson` remain the canonical content and behavior owners. Topic buttons open the first lesson of a garden; returning restores that garden's path. The native labeled age select chooses the curriculum. Lesson buttons and the continue action both call the existing lesson opener. Completed flowers represent played lessons. Mobile uses a vertical alternating path; keyboard focus and reduced motion must remain supported. Application scrollbars remain owned by `src/index.css`.
+
+The roadmap is the single child-learning entry in English navigation. Lesson detail is nested under it and retains its active navigation item; returning restores the curriculum age. TeacherWorkshop owns the email-free activity form, AI activity suggestions, editable AI lesson plan and self-study output. These use the existing pink teacher palette and native labeled controls. The shared AuthorFooter uses existing garden artwork, Nunito/Baloo 2, author Nguyễn Thị Nga, telephone 0349627607 and email Nguyennga.dp91@gmail.com; contacts remain readable links at narrow widths.
 
 ## Family screens
 

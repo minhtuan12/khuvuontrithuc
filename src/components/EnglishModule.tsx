@@ -94,8 +94,9 @@ export function createEnglishPracticeLifetime(onDispose: () => void = () => {}) 
 
 export default function EnglishModule({ onBack, onLessonComplete, initialTarget = 'kids', initialAge = '3-4' }: EnglishModuleProps) {
   // Main Tab State: 'kids' (Bé yêu) | 'teachers' (Tiếng Anh cùng cô giáo) | 'games' (Trò chơi) | 'songs' (Bài hát) | 'phonics' (Bảng âm)
-  const [activeMainTab, setActiveMainTab] = useState<'kids' | 'roadmap' | 'teachers' | 'games' | 'songs' | 'phonics'>(initialTarget);
+  const [activeMainTab, setActiveMainTab] = useState<'kids' | 'roadmap' | 'teachers' | 'games' | 'songs' | 'phonics'>(initialTarget === 'kids' ? 'roadmap' : initialTarget);
   const [lessonOpenedFromRoadmap, setLessonOpenedFromRoadmap] = useState(false);
+  const [roadmapGroup, setRoadmapGroup] = useState('');
   
   // Kids State
   const [selectedKidAge, setSelectedKidAge] = useState<'3-4' | '4-5' | '5-6'>(initialAge);
@@ -813,7 +814,6 @@ export default function EnglishModule({ onBack, onLessonComplete, initialTarget 
         {/* Main Tab Navigation */}
         <div className="max-w-7xl mx-auto mt-3 flex gap-2 overflow-x-auto pb-1 scrollbar-none font-pixar">
           {[
-            { id: 'kids', label: 'Dành cho Bé yêu (3 - 6 Tuổi)', icon: '🧒', color: 'border-b-indigo-600 text-indigo-700 bg-indigo-50/80' },
             { id: 'roadmap', label: 'Lộ trình học', icon: '🗺️', color: 'border-b-sky-600 text-sky-700 bg-sky-50/80' },
             { id: 'games', label: 'Trò chơi Tiếng Anh 🎮', icon: '🎮', color: 'border-b-purple-600 text-purple-700 bg-purple-50/80' },
             { id: 'teachers', label: 'Tiếng Anh cùng cô giáo', icon: '👩‍🏫', color: 'border-b-pink-600 text-pink-700 bg-pink-50/80' },
@@ -822,13 +822,14 @@ export default function EnglishModule({ onBack, onLessonComplete, initialTarget 
           ].map(tab => (
             <button
               key={tab.id}
+              aria-current={(activeMainTab === tab.id || (tab.id === 'roadmap' && activeMainTab === 'kids')) ? 'page' : undefined}
               onClick={() => {
                 setActiveMainTab(tab.id as any);
                 setSelectedTheme(null);
                 setIsPlayingGame(false);
               }}
               className={`flex items-center gap-2 px-4 py-2 rounded-2xl font-black text-sm whitespace-nowrap transition-all border-2 ${
-                activeMainTab === tab.id
+                (activeMainTab === tab.id || (tab.id === 'roadmap' && activeMainTab === 'kids'))
                   ? `${tab.color} border-current shadow-sm scale-[1.02]`
                   : 'bg-white border-transparent text-slate-600 hover:bg-slate-50 hover:text-slate-900'
               }`}
@@ -846,6 +847,8 @@ export default function EnglishModule({ onBack, onLessonComplete, initialTarget 
         {activeMainTab === 'roadmap' && (
           <EnglishRoadmap
             initialAge={selectedKidAge as EnglishAge}
+            initialGroup={roadmapGroup}
+            onGroupChange={setRoadmapGroup}
             onOpenLesson={(age, lesson) => {
               setSelectedKidAge(age);
               setSelectedTheme(lesson);
@@ -863,7 +866,7 @@ export default function EnglishModule({ onBack, onLessonComplete, initialTarget 
         {activeMainTab === 'kids' && (
           <div>
             {/* Age Selector Tabs */}
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
+            {!selectedTheme && <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
               <div>
                 <h2 className="text-2xl sm:text-3xl font-black text-slate-800">
                   {selectedKidAge === '3-4' && 'Bé 3 - 4 Tuổi: Làm quen tiếng Anh tự nhiên 🌱'}
@@ -903,8 +906,9 @@ export default function EnglishModule({ onBack, onLessonComplete, initialTarget 
               </div>
             </div>
 
+            }
             {/* Interactive Feature Banner: Kid Pronunciation & Slow Listening */}
-            <div className="bg-gradient-to-r from-amber-500 via-orange-500 to-pink-500 rounded-3xl p-5 sm:p-6 mb-6 text-white shadow-lg flex flex-col md:flex-row items-start md:items-center justify-between gap-4 relative overflow-hidden">
+            {!selectedTheme && <div className="bg-gradient-to-r from-amber-500 via-orange-500 to-pink-500 rounded-3xl p-5 sm:p-6 mb-6 text-white shadow-lg flex flex-col md:flex-row items-start md:items-center justify-between gap-4 relative overflow-hidden">
               <div className="relative z-10">
                 <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/20 backdrop-blur-sm text-xs font-black mb-2 border border-white/30">
                   <span>🎙️ TÍNH NĂNG MỚI CHO BÉ MẦM NON</span>
@@ -944,6 +948,7 @@ export default function EnglishModule({ onBack, onLessonComplete, initialTarget 
               </div>
             </div>
 
+            }
             {/* 8 Core Topics Filter Bar */}
             {!selectedTheme && (
               <div className="mb-6 bg-white/90 backdrop-blur-sm p-3.5 sm:p-4 rounded-3xl border-2 border-indigo-100 shadow-sm">
@@ -1085,6 +1090,7 @@ export default function EnglishModule({ onBack, onLessonComplete, initialTarget 
                         }}
                         className="p-3 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-full transition-colors"
                         title="Quay lại danh sách chủ đề"
+                        aria-label="Quay lại danh sách chủ đề"
                       >
                         <ArrowLeft size={22} />
                       </button>

@@ -4,7 +4,7 @@ import {
   ENGLISH_DATA_4_5,
   ENGLISH_DATA_5_6,
   type EnglishLessonTheme,
-} from '../constants/englishData';
+} from '../constants/englishData.ts';
 
 export type EnglishAge = '3-4' | '4-5' | '5-6';
 

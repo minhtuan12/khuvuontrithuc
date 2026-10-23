@@ -40,6 +40,15 @@ test('stale writes fail without overwriting a newer value', async () => {
   expect(data.value).toBe(7);
   expect(data.version).toBe(1);
 });
+
+test('teacher preparation saves without email and validates age and content size', async () => {
+  const value = { age: '4-5', activity: 'Bé khám phá màu sắc', plan: 'Giáo án', selfStudy: 'Từ vựng' };
+  const write = (data: unknown) => request('/api/device/documents/teacher-preparation', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ value: data, baseVersion: 0 }) });
+  expect((await write({ ...value, age: '0-1' })).status).toBe(400);
+  expect((await write({ ...value, plan: 'a'.repeat(30001) })).status).toBe(400);
+  expect((await write(value)).status).toBe(200);
+  expect((await (await request('/api/device/documents/teacher-preparation')).json()).value).toEqual(value);
+});
 test('invalid document data, unknown keys and cross-origin writes are rejected', async () => {
   for (const value of [-1, '99', null]) {
     expect((await request('/api/device/documents/stars', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ value, baseVersion: 1 }) })).status).toBe(400);

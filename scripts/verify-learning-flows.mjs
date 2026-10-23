@@ -24,10 +24,11 @@ try {
   await b.waitFor("document.getElementById('report-categories')");
   assert(await b.evaluate("document.querySelectorAll('dl.parent-menu dd').length === 6 && !document.body.innerText.includes('95%')"), 'progress report shows six real counters without fabricated percentages');
   await b.click('Tiếng Anh');
-  await b.waitFor("document.body.innerText.includes('Bé luyện nói')");
+  await b.waitFor("document.querySelector('.roadmap-start')");
+  await b.click(await b.evaluate("document.querySelector('.roadmap-start').textContent.trim()"));
   await b.evaluate("navigator.mediaDevices.getUserMedia = async () => { throw new DOMException('Test denied', 'NotAllowedError'); }");
   const starsBefore = await b.evaluate("localStorage.getItem('kvtt.stars.v1')");
-  await b.click('Bé luyện nói');
+  await b.click('Bé luyện phát âm');
   await b.click('Bắt đầu ghi âm cho bé');
   await b.waitFor("document.body.innerText.includes('Chưa nhận diện được lời nói')");
   assert(starsBefore === await b.evaluate("localStorage.getItem('kvtt.stars.v1')"), 'microphone denial gives a retry message and no reward');

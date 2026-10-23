@@ -1,0 +1,17 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": "vite",
+  "git": { "deploymentEnabled": false },
+  "buildCommand": "bun run build",
+  "outputDirectory": "dist",
+  "functions": { "api/index.ts": { "maxDuration": 60 } },
+  "headers": [
+    { "source": "/api/:path*", "headers": [{ "key": "Cache-Control", "value": "private, no-store" }] },
+    { "source": "/:path*", "headers": [{ "key": "X-Content-Type-Options", "value": "nosniff" }] }
+  ],
+  "rewrites": [
+    { "source": "/api/device/:path*", "destination": "https://sdhbiiljdwpdaikxekrv.supabase.co/functions/v1/kvtt-device/api/device/:path*" },
+    { "source": "/api/:path*", "destination": "/api/index?path=:path*" },
+    { "source": "/((?!api/|assets/).*)", "destination": "/index.html" }
+  ]
+}

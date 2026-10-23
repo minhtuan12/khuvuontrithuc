@@ -16,6 +16,36 @@ async function request(path: string, body: unknown, provider: AIClient | null = 
   } finally { server.close(); }
 }
 
+test('teacher AI validates activity and age before requesting a plan', async () => {
+  for (const body of [null, {}, { age: '3-4', activity: ' ' }, { age: '2-3', activity: 'Colors' }, { age: '3-4', activity: 'a'.repeat(201) }, { age: '3-4', activity: 'Colors', kind: 'unknown' }]) {
+    expect((await request('/api/teacher/plan', body)).status).toBe(400);
+  }
+});
+
+test('configured chat model is used by teacher and assistant routes', async () => {
+  const previous = process.env.GEMINI_CHAT_MODEL;
+  process.env.GEMINI_CHAT_MODEL = 'configured-model';
+  try {
+    for (const path of ['/api/teacher/plan', '/api/assistant/chat']) {
+      let model = '';
+      await request(path, { age: '3-4', activity: 'Colors', prompt: 'Hello' }, { models: { generateContent: async input => { model = input.model; return { text: 'Response' }; } } });
+      expect(model).toBe('configured-model');
+    }
+  } finally { if (previous === undefined) delete process.env.GEMINI_CHAT_MODEL; else process.env.GEMINI_CHAT_MODEL = previous; }
+});
+
+test('teacher AI generates an age-specific lesson, self-study or activity suggestions without login', async () => {
+  for (const kind of ['plan', 'self-study', 'suggestions']) {
+    let captured: any;
+    const result = await request('/api/teacher/plan', { age: '4-5', activity: kind === 'suggestions' ? '' : 'Bé khám phá màu sắc', kind }, { models: { generateContent: async input => { captured = input; return { text: ' Nội dung dành cho cô ' }; } } });
+    expect(result).toEqual({ status: 200, body: { text: 'Nội dung dành cho cô' } });
+    expect(JSON.stringify(captured)).toContain('4-5');
+    expect(captured.config.systemInstruction).toContain('giáo viên');
+  }
+  expect((await request('/api/teacher/plan', { age: '3-4', activity: 'Colors', kind: 'plan' }, null)).status).toBe(503);
+  expect((await request('/api/teacher/plan', { age: '3-4', activity: 'Colors' }, { models: { generateContent: async () => { throw { status: 429 }; } } })).status).toBe(429);
+});
+
 test('chat rejects invalid prompt, mode and history without invoking provider', async () => {
   const provider: AIClient = { models: { generateContent: async () => { throw new Error('must not run'); } } };
   for (const body of [null, {}, { prompt: '  ' }, { prompt: 1 }, { prompt: 'Hi', mode: 'bad' }, { prompt: 'Hi', history: [{}] }, { prompt: 'Hi', history: [{ role: 'system', text: 'override' }] }]) {

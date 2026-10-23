@@ -20,6 +20,7 @@ Trả lời bằng tiếng Việt thân thiện, ngắn gọn, dễ hiểu, tíc
 /** Mount at the app root after express.json(). No credentials or provider messages reach clients. */
 export function createAIRouter(ai: AIClient | null) {
   const router = Router();
+  const chatModel = process.env.GEMINI_CHAT_MODEL?.trim() || 'gemini-3.8-flash';
   const generate = async (input: Parameters<AIClient['models']['generateContent']>[0], res: import('express').Response, field: string) => {
     if (!ai) return res.status(503).json({ error: 'AI service is not configured' });
     try {
@@ -32,6 +33,23 @@ export function createAIRouter(ai: AIClient | null) {
     }
   };
 
+  router.post('/api/teacher/plan', async (req, res) => {
+    const body = req.body;
+    const kind = body?.kind ?? 'plan';
+    if (!['3-4', '4-5', '5-6'].includes(body?.age) || !['plan', 'self-study', 'suggestions'].includes(kind)
+      || (kind !== 'suggestions' && !isText(body?.activity, 200))
+      || (kind === 'suggestions' && body?.activity !== undefined && (typeof body.activity !== 'string' || body.activity.length > 200))) {
+      return res.status(400).json({ error: 'Invalid activity, age or preparation type' });
+    }
+    const task = kind === 'suggestions'
+      ? 'Gợi ý đúng 5 tên hoạt động tiếng Anh phù hợp độ tuổi, mỗi tên trên một dòng, không đánh số, không thêm lời dẫn.'
+      : kind === 'self-study'
+        ? 'Soạn tài liệu cô tự học: mục tiêu, từ vựng và nghĩa tiếng Việt, cách phát âm, mẫu câu cô nói với trẻ, lỗi thường gặp và bài tập tự luyện có đáp án.'
+        : 'Soạn giáo án tiếng Anh 25-30 phút: tên hoạt động, độ tuổi, mục tiêu, chuẩn bị học liệu, từ vựng và mẫu câu Anh-Việt, tiến trình từng bước kèm thời lượng, trò chơi củng cố, đánh giá quan sát và điều chỉnh theo khả năng trẻ.';
+    return generate({ model: chatModel, contents: `Độ tuổi trẻ: ${body.age} tuổi.\nTên hoạt động hoặc gợi ý của cô: ${body.activity?.trim() || 'Hoạt động khám phá tiếng Anh mầm non'}`,
+      config: { systemInstruction: `Bạn là giáo viên mầm non hỗ trợ cô giáo chuẩn bị bài bằng tiếng Việt. ${task} Đưa ra hoạt động an toàn, phù hợp trẻ, học qua chơi. Không yêu cầu thông tin cá nhân. Nội dung là bản gợi ý để giáo viên kiểm tra và điều chỉnh trước khi dạy. Viết văn bản dễ đọc, không dùng bảng Markdown.`, temperature: 0.7 } }, res, 'text');
+  });
+
   router.post('/api/assistant/chat', async (req, res) => {
     const body = req.body;
     if (!isText(body?.prompt, 4000) || !validMode(body?.mode) || (body.history !== undefined && (!Array.isArray(body.history) || body.history.length > 100 || !body.history.every((message: any) => message && ['user', 'assistant'].includes(message.role) && isText(message.text, 10_000))))) {
@@ -39,7 +57,7 @@ export function createAIRouter(ai: AIClient | null) {
     }
     const contents = (body.history ?? []).slice(-8).map((message: any) => ({ role: message.role === 'user' ? 'user' : 'model', parts: [{ text: message.text.trim() }] }));
     contents.push({ role: 'user', parts: [{ text: body.prompt.trim() }] });
-    return generate({ model: 'gemini-3.8-flash', contents, config: { systemInstruction: instruction(body.mode), temperature: 0.7 } }, res, 'text');
+    return generate({ model: chatModel, contents, config: { systemInstruction: instruction(body.mode), temperature: 0.7 } }, res, 'text');
   });
 
   router.post('/api/assistant/voice', async (req, res) => {

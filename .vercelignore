@@ -1,0 +1,9 @@
+.git
+.env*
+.tmp
+data
+docs/previews
+docs/verification
+node_modules
+dist
+tests

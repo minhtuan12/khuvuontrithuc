@@ -15,8 +15,8 @@ const start = async () => {
 };
 const activeTab = () => b.evaluate("[...document.querySelectorAll('button[aria-label][aria-current=page]')].map(b=>b.getAttribute('aria-label')).filter(x=>['Trang chủ','Tiếng Anh','Trợ lý AI','Thành tích','Phụ huynh'].includes(x))");
 try {
-  await start();
-  await b.evaluate("localStorage.clear()");
+  await b.send('Page.navigate', { url: 'about:blank' });
+  await b.send('Storage.clearDataForOrigin', { origin: new URL(process.env.AUDIT_BASE_URL || 'http://127.0.0.1:5174/').origin, storageTypes: 'all' });
   await b.send('Network.clearBrowserCookies');
   await start();
   assert(!(await b.evaluate('document.documentElement.scrollWidth > innerWidth')), 'check-in fits 390px');

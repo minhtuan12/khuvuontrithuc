@@ -1,0 +1,57 @@
+{
+  "url": "https://khu-vuon-tri-thuc-2ejo7tu9u-minhtuan12s-projects.vercel.app",
+  "results": [
+    {
+      "name": "stage homepage loads",
+      "ok": true
+    },
+    {
+      "name": "private credentials absent from browser bundle",
+      "ok": true
+    },
+    {
+      "name": "device rewrite preserves HttpOnly cookie",
+      "ok": true
+    },
+    {
+      "name": "teacher draft key available in deployed edge function",
+      "ok": true
+    },
+    {
+      "name": "teacher draft persists through Vercel rewrite",
+      "ok": true
+    },
+    {
+      "name": "saved draft reads back with same cookie",
+      "ok": true
+    },
+    {
+      "name": "Vercel Node API routes catalog correctly",
+      "ok": true
+    },
+    {
+      "name": "deployed AI suggestions",
+      "ok": true,
+      "status": 200,
+      "textLength": 91
+    },
+    {
+      "name": "deployed AI plan",
+      "ok": true,
+      "status": 200,
+      "textLength": 3468
+    },
+    {
+      "name": "deployed AI self-study",
+      "ok": true,
+      "status": 200,
+      "textLength": 3288
+    },
+    {
+      "name": "deployed assistant uses new env",
+      "ok": true,
+      "status": 200,
+      "textLength": 107
+    }
+  ]
+}
