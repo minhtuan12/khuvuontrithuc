@@ -27,3 +27,7 @@ ParentDashboard uses the same sky polka setting as Home with white rounded frame
 `src/screens/parent-dashboard.css` owns the parent tokens and responsive layout. `src/components/emotion-check-in.css` owns the check-in dialog. Both preserve the existing application palette and sibling typography; illustration stays separate from text. Emotion metadata and validated device history are shared through `src/lib/wellbeing.ts`. See `UX-CONTRACT.md` for behavior ownership and native select decisions.
 
 Parent totals come from actual learning counters, persisted stars, and recorded study time. Reference menus are labeled as suggestions; local family shares and teacher discussion notes never pretend to have been sent to an external service. Emotion feedback supports conversation and does not diagnose the child. No scores or rewards are invented after failed speech recognition.
+
+## Teacher workspace
+
+`TeacherWorkspace` owns the role-gated teacher navigation; `teacher-workspace.css` reuses the cream garden frames, green Baloo headings and Nunito body. Library/editor/upload and teacher statistics/questions share labeled native controls, 44px actions and inline request states. `TeacherConfirm` owns native modal confirmation for destructive actions and unsaved edits. The existing account dialog owns login; no PIN dialog is introduced. Guests and learner accounts do not mount teacher workflows.

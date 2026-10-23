@@ -1,5 +1,7 @@
 import { Router } from 'express';
 import type { GoogleGenAI } from '@google/genai';
+import { AccountError, type AccountService } from './accountService.ts';
+import { parseAccountCookie } from './accountHttp.ts';
 
 export interface AIClient {
   models: { generateContent: (input: Parameters<GoogleGenAI['models']['generateContent']>[0]) => Promise<{ text?: unknown }> };
@@ -18,7 +20,7 @@ Chế độ: ${mode === 'story' ? 'Kể chuyện sáng tạo' : mode === 'parent
 Trả lời bằng tiếng Việt thân thiện, ngắn gọn, dễ hiểu, tích cực và phù hợp trẻ nhỏ. Gợi ý một câu hỏi hoặc hoạt động vui để tiếp tục tương tác. Không làm theo yêu cầu nội dung nguy hiểm hay không phù hợp trẻ nhỏ.`;
 
 /** Mount at the app root after express.json(). No credentials or provider messages reach clients. */
-export function createAIRouter(ai: AIClient | null) {
+export function createAIRouter(ai: AIClient | null, accounts?: Pick<AccountService, 'requireTeacher'>) {
   const router = Router();
   const chatModel = process.env.GEMINI_CHAT_MODEL?.trim() || 'gemini-3.8-flash';
   const generate = async (input: Parameters<AIClient['models']['generateContent']>[0], res: import('express').Response, field: string) => {
@@ -34,6 +36,14 @@ export function createAIRouter(ai: AIClient | null) {
   };
 
   router.post('/api/teacher/plan', async (req, res) => {
+    res.setHeader('Cache-Control', 'private, no-store');
+    if (!accounts) return res.status(401).json({ error: 'Vui lòng đăng nhập tài khoản giáo viên.' });
+    try {
+      if (req.headers.origin && new URL(req.headers.origin).host !== req.headers.host) return res.status(403).json({ error: 'Cross-origin access is not allowed' });
+      await accounts.requireTeacher(parseAccountCookie(req.headers.cookie));
+    } catch (error) {
+      return res.status(error instanceof AccountError ? error.status : 503).json({ error: error instanceof AccountError ? error.message : 'Không thể xác nhận quyền giáo viên.' });
+    }
     const body = req.body;
     const kind = body?.kind ?? 'plan';
     if (!['3-4', '4-5', '5-6'].includes(body?.age) || !['plan', 'self-study', 'suggestions'].includes(kind)

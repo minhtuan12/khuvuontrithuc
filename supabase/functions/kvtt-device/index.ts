@@ -3,10 +3,14 @@ import { validators, object, number, allowedMedia } from '../../../server/device
 import { AccountService, AccountError } from '../../../server/accountService.ts';
 import { SupabaseAccountRepository } from '../../../server/supabaseAccounts.ts';
 import { handleAccountHttp, parseAccountCookie } from '../../../server/accountHttp.ts';
+import { handleTeacherHttp } from '../../../server/teacherHttp.ts';
+import { TeacherService } from '../../../server/teacherService.ts';
+import { SupabaseTeacherStore, SupabaseTeacherFiles } from '../../../server/supabaseTeacherStore.ts';
 declare const Deno: { env: { get(name: string): string | undefined }; serve(handler: (req: Request) => Promise<Response>): void };
 const root = Deno.env.get('SUPABASE_URL')!;
 const key = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 const accountService = new AccountService(new SupabaseAccountRepository(root, key));
+const teacherService = new TeacherService(new SupabaseTeacherStore(root,key),new SupabaseTeacherFiles(root,key));
 const databaseHeaders = { apikey: key, Authorization: `Bearer ${key}`, 'Content-Type': 'application/json' };
 async function db(route: string, body?: unknown, method = body === undefined ? 'GET' : 'POST') {
   const response = await fetch(`${root}/rest/v1/${route}`, { method, headers: databaseHeaders, ...(body === undefined ? {} : { body: JSON.stringify(body) }) });
@@ -44,7 +48,12 @@ Deno.serve(async req => {
     const origin = req.headers.get('origin');
     const allowedOrigins = ['https://khuvuontrithuc.vercel.app', 'https://khu-vuon-tri-thuc.vercel.app', 'https://khu-vuon-tri-thuc-minhtuan12s-projects.vercel.app', ...(Deno.env.get('KVTT_ALLOWED_ORIGINS') || '').split(',').filter(Boolean)];
     if (origin && !allowedOrigins.includes(origin)) return json({ error: 'Cross-origin access is not allowed' }, 403);
-    const route = new URL(req.url).pathname.split('/api/device')[1];
+    const requestUrl = new URL(req.url);
+    const apiPath = requestUrl.pathname.slice(requestUrl.pathname.indexOf('/api/'));
+    if (apiPath.startsWith('/api/teacher/') || /^\/api\/(?:device\/)?questions(?:\/|$)/.test(apiPath)) {
+      return handleTeacherHttp(new Request(new URL(apiPath+requestUrl.search,requestUrl.origin),req),{accounts:accountService,service:teacherService,allowedOrigins});
+    }
+    const route = requestUrl.pathname.split('/api/device')[1];
     if (!route) return json({ error: 'Not found' }, 404);
     if (route.startsWith('/auth/')) {
       let body: unknown;
@@ -86,6 +95,7 @@ Deno.serve(async req => {
     if (document) {
       const name = document[1];
       if (!Object.hasOwn(validators, name)) return json({ error: 'Unknown data key' }, 404);
+      if (name === 'teacher-preparation') await accountService.requireTeacher(accountToken);
       if (req.method === 'GET') {
         const rows = await db(`kvtt_documents?owner=eq.${owner}&key=eq.${name}&select=value,version`);
         return json(rows[0] || { value: null, version: 0 });

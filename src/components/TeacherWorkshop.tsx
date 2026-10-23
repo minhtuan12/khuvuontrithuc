@@ -3,12 +3,19 @@ import { Lightbulb, Sparkles } from 'lucide-react';
 import TeacherSelfStudy from './TeacherSelfStudy';
 import { ENGLISH_AGES, type EnglishAge } from '../lib/englishCatalog';
 import { useDeviceDocument } from '../lib/useDeviceDocument';
+import { useTeacherAccess } from '../lib/accountContext';
+import SaveTeacherPlan from './SaveTeacherPlan';
 
 interface TeacherWorkshopProps { onListen: (text: string, rate?: number) => void }
 interface Preparation { age: EnglishAge; activity: string; plan: string; selfStudy: string }
 type GenerationKind = 'plan' | 'self-study' | 'suggestions';
 
 export default function TeacherWorkshop({ onListen }: TeacherWorkshopProps) {
+  const allowed = useTeacherAccess();
+  return allowed ? <AuthorizedTeacherWorkshop onListen={onListen} /> : null;
+}
+
+function AuthorizedTeacherWorkshop({ onListen }: TeacherWorkshopProps) {
   const [tab, setTab] = useState<'prepare' | 'self-study'>('prepare');
   const [draft, setDraft, sync] = useDeviceDocument<Preparation>('teacher-preparation', () => ({ age: '3-4', activity: '', plan: '', selfStudy: '' }));
   const [busy, setBusy] = useState<GenerationKind | null>(null);
@@ -88,6 +95,7 @@ export default function TeacherWorkshop({ onListen }: TeacherWorkshopProps) {
         <label className="block text-sm font-bold text-slate-700">Chỉnh sửa nội dung<textarea disabled={disabled} rows={18} maxLength={30000} value={result} onChange={event => { const text = event.target.value; setDraft(previous => ({ ...previous, [tab === 'prepare' ? 'plan' : 'selfStudy']: text })); }} className="mt-2 block w-full resize-none rounded-xl border-2 border-slate-200 p-4 font-normal leading-relaxed" /></label>
       </div>}
       {tab === 'self-study' && <TeacherSelfStudy onListen={onListen} />}
+      {tab === 'prepare' && result && <SaveTeacherPlan title={draft.activity} content={result} ageBand={draft.age} activity={draft.activity} source="ai" />}
     </section>
   );
 }

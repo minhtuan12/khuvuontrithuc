@@ -4,6 +4,12 @@ import { AccountService, AccountError, hashToken } from '../server/accountServic
 import { SqliteAccountRepository } from '../server/sqliteAccounts';
 import { handleAccountHttp, parseAccountCookie } from '../server/accountHttp';
 import { SupabaseAccountRepository } from '../server/supabaseAccounts';
+import { runTeacherSeed } from '../scripts/seed-teacher-account';
+import { mkdtempSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+// @ts-ignore Bun provides the native SQLite module.
+import { Database } from 'bun:sqlite';
 
 const input = { username: 'Garden.Kid', fullName: 'Bạn nhỏ', password: 'garden-password', gender: 'other' };
 test('register validates, normalizes, keeps secrets private and stable owner through login', async () => {
@@ -11,7 +17,7 @@ test('register validates, normalizes, keeps secrets private and stable owner thr
   try {
     await expect(service.register({ ...input, username: 'a' })).rejects.toBeInstanceOf(AccountError);
     const created = await service.register(input);
-    expect(created.user).toEqual({ id: created.user.id, username: 'garden.kid', fullName: input.fullName, gender: 'other' });
+    expect(created.user).toEqual({ id: created.user.id, username: 'garden.kid', fullName: input.fullName, gender: 'other', role: 'learner' });
     expect(created.token).toMatch(/^[a-f0-9]{64}$/);
     const account = await repo.findByUsername('garden.kid');
     expect(account!.passwordHash).not.toContain(input.password);
@@ -86,12 +92,73 @@ test('Supabase adapter uses private RPC atomic creation and throttle, hashes onl
   try {
     const repo=new SupabaseAccountRepository('https://example.supabase.co/','server-secret');
     expect(await repo.consumeLoginAttempt('kid',0)).toBe(true);
-    expect(await repo.createAccount({id:'id',username:'kid',fullName:'Kid Name',gender:null,ownerId:'owner',passwordHash:'hash',passwordSalt:'salt'})).toBe(true);
+    expect(await repo.createAccount({id:'id',username:'kid',fullName:'Kid Name',gender:null,role:'learner',ownerId:'owner',passwordHash:'hash',passwordSalt:'salt'})).toBe(true);
     await repo.createSession({tokenHash:'hash',accountId:'id',expiresAt:0});
     expect((await repo.findSession('hash'))?.expiresAt).toBe(Date.parse('2026-11-01T00:00:00Z'));
     expect(calls[0].url).toBe('https://example.supabase.co/rest/v1/rpc/kvtt_consume_login_attempt');
     expect(calls[1].url).toContain('/rpc/kvtt_create_account');
+    expect(calls[1].body.p_role).toBe('learner'); expect(calls[1].body.p_seed_key).toBeNull();
     expect(calls[2].body).toEqual({token_hash:'hash',account_id:'id',expires_at:'1970-01-01T00:00:00.000Z'});
     expect(calls[0].headers.Authorization).toBe('Bearer server-secret');
   } finally { globalThis.fetch=originalFetch; }
+});
+test('local additive role migration preserves existing account identity and defaults to learner',async()=>{
+  const directory=mkdtempSync(join(tmpdir(),'kvtt-role-migration-'));const filename=join(directory,'app.sqlite');
+  try {
+    const db=new Database(filename,{create:true});
+    db.exec('CREATE TABLE kvtt_accounts(id TEXT PRIMARY KEY,username TEXT UNIQUE NOT NULL,full_name TEXT NOT NULL,gender TEXT,owner_id TEXT UNIQUE NOT NULL,password_hash TEXT NOT NULL,password_salt TEXT NOT NULL)');
+    db.query('INSERT INTO kvtt_accounts VALUES(?,?,?,?,?,?,?)').run('legacy-id','legacy','Old Name',null,'b'.repeat(64),'old-hash','old-salt');db.close();
+    const repo=new SqliteAccountRepository(filename);
+    try {expect(await repo.findByUsername('legacy')).toEqual({id:'legacy-id',username:'legacy',fullName:'Old Name',gender:null,ownerId:'b'.repeat(64),passwordHash:'old-hash',passwordSalt:'old-salt',role:'learner',seedKey:null});}
+    finally{repo.close();}
+    const reopened=new SqliteAccountRepository(filename);expect((await reopened.findByUsername('legacy'))?.role).toBe('learner');reopened.close();
+  }finally{rmSync(directory,{recursive:true,force:true});}
+});
+test('private seed command validates target and input then produces no secret output',async()=>{
+  const directory=mkdtempSync(join(tmpdir(),'kvtt-seed-command-'));const filename=join(directory,'app.sqlite');
+  try {
+    await expect(runTeacherSeed([],{},async()=>{throw Error('must not read input');})).rejects.toBeInstanceOf(Error);
+    await expect(runTeacherSeed(['--supabase'],{},async()=>{throw Error('must not read input');})).rejects.toBeInstanceOf(Error);
+    await expect(runTeacherSeed([`--sqlite=${filename}`],{},async()=>'short')).rejects.toBeInstanceOf(Error);
+    const privateInput=async()=>'private-test-password';
+    expect(await runTeacherSeed([`--sqlite=${filename}`],{},privateInput)).toEqual({created:true});
+    expect(await runTeacherSeed([`--sqlite=${filename}`],{KVTT_TEACHER_SEED_PASSWORD:'private-test-password'},async()=>{throw Error('must not read input');})).toEqual({created:false});
+    await expect(runTeacherSeed([`--sqlite=${filename}`],{},async()=>'different-test-password')).rejects.toMatchObject({status:409});
+  }finally{rmSync(directory,{recursive:true,force:true});}
+});
+test('teacher role is server controlled, reserved teacher seed is private and repeatable', async () => {
+  const repo=new SqliteAccountRepository(':memory:'); const service=new AccountService(repo);
+  try {
+    await expect(service.requireTeacher(undefined)).rejects.toMatchObject({status:401});
+    const learner=await service.register(input);
+    await expect(service.requireTeacher(learner.token)).rejects.toMatchObject({status:403});
+    await expect(service.register({...input,username:'fake.teacher',role:'teacher'})).rejects.toMatchObject({status:400});
+    await expect(service.register({...input,username:' NGANT '})).rejects.toMatchObject({status:409});
+    const seeded=await service.seedTeacher('private-test-password');
+    expect(seeded.created).toBe(true); expect(seeded.user).toMatchObject({username:'ngant',fullName:'Cô Nga',role:'teacher'});
+    expect(Object.keys(seeded.user).sort()).toEqual(['fullName','gender','id','role','username']);
+    const teacher=await service.login({username:'ngant',password:'private-test-password',role:'learner'});
+    expect((await service.requireTeacher(teacher.token)).id).toBe(seeded.user.id);
+    const old=await repo.findByUsername('ngant');
+    const repeated=await service.seedTeacher('private-test-password');
+    expect(repeated).toEqual({user:seeded.user,created:false});
+    expect((await repo.findByUsername('ngant'))?.passwordHash).toBe(old?.passwordHash);
+    await expect(service.seedTeacher('different-test-password')).rejects.toMatchObject({status:409});
+    const actualFind=repo.findById.bind(repo);
+    repo.findById=async id=>{const account=await actualFind(id);return account?{...account,role:'learner'}:null;};
+    await expect(service.requireTeacher(teacher.token)).rejects.toMatchObject({status:403});
+    expect((await service.session(teacher.token))?.role).toBe('learner');
+    await service.logout(teacher.token);
+    await expect(service.requireTeacher(teacher.token)).rejects.toMatchObject({status:401});
+  } finally {repo.close();}
+});
+test('teacher seed refuses an existing unverified username instead of elevating it', async()=>{
+  const repo=new SqliteAccountRepository(':memory:'); const service=new AccountService(repo);
+  try {
+    const created=await service.register(input); const account=(await repo.findById(created.user.id))!;
+    await repo.createAccount({...account,id:crypto.randomUUID(),username:'ngant',ownerId:'a'.repeat(64),role:'learner'});
+    await expect(service.seedTeacher('private-test-password')).rejects.toMatchObject({status:409});
+    expect((await repo.findByUsername('ngant'))?.role).toBe('learner');
+    expect((await repo.findByUsername('ngant'))?.passwordHash).toBe(account.passwordHash);
+  }finally{repo.close();}
 });

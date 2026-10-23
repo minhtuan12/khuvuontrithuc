@@ -6,7 +6,7 @@ test('account client keeps session cookies server-side and validates returned pr
   let captured: any;
   const user={id:'account-a',username:'be_an',fullName:'Bé An',gender:null};
   const result=await accountRequest('login',{username:'be_an',password:'safe-password'},async (url,init)=>{captured={url,init};return Response.json({user});});
-  expect(result).toEqual(user);
+  expect(result).toEqual({...user,role:'learner'});
   expect(captured.url).toBe('/api/device/auth/login');
   expect(captured.init.credentials).toBe('same-origin');
   expect(captured.init.cache).toBe('no-store');

@@ -1,0 +1,64 @@
+{
+  "deploymentId": "dpl_FrAkThBsUsdJygenwHgVDPD2eHdb",
+  "base": "https://khuvuontrithuc.vercel.app",
+  "date": "2026-10-23T10:42:42.944Z",
+  "checks": [
+    {
+      "name": "canonicalWebsite200",
+      "ok": true
+    },
+    {
+      "name": "frontendBundle",
+      "ok": true
+    },
+    {
+      "name": "newTeacherFrontend",
+      "ok": true
+    },
+    {
+      "name": "catalog200",
+      "ok": true
+    },
+    {
+      "name": "guestStats401",
+      "ok": true
+    },
+    {
+      "name": "guestPlanning401",
+      "ok": true
+    },
+    {
+      "name": "teacherLogin",
+      "ok": true
+    },
+    {
+      "name": "httpOnlySessionIssued",
+      "ok": true
+    },
+    {
+      "name": "teacherStats200",
+      "ok": true
+    },
+    {
+      "name": "teacherLibrary200",
+      "ok": true
+    },
+    {
+      "name": "teacherQuestions200",
+      "ok": true
+    },
+    {
+      "name": "vercelPlanningRecognizesTeacherSession",
+      "ok": true
+    },
+    {
+      "name": "logoutRevokes",
+      "ok": true
+    },
+    {
+      "name": "oldDomainRemainsRemoved",
+      "ok": true
+    }
+  ],
+  "passed": true
+}

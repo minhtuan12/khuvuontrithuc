@@ -1,6 +1,9 @@
 import express from 'express';
 import { GoogleGenAI } from '@google/genai';
 import { createAIRouter } from '../server/aiRoutes.ts';
+import { AccountService } from '../server/accountService.ts';
+import { SupabaseAccountRepository } from '../server/supabaseAccounts.ts';
+import { RemoteTeacherAuthorization } from '../server/remoteTeacherAuth.ts';
 import { ENGLISH_AGES, ENGLISH_LESSONS_BY_AGE, findEnglishLesson } from '../src/lib/englishCatalog.ts';
 
 const app = express();
@@ -19,7 +22,10 @@ app.get('/api/english/lesson/:id', (req, res) => {
   const found = findEnglishLesson(req.params.id);
   return found ? res.json({ version: 1, age: found.age, lesson: found.lesson }) : res.status(404).json({ error: 'Lesson not found' });
 });
-app.use(createAIRouter(ai));
+const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const accounts = supabaseUrl ? (supabaseKey ? new AccountService(new SupabaseAccountRepository(supabaseUrl, supabaseKey)) : new RemoteTeacherAuthorization(supabaseUrl)) : undefined;
+app.use(createAIRouter(ai, accounts));
 app.use('/api', (_req, res) => res.status(404).json({ error: 'API endpoint not found' }));
 app.use((error: any, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
   const status = error?.type === 'entity.too.large' ? 413 : error instanceof SyntaxError ? 400 : 500;

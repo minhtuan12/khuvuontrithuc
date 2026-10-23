@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTeacherAccess } from '../lib/accountContext';
 import { BookOpen, Volume2 } from 'lucide-react';
 import { ENGLISH_AGES, getEnglishRoadmap, type EnglishAge } from '../lib/englishCatalog';
 
@@ -7,6 +8,10 @@ interface TeacherSelfStudyProps {
 }
 
 export default function TeacherSelfStudy({ onListen }: TeacherSelfStudyProps) {
+  const allowed = useTeacherAccess();
+  return allowed ? <AuthorizedSelfStudy onListen={onListen} /> : null;
+}
+function AuthorizedSelfStudy({ onListen }: TeacherSelfStudyProps) {
   const [age, setAge] = useState<EnglishAge>('3-4');
   const groups = getEnglishRoadmap(age);
   const [groupId, setGroupId] = useState<string>('all');
@@ -17,7 +22,7 @@ export default function TeacherSelfStudy({ onListen }: TeacherSelfStudyProps) {
       <div className="rounded-3xl border-2 border-pink-200 bg-gradient-to-r from-pink-50 via-white to-purple-50 p-5 sm:p-7">
         <p className="text-sm font-black text-pink-700">GÓC CÔ TỰ HỌC</p>
         <h3 id="teacher-self-study-title" className="mt-1 text-2xl sm:text-3xl font-black text-slate-800">Hiểu từ trước khi dạy bé</h3>
-        <p className="mt-2 max-w-3xl text-sm sm:text-base text-slate-700">Chọn độ tuổi và chủ đề bé đang học. Mỗi từ có nghĩa tiếng Việt, phiên âm, cách đọc gần đúng và câu ví dụ lấy trực tiếp từ bài học của bé. Cô có thể nghe lại nhiều lần trước khi lên lớp.</p>
+        <p className="mt-2 max-w-3xl text-sm sm:text-base text-slate-700">Chọn độ tuổi và chủ đề bé đang học. Mỗi từ có nghĩa tiếng Việt, phiên âm và câu ví dụ lấy trực tiếp từ bài học của bé. Cô có thể nghe lại nhiều lần trước khi lên lớp.</p>
       </div>
 
       <div className="flex flex-wrap gap-2" aria-label="Chọn độ tuổi cho cô tự học">

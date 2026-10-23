@@ -6,7 +6,7 @@ import { createAIRouter, type AIClient } from '../server/aiRoutes';
 async function request(path: string, body: unknown, provider: AIClient | null = { models: { generateContent: async () => ({ text: 'Xin chào!' }) } }) {
   const app = express();
   app.use(express.json({ strict: false }));
-  app.use(createAIRouter(provider));
+  app.use(createAIRouter(provider, { requireTeacher: async () => ({ id: 'teacher-test', username: 'teacher', fullName: 'Teacher', gender: null, role: 'teacher' }) }));
   const server = app.listen(0, '127.0.0.1');
   await new Promise<void>(resolve => server.listening ? resolve() : server.once('listening', resolve));
   const address = server.address() as { port: number };
@@ -34,7 +34,7 @@ test('configured chat model is used by teacher and assistant routes', async () =
   } finally { if (previous === undefined) delete process.env.GEMINI_CHAT_MODEL; else process.env.GEMINI_CHAT_MODEL = previous; }
 });
 
-test('teacher AI generates an age-specific lesson, self-study or activity suggestions without login', async () => {
+test('authorized teacher AI generates an age-specific lesson, self-study or activity suggestions', async () => {
   for (const kind of ['plan', 'self-study', 'suggestions']) {
     let captured: any;
     const result = await request('/api/teacher/plan', { age: '4-5', activity: kind === 'suggestions' ? '' : 'Bé khám phá màu sắc', kind }, { models: { generateContent: async input => { captured = input; return { text: ' Nội dung dành cho cô ' }; } } });
@@ -44,6 +44,20 @@ test('teacher AI generates an age-specific lesson, self-study or activity sugges
   }
   expect((await request('/api/teacher/plan', { age: '3-4', activity: 'Colors', kind: 'plan' }, null)).status).toBe(503);
   expect((await request('/api/teacher/plan', { age: '3-4', activity: 'Colors' }, { models: { generateContent: async () => { throw { status: 429 }; } } })).status).toBe(429);
+});
+
+test('teacher planning refuses requests when account authorization is unavailable', async () => {
+  let called = false;
+  const app = express();
+  app.use(express.json());
+  app.use(createAIRouter({ models: { generateContent: async () => { called = true; return { text: 'private' }; } } }));
+  const server = app.listen(0, '127.0.0.1');
+  await new Promise<void>(resolve => server.listening ? resolve() : server.once('listening', resolve));
+  try {
+    const response = await fetch(`http://127.0.0.1:${(server.address() as {port:number}).port}/api/teacher/plan`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({age:'3-4',activity:'Colors'}) });
+    expect(response.status).toBe(401);
+    expect(called).toBe(false);
+  } finally { server.close(); }
 });
 
 test('chat rejects invalid prompt, mode and history without invoking provider', async () => {

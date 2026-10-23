@@ -10,16 +10,21 @@ export class SqliteAccountRepository implements AccountRepository {
       CREATE TABLE IF NOT EXISTS kvtt_accounts(id TEXT PRIMARY KEY,username TEXT UNIQUE NOT NULL,full_name TEXT NOT NULL,gender TEXT,owner_id TEXT UNIQUE NOT NULL,password_hash TEXT NOT NULL,password_salt TEXT NOT NULL);
       CREATE TABLE IF NOT EXISTS kvtt_account_sessions(token_hash TEXT PRIMARY KEY,account_id TEXT NOT NULL,expires_at INTEGER NOT NULL);
       CREATE TABLE IF NOT EXISTS kvtt_login_throttle(username TEXT PRIMARY KEY,started_at INTEGER NOT NULL,attempts INTEGER NOT NULL);`);
+    // Existing local accounts keep their data and receive the least privileged role.
+    const columns=this.db.query('PRAGMA table_info(kvtt_accounts)').all();
+    if(!columns.some((column:any)=>column.name==='role')) this.db.exec("ALTER TABLE kvtt_accounts ADD COLUMN role TEXT NOT NULL DEFAULT 'learner' CHECK(role IN ('learner','teacher'))");
+    if(!columns.some((column:any)=>column.name==='seed_key')) this.db.exec('ALTER TABLE kvtt_accounts ADD COLUMN seed_key TEXT');
+    this.db.exec('CREATE UNIQUE INDEX IF NOT EXISTS kvtt_accounts_seed_key_idx ON kvtt_accounts(seed_key) WHERE seed_key IS NOT NULL');
   }
   close(){this.db.close();}
   async createAccount(a:StoredAccount) {
     return this.db.transaction(()=>{
       if(this.db.query('SELECT id FROM kvtt_accounts WHERE username=?').get(a.username)) return false;
       this.db.query('INSERT INTO devices(id) VALUES(?)').run(a.ownerId);
-      this.db.query('INSERT INTO kvtt_accounts VALUES(?,?,?,?,?,?,?)').run(a.id,a.username,a.fullName,a.gender,a.ownerId,a.passwordHash,a.passwordSalt);return true;
+      this.db.query('INSERT INTO kvtt_accounts(id,username,full_name,gender,owner_id,password_hash,password_salt,role,seed_key) VALUES(?,?,?,?,?,?,?,?,?)').run(a.id,a.username,a.fullName,a.gender,a.ownerId,a.passwordHash,a.passwordSalt,a.role??'learner',a.seedKey??null);return true;
     })();
   }
-  private account(row:any):StoredAccount|null {return row?{id:row.id,username:row.username,fullName:row.full_name,gender:row.gender,ownerId:row.owner_id,passwordHash:row.password_hash,passwordSalt:row.password_salt}:null;}
+  private account(row:any):StoredAccount|null {return row?{id:row.id,username:row.username,fullName:row.full_name,gender:row.gender,role:row.role==='teacher'?'teacher':'learner',seedKey:row.seed_key??null,ownerId:row.owner_id,passwordHash:row.password_hash,passwordSalt:row.password_salt}:null;}
   async findByUsername(username:string){return this.account(this.db.query('SELECT * FROM kvtt_accounts WHERE username=?').get(username));}
   async findById(id:string){return this.account(this.db.query('SELECT * FROM kvtt_accounts WHERE id=?').get(id));}
   async isAccountOwner(ownerId:string){return !!this.db.query('SELECT id FROM kvtt_accounts WHERE owner_id=?').get(ownerId);}

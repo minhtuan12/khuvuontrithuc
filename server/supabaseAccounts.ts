@@ -7,8 +7,8 @@ export class SupabaseAccountRepository implements AccountRepository {
     if(!result.ok) throw new Error('Account storage unavailable');
     const text=await result.text();return text?JSON.parse(text):null;
   }
-  private account(row:any):StoredAccount|null{return row?{id:row.id,username:row.username,fullName:row.full_name,gender:row.gender,ownerId:row.owner_id,passwordHash:row.password_hash,passwordSalt:row.password_salt}:null;}
-  async createAccount(a:StoredAccount):Promise<boolean>{return this.request('rpc/kvtt_create_account','POST',{p_id:a.id,p_username:a.username,p_full_name:a.fullName,p_gender:a.gender,p_owner_id:a.ownerId,p_password_hash:a.passwordHash,p_password_salt:a.passwordSalt});}
+  private account(row:any):StoredAccount|null{return row?{id:row.id,username:row.username,fullName:row.full_name,gender:row.gender,role:row.role==='teacher'?'teacher':'learner',seedKey:row.seed_key??null,ownerId:row.owner_id,passwordHash:row.password_hash,passwordSalt:row.password_salt}:null;}
+  async createAccount(a:StoredAccount):Promise<boolean>{return this.request('rpc/kvtt_create_account_with_role','POST',{p_id:a.id,p_username:a.username,p_full_name:a.fullName,p_gender:a.gender,p_owner_id:a.ownerId,p_password_hash:a.passwordHash,p_password_salt:a.passwordSalt,p_role:a.role??'learner',p_seed_key:a.seedKey??null});}
   async findByUsername(username:string){return this.account((await this.request(`kvtt_accounts?username=eq.${encodeURIComponent(username)}&select=*&limit=1`))[0]);}
   async findById(id:string){return this.account((await this.request(`kvtt_accounts?id=eq.${encodeURIComponent(id)}&select=*&limit=1`))[0]);}
   async isAccountOwner(ownerId:string){return (await this.request(`kvtt_accounts?owner_id=eq.${encodeURIComponent(ownerId)}&select=id&limit=1`)).length>0;}

@@ -11,6 +11,10 @@
   ],
   "rewrites": [
     { "source": "/api/device/:path*", "destination": "https://sdhbiiljdwpdaikxekrv.supabase.co/functions/v1/kvtt-device/api/device/:path*" },
+    { "source": "/api/teacher/plan", "destination": "/api/index?path=teacher/plan" },
+    { "source": "/api/teacher/:path*", "destination": "https://sdhbiiljdwpdaikxekrv.supabase.co/functions/v1/kvtt-device/api/teacher/:path*" },
+    { "source": "/api/questions", "destination": "https://sdhbiiljdwpdaikxekrv.supabase.co/functions/v1/kvtt-device/api/questions" },
+    { "source": "/api/questions/:path*", "destination": "https://sdhbiiljdwpdaikxekrv.supabase.co/functions/v1/kvtt-device/api/questions/:path*" },
     { "source": "/api/:path*", "destination": "/api/index?path=:path*" },
     { "source": "/((?!api/|assets/).*)", "destination": "/index.html" }
   ]

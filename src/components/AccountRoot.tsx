@@ -86,7 +86,10 @@ export default function AccountRoot() {
     }
   }
 
-  return <AccountContext.Provider value={{ user: user || null, openAccount: () => setOpen(true) }}>
+  return <AccountContext.Provider value={{ user: user || null, openAccount: () => {
+    const event = new CustomEvent('kvtt-before-account-open', { cancelable: true, detail: { proceed: () => setOpen(true) } });
+    if (window.dispatchEvent(event)) setOpen(true);
+  } }}>
     {user !== undefined && !error ? <div key={`${user?.id || 'guest'}:${revision}`} className="contents"><App startAtHome={revision > 0} /></div> : <div className="flex min-h-screen items-center justify-center p-5"><div className="max-w-md rounded-[2rem] border-4 border-white bg-white p-7 text-center shadow-xl"><span className="text-5xl" aria-hidden="true">🌱</span><p role={error ? 'alert' : 'status'} className="mt-4 font-bold text-emerald-900">{error || 'Mầm đang mở khu vườn của bạn…'}</p>{error && <button type="button" onClick={() => void refresh()} className="mt-4 min-h-11 rounded-full bg-emerald-600 px-6 py-3 font-black text-white">Thử kết nối lại</button>}</div></div>}
     <AccountModal open={open} onClose={() => setOpen(false)} user={user || null} onLogin={input => changeAccount('login', input)} onRegister={input => changeAccount('register', input)} onLogout={() => changeAccount('logout')} />
     {transitioning && user !== undefined && !open && <div role="status" className="fixed inset-0 z-[200] flex items-center justify-center bg-white/85 p-6 font-black text-emerald-900">Đang mở dữ liệu tài khoản…</div>}

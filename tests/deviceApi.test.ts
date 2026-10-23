@@ -52,13 +52,13 @@ test('garden game summaries persist by owner and reject invalid progress', async
   expect((await save({'match:all:3-4':{...value['match:all:3-4'],bestAccuracy:101}},1)).status).toBe(400);
 });
 
-test('teacher preparation saves without email and validates age and content size', async () => {
+test('teacher preparation schema validates age and content size without an email field', async () => {
+  const {validators} = await import('../server/deviceValidation');
   const value = { age: '4-5', activity: 'Bé khám phá màu sắc', plan: 'Giáo án', selfStudy: 'Từ vựng' };
-  const write = (data: unknown) => request('/api/device/documents/teacher-preparation', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ value: data, baseVersion: 0 }) });
-  expect((await write({ ...value, age: '0-1' })).status).toBe(400);
-  expect((await write({ ...value, plan: 'a'.repeat(30001) })).status).toBe(400);
-  expect((await write(value)).status).toBe(200);
-  expect((await (await request('/api/device/documents/teacher-preparation')).json()).value).toEqual(value);
+  expect(validators['teacher-preparation']({...value,age:'0-1'})).toBe(false);
+  expect(validators['teacher-preparation']({...value,plan:'a'.repeat(30001)})).toBe(false);
+  expect(validators['teacher-preparation'](value)).toBe(true);
+  expect((await request('/api/device/documents/teacher-preparation')).status).toBe(401);
 });
 test('invalid document data, unknown keys and cross-origin writes are rejected', async () => {
   for (const value of [-1, '99', null]) {

@@ -1,5 +1,6 @@
-export type PublicAccount = { id: string; username: string; fullName: string; gender: null | 'male' | 'female' | 'other' };
-export type StoredAccount = PublicAccount & { ownerId: string; passwordHash: string; passwordSalt: string };
+export type AccountRole = 'learner' | 'teacher';
+export type PublicAccount = { id: string; username: string; fullName: string; gender: null | 'male' | 'female' | 'other'; role: AccountRole };
+export type StoredAccount = PublicAccount & { ownerId: string; passwordHash: string; passwordSalt: string; seedKey?: string | null };
 export type StoredSession = { tokenHash: string; accountId: string; expiresAt: number };
 export interface AccountRepository {
   createAccount(account: StoredAccount): Promise<boolean>;
@@ -21,7 +22,7 @@ async function passwordHash(password:string,salt:string) {
   return hex(await crypto.subtle.deriveBits({name:'PBKDF2',hash:'SHA-256',salt:encoder.encode(salt),iterations:600000},key,256));
 }
 function equal(a:string,b:string) { let diff=a.length^b.length; for(let i=0;i<Math.max(a.length,b.length);i++) diff|=(a.charCodeAt(i)||0)^(b.charCodeAt(i)||0); return diff===0; }
-function publicUser(account:StoredAccount):PublicAccount { const {id,username,fullName,gender}=account; return {id,username,fullName,gender}; }
+function publicUser(account:StoredAccount):PublicAccount { const {id,username,fullName,gender}=account; return {id,username,fullName,gender,role:account.role==='teacher'?'teacher':'learner'}; }
 function credentials(input:unknown) {
   if(!input||typeof input!=='object') throw new AccountError(400,'Vui lòng kiểm tra thông tin đăng nhập.');
   const body=input as Record<string,unknown>;
@@ -34,12 +35,14 @@ export class AccountService {
   constructor(public readonly repo:AccountRepository) {}
   async register(input:unknown) {
     const {username,password,body}=credentials(input);
+    if(Object.hasOwn(body,'role')) throw new AccountError(400,'Không thể chọn quyền tài khoản khi đăng ký.');
+    if(username==='ngant') throw new AccountError(409,'Tên đăng nhập đã được dành riêng.');
     const fullName=typeof body.fullName==='string'?body.fullName.trim():'';
     const gender=body.gender==null||body.gender===''?null:body.gender;
     if(fullName.length<2||fullName.length>100||/[\u0000-\u001f\u007f]/.test(fullName)||![null,'male','female','other'].includes(gender as any)) throw new AccountError(400,'Vui lòng nhập họ tên 2–100 ký tự và giới tính hợp lệ.');
     if(!await this.repo.consumeLoginAttempt('register:'+username,Date.now())) throw new AccountError(429,'Bạn thử quá nhiều lần. Vui lòng đợi 15 phút.');
     const salt=randomHex(16);
-    const account:StoredAccount={id:crypto.randomUUID(),username,fullName,gender:gender as PublicAccount['gender'],ownerId:randomHex(32),passwordSalt:salt,passwordHash:await passwordHash(password,salt)};
+    const account:StoredAccount={id:crypto.randomUUID(),username,fullName,gender:gender as PublicAccount['gender'],role:'learner',ownerId:randomHex(32),passwordSalt:salt,passwordHash:await passwordHash(password,salt)};
     if(!await this.repo.createAccount(account)) throw new AccountError(409,'Tên đăng nhập đã được sử dụng.');
     return this.issue(account);
   }
@@ -65,5 +68,25 @@ export class AccountService {
   }
   async session(token:string|undefined):Promise<PublicAccount|null> { return token===undefined?null:publicUser(await this.resolve(token)); }
   async requireOwner(token:string|undefined):Promise<string> { return (await this.resolve(token)).ownerId; }
+  async requireTeacher(token:string|undefined):Promise<PublicAccount> {
+    const account=await this.resolve(token);
+    if(account.role!=='teacher') throw new AccountError(403,'Tài khoản chưa có quyền giáo viên.');
+    return publicUser(account);
+  }
+  /** Private server-side provisioning only. Never expose this method through HTTP. */
+  async seedTeacher(password:string):Promise<{user:PublicAccount;created:boolean}> {
+    credentials({username:'ngant',password});
+    const existing=await this.repo.findByUsername('ngant');
+    if(existing) {
+      if(existing.seedKey!=='default-teacher-v1'||existing.role!=='teacher'||existing.fullName!=='Cô Nga'||!equal(await passwordHash(password,existing.passwordSalt),existing.passwordHash)) {
+        throw new AccountError(409,'Tài khoản dành riêng đã tồn tại nhưng chưa được xác minh. Không thay đổi tài khoản.');
+      }
+      return {user:publicUser(existing),created:false};
+    }
+    const salt=randomHex(16);
+    const account:StoredAccount={id:crypto.randomUUID(),username:'ngant',fullName:'Cô Nga',gender:null,role:'teacher',ownerId:randomHex(32),passwordSalt:salt,passwordHash:await passwordHash(password,salt),seedKey:'default-teacher-v1'};
+    if(!await this.repo.createAccount(account)) throw new AccountError(409,'Tên đăng nhập dành riêng vừa được sử dụng. Không thay đổi tài khoản.');
+    return {user:publicUser(account),created:true};
+  }
   async logout(token:string|undefined) { if(token!==undefined) await this.repo.deleteSession(await hashToken(token)); }
 }

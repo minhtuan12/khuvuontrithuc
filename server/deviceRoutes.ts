@@ -78,6 +78,17 @@ export function createDeviceRouter(store: DeviceStore, accounts?: AccountService
       return next(error);
     }
   });
+  router.param('key', async (req, res, next, key) => {
+    if (key !== 'teacher-preparation') return next();
+    try {
+      if (!accounts) return res.status(401).json({ error: 'Vui lòng đăng nhập tài khoản giáo viên.' });
+      await accounts.requireTeacher(parseAccountCookie(req.headers.cookie));
+      next();
+    } catch (error) {
+      if (error instanceof AccountError) return res.status(error.status).json({ error: error.message });
+      next(error);
+    }
+  });
   router.get('/api/device/documents/:key', (req, res) => {
     if (!Object.hasOwn(validators, req.params.key)) return res.status(404).json({ error: 'Unknown data key' });
     return res.json(store.read(res.locals.device, req.params.key));

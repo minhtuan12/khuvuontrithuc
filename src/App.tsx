@@ -19,12 +19,14 @@ import { getSearchDestination } from './lib/navigation';
 import { readLearningStats, readUnlockedBadges } from './lib/learningStorage';
 import { useDeviceDocument } from './lib/useDeviceDocument';
 import { useAccount } from './lib/accountContext';
+import TeacherWorkspace from './screens/TeacherWorkspace';
 import { deviceFetch as fetchDeviceData } from './lib/deviceData';
 import { getLearnerScope } from './lib/learnerStorage';
 import { EMOTIONS, getTodayStudySeconds, localDay, readEmotionHistory, readStoredNumber, type EmotionId, type EmotionRecord } from './lib/wellbeing';
 import AIAssistant from './components/AIAssistant';
 import AuthorFooter from './components/AuthorFooter';
 import { readAssistantMessage } from './lib/assistantSpeech';
+import { readEmotionFeedback } from './lib/emotionSpeech';
 import { Mascot3DBunny, Hero3DScene, Category3DIcon } from './components/Illustrations3D';
 import { BADGES_LIST, BadgeItem, LearningProgressStats } from './constants/badgesData';
 import { BadgesGallery, BadgeUnlockModal } from './components/BadgesGallery';
@@ -715,6 +717,7 @@ const getCurrentItemsList = (currentView: string, selectedAge: string | null, le
 
 export default function App({ startAtHome = false }: { startAtHome?: boolean }) {
   const { user: accountUser, openAccount } = useAccount();
+  const isTeacher = accountUser?.role === 'teacher';
   const ownerScope = accountUser?.id || 'guest';
   const [localStorage] = useState(getLearnerStorage);
   const mounted = useRef(false);
@@ -760,6 +763,7 @@ export default function App({ startAtHome = false }: { startAtHome?: boolean }) 
   const setStudySeconds = (update: number | ((previous: number) => number)) => setStudyTime(previous => ({ day: localDay(), seconds: typeof update === 'function' ? update(previous.day === localDay() ? previous.seconds : 0) : update }));
   const studyDay = useRef(localDay());
   const [storageError, setStorageError] = useState('');
+  const [emotionSpeechError, setEmotionSpeechError] = useState('');
   const [pageVisible, setPageVisible] = useState(() => document.visibilityState !== 'hidden');
   const [sessionTimeLeft, setSessionTimeLeft] = useState(30 * 60); // 30 minutes
   const [settings, setSettings, settingsData] = useDeviceDocument('settings', () => ({ sessionMinutes: 30, dailyActivityTarget: 3 }));
@@ -792,6 +796,7 @@ export default function App({ startAtHome = false }: { startAtHome?: boolean }) 
   const [englishInitialAge, setEnglishInitialAge] = useState<'3-4' | '4-5' | '5-6'>('3-4');
 
   const openEnglishModule = (target: 'kids' | 'teachers' | 'games' = 'kids', age: '3-4' | '4-5' | '5-6' = '3-4') => {
+    if (target === 'teachers' && !isTeacher) return;
     setEnglishInitialTarget(target);
     setEnglishInitialAge(age);
     setCurrentTab('home');
@@ -1207,6 +1212,7 @@ export default function App({ startAtHome = false }: { startAtHome?: boolean }) 
   };
 
   const handleEmotionSelect = (emotion: EmotionId) => {
+    setEmotionSpeechError('');
     setUserEmotion(emotion);
     setShowCheckIn(false);
     
@@ -1218,7 +1224,10 @@ export default function App({ startAtHome = false }: { startAtHome?: boolean }) 
       feedback
     }, ...prev].slice(0, 20)); // Keep last 20 records
 
-    speak(feedback, true);
+    void readEmotionFeedback(emotion).catch(error => {
+      if (getLearnerScope() !== ownerScope) return;
+      setEmotionSpeechError(`${error instanceof Error ? error.message : 'Chưa đọc được lời động viên.'} Bé có thể chọn lại cảm xúc để nghe lại.`);
+    });
   };
 
   const closeItem = () => {
@@ -1612,10 +1621,10 @@ export default function App({ startAtHome = false }: { startAtHome?: boolean }) 
                 <span>🎈</span>
                 <span>Bé Vui Học</span>
               </button>
-              <button
+              {isTeacher && <button
                 onClick={() => {
                   setHomeMode('teachers');
-                  openEnglishModule('teachers');
+                  setCurrentView('teacher');
                   speak("Chào mừng cô đến với phân hệ giáo viên mầm non!");
                 }}
                 className={`px-3 py-1.5 rounded-xl text-xs font-black transition-all flex items-center gap-1.5 cursor-pointer ${
@@ -1626,7 +1635,7 @@ export default function App({ startAtHome = false }: { startAtHome?: boolean }) 
               >
                 <span>👩‍🏫</span>
                 <span>Góc Của Cô</span>
-              </button>
+              </button>}
             </div>
 
             {/* Emotion Check-in Button */}
@@ -1987,7 +1996,7 @@ export default function App({ startAtHome = false }: { startAtHome?: boolean }) 
           </div>
 
           {/* Teacher English Integrated Banner Stripe */}
-          <div className="bg-white/90 backdrop-blur-md rounded-2xl p-4 sm:p-5 border-2 border-indigo-100 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 relative z-10">
+          {isTeacher && <div className="bg-white/90 backdrop-blur-md rounded-2xl p-4 sm:p-5 border-2 border-indigo-100 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 relative z-10">
             <div className="flex items-center gap-3.5">
               <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-pink-500 to-rose-500 text-white flex items-center justify-center text-2xl shadow-xs shrink-0">
                 👩‍🏫
@@ -2021,7 +2030,7 @@ export default function App({ startAtHome = false }: { startAtHome?: boolean }) 
                 <span>Khẩu Lệnh Lớp Học 🇬🇧</span>
               </button>
             </div>
-          </div>
+          </div>}
         </div>
       </section>
     </div>
@@ -2977,6 +2986,8 @@ export default function App({ startAtHome = false }: { startAtHome?: boolean }) 
       </div>
     );
   };
+
+  if (currentView === 'teacher' && isTeacher) return <TeacherWorkspace onBack={() => { setCurrentView('home'); setHomeMode('kids'); }} onEnglish={() => openEnglishModule('teachers')} />;
 
   return (
     <div className="min-h-screen font-sans selection:bg-transparent bg-polka-white relative overflow-x-hidden">
@@ -3951,7 +3962,7 @@ export default function App({ startAtHome = false }: { startAtHome?: boolean }) 
           </span>
         </div>
       </div>}
-      {storageError && <div role="status" className="fixed bottom-28 left-4 right-4 z-[110] mx-auto max-w-lg rounded-2xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm font-bold text-amber-950">{storageError}</div>}
+      {(storageError || emotionSpeechError) && <div role="status" className="fixed bottom-28 left-4 right-4 z-[110] mx-auto max-w-lg rounded-2xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm font-bold text-amber-950">{storageError || emotionSpeechError}</div>}
       {dataFailure && <div role="alert" className="fixed bottom-28 left-4 right-4 z-[111] mx-auto max-w-xl rounded-2xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm font-bold text-amber-950">{dataFailure.error}<div className="mt-2 flex gap-3"><button type="button" onClick={() => deviceData.forEach(item => item.retry())} className="min-h-11 underline">Thử lưu lại</button><button type="button" onClick={() => deviceData.filter(item => item.error).forEach(item => item.restoreRemote())} className="min-h-11 underline">Tải bản đã lưu</button></div></div>}
     </div>
   );

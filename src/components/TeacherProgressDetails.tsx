@@ -1,0 +1,8 @@
+import type {TeacherStudent} from '../lib/teacherApi';
+import {dateLabel} from '../lib/teacherApi';
+const gameNames:Record<string,string>={match:'Nối hình',reveal:'Mở ô đoán hình',bee:'Ong ghép chữ',basket:'Giỏ mua sắm',odd:'Tìm bạn khác nhóm',train:'Tàu ghép câu'};
+export default function TeacherProgressDetails({student}:{student:TeacherStudent}){
+ const s=student.summary;
+ const lessons=Object.entries(s.englishProgress||{});
+ return <div><h4>Bài tiếng Anh</h4>{lessons.length?<ul>{lessons.map(([id,value])=>{const v=value as Record<string,unknown>;return <li key={id}>{id} · {v.completedAt?'Đã hoàn thành':'Đã mở'}{typeof v.completedAt==='string'?` · ${dateLabel(v.completedAt)}`:''}</li>;})}</ul>:<p>Chưa ghi nhận bài học.</p>}<h4>Trò chơi tiếng Anh</h4>{s.gardenProgress&&Object.entries(s.gardenProgress).length?<div className="tw-list">{Object.entries(s.gardenProgress).map(([key,value])=>{const v=value as Record<string,unknown>;const [game,topic,age]=key.split(':');return <article className="tw-list-item" key={key}><strong>{gameNames[game]||game} · {topic} · {age} tuổi</strong><p>{String(v.runs)} lượt chơi · {String(v.words)} đơn vị luyện tập · tốt nhất {String(v.bestAccuracy)}%</p><p>Lần gần nhất: {dateLabel(String(v.lastPlayed))}</p></article>;})}</div>:<p>Chưa ghi nhận kết quả game.</p>}<h4>Ngày đang lưu</h4><p>Thời gian: {s.studyTime?`${String(s.studyTime.day)} · ${Math.floor(Number(s.studyTime.seconds)/60)} phút`:'Chưa ghi nhận'}</p><p>Hoạt động: {s.dailyActivity?`${String(s.dailyActivity.day)} · ${String(s.dailyActivity.count)} lượt`:'Chưa ghi nhận'}</p><p className="tw-muted">Lượt luyện tập không phải số từ đã thuộc. Kết quả tốt nhất không phải độ chính xác trung bình.</p></div>;
+}

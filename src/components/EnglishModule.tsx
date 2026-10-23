@@ -26,6 +26,7 @@ import {
 import { EnglishGamesPlayground } from './EnglishGamesPlayground';
 import EnglishRoadmap from './EnglishRoadmap';
 import TeacherWorkshop from './TeacherWorkshop';
+import { useTeacherAccess } from '../lib/accountContext';
 import { type EnglishAge } from '../lib/englishCatalog';
 import { recordEnglishProgress } from '../lib/englishSync';
 import { useDeviceDocument } from '../lib/useDeviceDocument';
@@ -95,8 +96,9 @@ export function createEnglishPracticeLifetime(onDispose: () => void = () => {}) 
 }
 
 export default function EnglishModule({ onBack, onLessonComplete, onGameComplete, initialTarget = 'kids', initialAge = '3-4' }: EnglishModuleProps) {
+  const isTeacher = useTeacherAccess();
   // Main Tab State: 'kids' (Bé yêu) | 'teachers' (Tiếng Anh cùng cô giáo) | 'games' (Trò chơi) | 'songs' (Bài hát) | 'phonics' (Bảng âm)
-  const [activeMainTab, setActiveMainTab] = useState<'kids' | 'roadmap' | 'teachers' | 'games' | 'songs' | 'phonics'>(initialTarget === 'kids' ? 'roadmap' : initialTarget);
+  const [activeMainTab, setActiveMainTab] = useState<'kids' | 'roadmap' | 'teachers' | 'games' | 'songs' | 'phonics'>(initialTarget === 'kids' || (initialTarget === 'teachers' && !isTeacher) ? 'roadmap' : initialTarget);
   const [lessonOpenedFromRoadmap, setLessonOpenedFromRoadmap] = useState(false);
   const [roadmapGroup, setRoadmapGroup] = useState('');
   
@@ -821,7 +823,7 @@ export default function EnglishModule({ onBack, onLessonComplete, onGameComplete
             { id: 'teachers', label: 'Tiếng Anh cùng cô giáo', icon: '👩‍🏫', color: 'border-b-pink-600 text-pink-700 bg-pink-50/80' },
             { id: 'songs', label: 'Bài hát mầm non', icon: '🎶', color: 'border-b-emerald-600 text-emerald-700 bg-emerald-50/80' },
             { id: 'phonics', label: 'Bảng âm Phonics A-Z', icon: '🔤', color: 'border-b-amber-600 text-amber-700 bg-amber-50/80' },
-          ].map(tab => (
+          ].filter(tab => tab.id !== 'teachers' || isTeacher).map(tab => (
             <button
               key={tab.id}
               aria-current={(activeMainTab === tab.id || (tab.id === 'roadmap' && activeMainTab === 'kids')) ? 'page' : undefined}
@@ -1298,7 +1300,7 @@ export default function EnglishModule({ onBack, onLessonComplete, onGameComplete
         {/* ================================================= */}
         {/* III. PHÂN HỆ TIẾNG ANH CÙNG CÔ GIÁO (TEACHER)    */}
         {/* ================================================= */}
-        {activeMainTab === 'teachers' && (
+        {isTeacher && activeMainTab === 'teachers' && (
           <div className="space-y-6">
             {/* Header intro for Teacher module */}
             <div className="bg-gradient-to-r from-pink-500 via-rose-500 to-purple-600 rounded-3xl p-6 sm:p-8 text-white shadow-xl relative overflow-hidden">

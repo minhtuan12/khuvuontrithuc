@@ -1,4 +1,4 @@
-export interface AccountUser { id: string; username: string; fullName: string; gender: null | 'male' | 'female' | 'other' }
+export interface AccountUser { id: string; username: string; fullName: string; gender: null | 'male' | 'female' | 'other'; role: 'learner' | 'teacher' }
 export type AccountAction = 'session' | 'login' | 'register' | 'logout';
 
 export async function accountRequest(action: AccountAction, body?: unknown, fetcher: typeof fetch = globalThis.fetch, signal?: AbortSignal): Promise<AccountUser | null> {
@@ -13,5 +13,5 @@ export async function accountRequest(action: AccountAction, body?: unknown, fetc
   if (!user || typeof user.id !== 'string' || !user.id || typeof user.username !== 'string' || !user.username || typeof user.fullName !== 'string' || !user.fullName || ![null, 'male', 'female', 'other'].includes(user.gender)) {
     throw new Error('Chưa xác nhận được tài khoản. Vui lòng thử lại.');
   }
-  return { id: user.id, username: user.username, fullName: user.fullName, gender: user.gender };
+  return { id: user.id, username: user.username, fullName: user.fullName, gender: user.gender, role: user.role === 'teacher' ? 'teacher' : 'learner' };
 }
