@@ -13,6 +13,7 @@ export const validators: Record<string, (value: unknown) => boolean> = {
   badges: value => Array.isArray(value) && value.length <= BADGES_LIST.length && value.every(id => BADGES_LIST.some(badge => badge.id === id)),
   emotions: value => Array.isArray(value) && value.length <= 20 && value.every(item => object(item) && ['vui', 'buon', 'tuc-gian'].includes(item.emotion) && date(item.date) && text(item.feedback, 2000)),
   'study-time': value => object(value) && /^\d{4}-\d{2}-\d{2}$/.test(value.day) && number(value.seconds, 86400),
+  'daily-activity': value => object(value) && /^\d{4}-\d{2}-\d{2}$/.test(value.day) && number(value.count, 100000) && Array.isArray(value.items) && value.items.length <= 5000 && value.items.every(item => text(item, 300)),
   settings: value => object(value) && [15, 20, 30].includes(value.sessionMinutes) && number(value.dailyActivityTarget, 20) && value.dailyActivityTarget >= 1,
   'family-posts': value => Array.isArray(value) && value.length <= 100 && value.every(item => object(item) && text(item.id, 100) && item.id.length > 0 && text(item.content, 2000) && item.content.trim() && typeof item.liked === 'boolean' && Array.isArray(item.comments) && item.comments.length <= 100 && item.comments.every(comment => text(comment, 1000) && comment.trim())),
   'teacher-notes': value => Array.isArray(value) && value.length <= 100 && value.every(item => object(item) && text(item.id, 100) && item.id.length > 0 && text(item.content, 4000) && item.content.trim() && date(item.date)),

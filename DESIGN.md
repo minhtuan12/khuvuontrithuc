@@ -6,6 +6,10 @@ Current English lesson objects, IDs, age groups, progress events and `onOpenLess
 
 The roadmap is the single child-learning entry in English navigation. Lesson detail is nested under it and retains its active navigation item; returning restores the curriculum age. TeacherWorkshop owns the email-free activity form, AI activity suggestions, editable AI lesson plan and self-study output. These use the existing pink teacher palette and native labeled controls. The shared AuthorFooter uses existing garden artwork, Nunito/Baloo 2, author Nguyễn Thị Nga, telephone 0349627607 and email Nguyennga.dp91@gmail.com; contacts remain readable links at narrow widths.
 
+## Accounts
+
+The account dialog uses the existing garden-story illustration, green Baloo 2 headings, Nunito labels, white rounded frame and pastel profile cards. `src/components/account-modal.css` owns responsive layout, visible focus and reduced-motion behavior. Login and registration are modes within one native dialog; account access lives in the Home profile button and Settings. Guest entry stays unchanged and never requires registration. Optional gender defaults to not shared. Authentication errors stay inline, and busy submits are disabled synchronously.
+
 ## Family screens
 
 ParentDashboard uses the same sky polka setting as Home with white rounded frames, restrained pastel cards and green Baloo 2 headings. Nunito remains the body face. Reference assets live under `public/illustrations`: garden-story.jpg anchors the parent/check-in heroes; school-hero.webp appears on the family activity card; garden-card.webp, colors-card.webp and animals-card.webp illustrate the matching roadmap topics. No generated replacement art is necessary.

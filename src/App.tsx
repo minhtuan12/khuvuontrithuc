@@ -1,3 +1,4 @@
+import { getLearnerStorage } from './lib/learnerStorage';
 import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
@@ -17,7 +18,9 @@ import EmotionCheckIn from './components/EmotionCheckIn';
 import { getSearchDestination } from './lib/navigation';
 import { readLearningStats, readUnlockedBadges } from './lib/learningStorage';
 import { useDeviceDocument } from './lib/useDeviceDocument';
-import { deviceFetch } from './lib/deviceData';
+import { useAccount } from './lib/accountContext';
+import { deviceFetch as fetchDeviceData } from './lib/deviceData';
+import { getLearnerScope } from './lib/learnerStorage';
 import { EMOTIONS, getTodayStudySeconds, localDay, readEmotionHistory, readStoredNumber, type EmotionId, type EmotionRecord } from './lib/wellbeing';
 import AIAssistant from './components/AIAssistant';
 import AuthorFooter from './components/AuthorFooter';
@@ -710,8 +713,35 @@ const getCurrentItemsList = (currentView: string, selectedAge: string | null, le
   return [];
 };
 
-export default function App() {
-  const [showSplash, setShowSplash] = useState(true);
+export default function App({ startAtHome = false }: { startAtHome?: boolean }) {
+  const { user: accountUser, openAccount } = useAccount();
+  const ownerScope = accountUser?.id || 'guest';
+  const [localStorage] = useState(getLearnerStorage);
+  const mounted = useRef(false);
+  const pronunciation = useRef<{ stream?: MediaStream; recorder?: MediaRecorder; timer?: ReturnType<typeof setTimeout>; controller: AbortController } | null>(null);
+  const isCurrentOwner = () => mounted.current && getLearnerScope() === ownerScope;
+  useEffect(() => {
+    mounted.current = true;
+    return () => {
+      mounted.current = false;
+      const active = pronunciation.current;
+      pronunciation.current = null;
+      if (!active) return;
+      active.controller.abort();
+      clearTimeout(active.timer);
+      if (active.recorder) {
+        active.recorder.onstop = null;
+        active.recorder.ondataavailable = null;
+        if (active.recorder.state !== 'inactive') active.recorder.stop();
+      }
+      active.stream?.getTracks().forEach(track => track.stop());
+    };
+  }, []);
+  const deviceFetch = useMemo<typeof fetch>(() => (input,init) => {
+    if (getLearnerScope() !== ownerScope) return Promise.reject(new DOMException('Tài khoản đã thay đổi','AbortError'));
+    return fetchDeviceData(input,init);
+  }, [ownerScope]);
+  const [showSplash, setShowSplash] = useState(!startAtHome);
   const [currentView, setCurrentView] = useState('home');
   const [currentTab, setCurrentTab] = useState('home');
   const [selectedAge, setSelectedAge] = useState<string | null>(null);
@@ -750,11 +780,14 @@ export default function App() {
 
   const dailyActivityTarget = settings.dailyActivityTarget;
   const setDailyActivityTarget = (value: number) => setSettings(previous => ({ ...previous, dailyActivityTarget: value }));
-  const [activitiesCompleted, setActivitiesCompleted] = useState(0);
+  const [dailyActivity, setDailyActivity, dailyActivityData] = useDeviceDocument('daily-activity', () => ({ day: localDay(), count: 0, items: [] as string[] }));
+  const activitiesCompleted = dailyActivity.day === localDay() ? dailyActivity.count : 0;
+  const setActivitiesCompleted = (update: number | ((previous: number) => number)) => setDailyActivity(previous => ({ ...previous, day: localDay(), count: typeof update === 'function' ? update(previous.day === localDay() ? previous.count : 0) : update }));
   const [searchQuery, setSearchQuery] = useState('');
   const [homeMode, setHomeMode] = useState<'kids' | 'teachers'>('kids');
   const [selectedFilterAge, setSelectedFilterAge] = useState<string | null>(null);
-  const [completedItems, setCompletedItems] = useState<string[]>([]);
+  const completedItems = dailyActivity.items;
+  const setCompletedItems = (update: string[] | ((previous: string[]) => string[])) => setDailyActivity(previous => ({ ...previous, items: typeof update === 'function' ? update(previous.items) : update }));
   const [englishInitialTarget, setEnglishInitialTarget] = useState<'kids' | 'teachers' | 'games'>('kids');
   const [englishInitialAge, setEnglishInitialAge] = useState<'3-4' | '4-5' | '5-6'>('3-4');
 
@@ -770,7 +803,7 @@ export default function App() {
 
   const [learningStats, setLearningStats, statsData] = useDeviceDocument<LearningProgressStats>('learning-stats', readLearningStats);
   const [unlockedBadgeIds, setUnlockedBadgeIds, badgesData] = useDeviceDocument<string[]>('badges', readUnlockedBadges);
-  const deviceData = [starsData, emotionsData, studyData, settingsData, statsData, badgesData];
+  const deviceData = [starsData, emotionsData, studyData, settingsData, statsData, badgesData, dailyActivityData];
   const dataLoading = deviceData.some(item => item.loading);
   const dataFailure = deviceData.find(item => item.error);
 
@@ -863,6 +896,7 @@ export default function App() {
   };
 
   const triggerCompletionReward = (itemName?: string, categoryHint?: string) => {
+    if (!isCurrentOwner()) return;
     const nextStars = stars + 1;
     setStars(nextStars);
     setActivitiesCompleted(prev => prev + 1);
@@ -1099,26 +1133,39 @@ export default function App() {
   };
 
   const handlePronunciationPractice = async () => {
-    if (!selectedItem) return;
+    if (!selectedItem || pronunciation.current || !isCurrentOwner()) return;
+    const active: NonNullable<typeof pronunciation.current> = { controller: new AbortController() };
+    pronunciation.current = active;
+    const isCurrentPractice = () => isCurrentOwner() && pronunciation.current === active && !active.controller.signal.aborted;
     setIsPracticing(true);
     setPronunciationFeedback("Bé hãy đọc to lên nhé! 🎤");
     speak("Bé hãy đọc to lên nhé!");
 
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      if (!isCurrentPractice()) {
+        stream.getTracks().forEach(track => track.stop());
+        return;
+      }
+      active.stream = stream;
       const mediaRecorder = new MediaRecorder(stream);
+      active.recorder = mediaRecorder;
       const chunks: Blob[] = [];
 
       mediaRecorder.ondataavailable = (e) => chunks.push(e.data);
       mediaRecorder.onstop = async () => {
         try {
+        if (!isCurrentPractice()) return;
+        stream.getTracks().forEach(track => track.stop());
         const mimeType = mediaRecorder.mimeType || chunks[0]?.type || 'audio/webm';
         const audioBlob = new Blob(chunks, { type: mimeType });
         const reader = new FileReader();
-        const base64Audio = await new Promise<string>((resolve) => {
+        const base64Audio = await new Promise<string>((resolve, reject) => {
+          reader.onerror = () => reject(new Error('Không đọc được bản ghi âm.'));
           reader.onloadend = () => resolve((reader.result as string).split(',')[1]);
           reader.readAsDataURL(audioBlob);
         });
+        if (!isCurrentPractice()) return;
 
         const targetWord = currentView === 'language' ? (letterLang === 'vi' ? selectedItem.word : selectedItem.word) : selectedItem.name;
         
@@ -1126,25 +1173,33 @@ export default function App() {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ audioBase64: base64Audio, targetWord, mimeType }),
+          signal: active.controller.signal,
         });
         if (!response.ok) throw new Error('Không thể nhận xét giọng đọc lúc này.');
         const result = await response.json() as { feedback?: string };
+        if (!isCurrentPractice()) return;
         if (typeof result.feedback !== 'string' || !result.feedback.trim()) throw new Error('Invalid feedback');
         const feedback = result.feedback;
         setPronunciationFeedback(feedback);
         speak(feedback);
         triggerCompletionReward(`Luyện phát âm: ${targetWord}`, 'speech');
         } catch {
+          if (!isCurrentPractice()) return;
           setPronunciationFeedback('Chưa thể nhận xét lúc này. Bé có thể thử lại sau nhé!');
         } finally {
-        setIsPracticing(false);
+        if (isCurrentPractice()) setIsPracticing(false);
+        if (pronunciation.current === active) pronunciation.current = null;
+        clearTimeout(active.timer);
         stream.getTracks().forEach(t => t.stop());
         }
       };
 
       mediaRecorder.start();
-      setTimeout(() => mediaRecorder.stop(), 3000); // Record for 3 seconds
+      active.timer = setTimeout(() => { if (isCurrentPractice() && mediaRecorder.state !== 'inactive') mediaRecorder.stop(); }, 3000);
     } catch (error) {
+      active.stream?.getTracks().forEach(track => track.stop());
+      if (!isCurrentPractice()) return;
+      pronunciation.current = null;
       console.error("Mic error:", error);
       setIsPracticing(false);
       setPronunciationFeedback("Ôi, micro có chút vấn đề rồi bé ơi!");
@@ -1429,9 +1484,11 @@ export default function App() {
 
           {/* Profile & Settings Controls */}
           <div className="flex items-center gap-2.5">
-            <motion.div 
+            <motion.button
+              type="button"
+              aria-label={accountUser ? 'Mở tài khoản của bạn' : 'Đăng nhập hoặc đăng ký'}
               whileHover={{ scale: 1.02 }}
-              onClick={() => setShowCheckIn(true)}
+              onClick={openAccount}
               className="flex items-center gap-2.5 bg-sky-50/90 hover:bg-sky-100/80 border border-sky-200/70 rounded-full py-1.5 pl-2 pr-4 cursor-pointer transition-all shadow-xs"
             >
               <div className="w-7 h-7 rounded-full bg-gradient-to-tr from-amber-400 to-orange-400 flex items-center justify-center text-sm shadow-xs">
@@ -1439,9 +1496,9 @@ export default function App() {
               </div>
               <div className="text-left">
                 <p className="text-[9px] text-slate-500 font-bold leading-none">Xin chào</p>
-                <p className="text-xs font-black text-sky-950 leading-tight">Bé yêu ✨</p>
+                <p className="max-w-28 truncate text-xs font-black text-sky-950 leading-tight">{accountUser?.fullName || 'Đăng nhập'} ✨</p>
               </div>
-            </motion.div>
+            </motion.button>
 
             <motion.button
               whileHover={{ scale: 1.08, rotate: 30 }}
@@ -2759,6 +2816,11 @@ export default function App() {
         </h2>
 
         <div className="space-y-10">
+          <section className="rounded-3xl border-2 border-emerald-100 bg-emerald-50 p-5">
+            <h3 className="text-2xl font-black text-emerald-900">Khu vườn của bạn</h3>
+            <p className="mt-2 text-slate-700">{accountUser ? `${accountUser.fullName} · @${accountUser.username}. Tiến độ đang được lưu riêng vào tài khoản này.` : 'Đăng nhập để lưu tiến độ riêng và tiếp tục học trên thiết bị khác.'}</p>
+            <button type="button" onClick={openAccount} className="mt-4 min-h-11 rounded-full bg-emerald-600 px-5 py-3 font-black text-white">{accountUser ? 'Xem tài khoản' : 'Đăng nhập / Đăng ký'}</button>
+          </section>
           <section>
             <h3 className="text-2xl font-black text-sky-800 mb-6">Giới hạn thời gian học (Screen Time)</h3>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">

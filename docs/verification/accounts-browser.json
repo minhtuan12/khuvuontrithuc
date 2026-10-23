@@ -1,0 +1,20 @@
+{
+  "passed": true,
+  "checks": [
+    "register optional gender",
+    "HttpOnly session reload",
+    "account A/B progress isolation",
+    "logout",
+    "wrong password visible error",
+    "login restores progress",
+    "mobile modal bounds",
+    "Escape closes dialog"
+  ],
+  "layout": {
+    "width": 352,
+    "left": 19,
+    "right": 371,
+    "viewport": 390
+  },
+  "consoleErrors": []
+}

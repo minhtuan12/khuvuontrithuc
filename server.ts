@@ -6,6 +6,9 @@ import dotenv from 'dotenv';
 import { mkdirSync } from 'node:fs';
 import { createAIRouter } from './server/aiRoutes';
 import { createDeviceRouter, DeviceStore } from './server/deviceRoutes';
+import { AccountService } from './server/accountService';
+import { SqliteAccountRepository } from './server/sqliteAccounts';
+import { createAccountRouter } from './server/accountRoutes';
 import { ENGLISH_AGES, ENGLISH_LESSONS_BY_AGE, findEnglishLesson } from './src/lib/englishCatalog';
 dotenv.config({ path: '.env.local', quiet: true });
 dotenv.config({ quiet: true });
@@ -44,7 +47,9 @@ app.get('/api/english/lesson/:id', (req, res) => {
 const dataDirectory = path.resolve(process.env.KVTT_DATA_DIR || path.join(__dirname, 'data'));
 mkdirSync(dataDirectory, { recursive: true });
 const deviceStore = new DeviceStore(path.join(dataDirectory, 'app.sqlite'));
-app.use(createDeviceRouter(deviceStore));
+const accountService = new AccountService(new SqliteAccountRepository(path.join(dataDirectory, 'app.sqlite')));
+app.use(createAccountRouter(accountService));
+app.use(createDeviceRouter(deviceStore, accountService));
 app.use(createAIRouter(ai));
 app.use('/api', (_req, res) => { res.status(404).json({ error: 'API endpoint not found' }); });
 app.use((error: any, _req: express.Request, res: express.Response, _next: express.NextFunction) => {

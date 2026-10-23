@@ -1,3 +1,4 @@
+import { learnerStorage as localStorage } from '../lib/learnerStorage';
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { 

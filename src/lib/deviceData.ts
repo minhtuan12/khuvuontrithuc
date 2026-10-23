@@ -1,11 +1,62 @@
-﻿// Bootstrap once before parallel API reads so all documents share one HttpOnly device cookie.
-const sessionRequests=new WeakMap<typeof fetch,Promise<void>>();
-export function ensureDeviceSession(fetcher:typeof fetch=globalThis.fetch):Promise<void>{
- const existing=sessionRequests.get(fetcher);if(existing)return existing;
- const request=fetcher('/api/device/session',{credentials:'same-origin',cache:'no-store'}).then(async response=>{if(!response.ok)throw Error('device session');const body=await response.json();if(body.ready!==true)throw Error('device session');}).catch(error=>{sessionRequests.delete(fetcher);throw error;});
- sessionRequests.set(fetcher,request);return request;
+import {getLearnerScope} from './learnerStorage';
+let generation=0;
+let transitioning=false;
+const pendingRequests=new Set<AbortController>();
+const sessionRequests=new WeakMap<typeof fetch,{generation:number;scope:string;request:Promise<void>}>();
+const staleRequest=()=>new DOMException('Learning account changed','AbortError');
+function checkIdentity(expectedGeneration:number,expectedScope:string){
+ if(transitioning||generation!==expectedGeneration||getLearnerScope()!==expectedScope)throw staleRequest();
 }
-export async function deviceFetch(input:RequestInfo|URL,init?:RequestInit):Promise<Response>{await ensureDeviceSession();return globalThis.fetch(input,{...init,credentials:'same-origin'});}
+export function beginAccountTransition():void{
+ transitioning=true;generation++;
+ for(const controller of pendingRequests)controller.abort();
+ pendingRequests.clear();
+}
+export function endAccountTransition():void{
+ transitioning=false;
+ if(typeof window!=='undefined')window.dispatchEvent(new Event('kvtt-account-ready'));
+}
+function notifyExpired(){if(typeof window!=='undefined')window.dispatchEvent(new Event('kvtt-account-expired'));}
+export function ensureDeviceSession(fetcher:typeof fetch=globalThis.fetch):Promise<void>{
+ const expectedGeneration=generation;const expectedScope=getLearnerScope();
+ if(transitioning)return Promise.reject(staleRequest());
+ const existing=sessionRequests.get(fetcher);if(existing?.generation===generation&&existing.scope===expectedScope)return existing.request;
+ const controller=new AbortController();pendingRequests.add(controller);
+ const request=(async()=>{
+  try{
+   const response=await fetcher('/api/device/session',{credentials:'same-origin',cache:'no-store',signal:controller.signal,headers:{'X-KVTT-Account':expectedScope}});
+   checkIdentity(expectedGeneration,expectedScope);if(response.status===401)notifyExpired();
+   if(response.status===409){
+    let code:string|undefined;try{code=(await response.clone().json()).code;}catch{}
+    checkIdentity(expectedGeneration,expectedScope);
+    if(code==='ACCOUNT_CHANGED'){notifyExpired();throw staleRequest();}
+   }
+   if(!response.ok)throw Error('device session');const body=await response.json();checkIdentity(expectedGeneration,expectedScope);if(body.ready!==true)throw Error('device session');
+  }finally{pendingRequests.delete(controller);}
+ })().catch(error=>{if(sessionRequests.get(fetcher)?.request===request)sessionRequests.delete(fetcher);throw error;});
+ sessionRequests.set(fetcher,{generation:expectedGeneration,scope:expectedScope,request});return request;
+}
+export async function deviceFetch(input:RequestInfo|URL,init?:RequestInit):Promise<Response>{
+ const expectedGeneration=generation;const expectedScope=getLearnerScope();
+ checkIdentity(expectedGeneration,expectedScope);
+ await ensureDeviceSession();checkIdentity(expectedGeneration,expectedScope);
+ const controller=new AbortController();pendingRequests.add(controller);
+ const signal=init?.signal??(typeof Request!=='undefined'&&input instanceof Request?input.signal:undefined);
+ const abort=()=>controller.abort(signal?.reason);
+ if(signal?.aborted)abort();else signal?.addEventListener('abort',abort,{once:true});
+ const headers=new Headers(init?.headers??(typeof Request!=='undefined'&&input instanceof Request?input.headers:undefined));headers.set('X-KVTT-Account',expectedScope);
+ try{
+  const response=await globalThis.fetch(input,{...init,headers,credentials:'same-origin',signal:controller.signal});
+  checkIdentity(expectedGeneration,expectedScope);
+  if(response.status===401)notifyExpired();
+  if(response.status===409){
+   let code:string|undefined;try{code=(await response.clone().json()).code;}catch{}
+   checkIdentity(expectedGeneration,expectedScope);
+   if(code==='ACCOUNT_CHANGED'){notifyExpired();throw staleRequest();}
+  }
+  return response;
+ }finally{pendingRequests.delete(controller);signal?.removeEventListener('abort',abort);}
+}
 export interface DeviceSnapshot<T> { value:T; loading:boolean; saving:boolean; error:string }
 type StorageLike=Pick<Storage,'getItem'|'setItem'>;
 type Cached<T>={value:T;version:number;dirty:boolean};
@@ -26,7 +77,7 @@ export class DeviceDocument<T> {
  subscribe=(listener:()=>void)=>{this.listeners.add(listener);return ()=>{this.listeners.delete(listener);};};
  private emit(patch:Partial<DeviceSnapshot<T>>){this.state={...this.state,...patch};if(!this.stopped)this.listeners.forEach(l=>l());}
  private cache(){try{this.storage?.setItem(prefix+this.key,JSON.stringify({value:this.state.value,version:this.version,dirty:this.dirty}));}catch{}}
- set=(update:T|((previous:T)=>T))=>{const value=typeof update==='function'?(update as (previous:T)=>T)(this.state.value):update;this.revision++;this.dirty=true;this.emit({value});this.cache();void this.flush();};
+ set=(update:T|((previous:T)=>T))=>{if(this.stopped)return;const value=typeof update==='function'?(update as (previous:T)=>T)(this.state.value):update;this.revision++;this.dirty=true;this.emit({value});this.cache();void this.flush();};
  private url(){return '/api/device/documents/'+encodeURIComponent(this.key);}
  async start(){
  this.stopped=false;const epoch=++this.epoch;const revision=this.revision;this.emit({loading:true,error:''});

@@ -1,3 +1,4 @@
+import { learnerStorage as localStorage } from './learnerStorage';
 import { BADGES_LIST, type LearningProgressStats } from '../constants/badgesData';
 
 const DEFAULT_STATS: LearningProgressStats = {

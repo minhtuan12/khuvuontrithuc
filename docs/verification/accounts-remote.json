@@ -1,0 +1,18 @@
+{
+  "passed": true,
+  "checks": [
+    "existing guest API works",
+    "production register",
+    "secure HttpOnly cookie",
+    "no secrets in profile",
+    "production account data write",
+    "production logout",
+    "revoked session rejected",
+    "second production account",
+    "cross account data isolated",
+    "stale account scope rejected",
+    "incorrect password rejected",
+    "production login",
+    "production progress restored"
+  ]
+}

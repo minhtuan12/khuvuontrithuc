@@ -1,3 +1,4 @@
+import { learnerStorage as localStorage } from './learnerStorage';
 export const EMOTIONS = [
   { id: 'vui', label: 'Vui vẻ', emoji: '😊', description: 'Con thấy thật vui!', color: 'sun', feedback: 'Mầm vui cùng con! Mình cùng mang nụ cười này vào những khám phá hôm nay nhé.' },
   { id: 'buon', label: 'Buồn bã', emoji: '😢', description: 'Con muốn được ôm.', color: 'sky', feedback: 'Buồn một chút cũng không sao. Con có thể kể với bố mẹ hoặc cô giáo, rồi cùng Mầm nghe một câu chuyện nhẹ nhàng nhé.' },

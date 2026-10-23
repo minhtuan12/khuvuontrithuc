@@ -1,8 +1,12 @@
 // Device bearer credentials stay in HttpOnly cookies. Privileged database keys never leave this function.
 import { validators, object, number, allowedMedia } from '../../../server/deviceValidation.ts';
+import { AccountService, AccountError } from '../../../server/accountService.ts';
+import { SupabaseAccountRepository } from '../../../server/supabaseAccounts.ts';
+import { handleAccountHttp, parseAccountCookie } from '../../../server/accountHttp.ts';
 declare const Deno: { env: { get(name: string): string | undefined }; serve(handler: (req: Request) => Promise<Response>): void };
 const root = Deno.env.get('SUPABASE_URL')!;
 const key = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+const accountService = new AccountService(new SupabaseAccountRepository(root, key));
 const databaseHeaders = { apikey: key, Authorization: `Bearer ${key}`, 'Content-Type': 'application/json' };
 async function db(route: string, body?: unknown, method = body === undefined ? 'GET' : 'POST') {
   const response = await fetch(`${root}/rest/v1/${route}`, { method, headers: databaseHeaders, ...(body === undefined ? {} : { body: JSON.stringify(body) }) });
@@ -42,12 +46,28 @@ Deno.serve(async req => {
     if (origin && !allowedOrigins.includes(origin)) return json({ error: 'Cross-origin access is not allowed' }, 403);
     const route = new URL(req.url).pathname.split('/api/device')[1];
     if (!route) return json({ error: 'Not found' }, 404);
+    if (route.startsWith('/auth/')) {
+      let body: unknown;
+      if (req.method === 'POST') {
+        const text = new TextDecoder().decode(await boundedBody(req, 16384));
+        body = text ? JSON.parse(text) : {};
+      }
+      const result = await handleAccountHttp({ route, method: req.method, body, cookieHeader: req.headers.get('cookie') || undefined, secure: true }, accountService);
+      if (result.cookie) headers.append('Set-Cookie', result.cookie);
+      return json(result.body, result.status);
+    }
+    const accountToken = parseAccountCookie(req.headers.get('cookie') || undefined);
+    const user = await accountService.session(accountToken);
+    const expectedScope = req.headers.get('x-kvtt-account');
+    if (expectedScope && expectedScope !== (user?.id || 'guest')) return json({ error: 'Tài khoản đã thay đổi. Hãy tải lại dữ liệu.', code: 'ACCOUNT_CHANGED' }, 409);
     let token = req.headers.get('cookie')?.split(';').map(s => s.trim()).find(s => s.startsWith('kvtt_device='))?.slice(12);
     let owner = '';
-    if (token && /^[a-f0-9]{64}$/.test(token)) {
+    if (user) {
+      owner = await accountService.requireOwner(accountToken);
+    } else if (token && /^[a-f0-9]{64}$/.test(token)) {
       owner = hex(new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(token))));
       const devices = await db(`kvtt_devices?id=eq.${owner}&select=id`);
-      if (!devices.length) owner = '';
+      if (!devices.length || await accountService.repo.isAccountOwner(owner)) owner = '';
     }
     if (!owner) {
       token = hex(crypto.getRandomValues(new Uint8Array(32)));
@@ -57,6 +77,7 @@ Deno.serve(async req => {
     }
     if (route === '/session' && req.method === 'GET') return json({ ready: true });
     if (route === '/session' && req.method === 'DELETE') {
+      if (user) return json({ error: 'Hãy đăng xuất tài khoản trước khi xóa dữ liệu khách.' }, 409);
       await db(`kvtt_devices?id=eq.${owner}`, undefined, 'DELETE');
       headers.set('Set-Cookie', 'kvtt_device=; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=0');
       return new Response(null, { status: 204, headers });
@@ -114,6 +135,7 @@ Deno.serve(async req => {
     }
     return json({ error: 'Not found' }, 404);
   } catch (error) {
+    if (error instanceof AccountError) return json({ error: error.message }, error.status);
     return json({ error: error instanceof RangeError ? 'Request is too large' : error instanceof SyntaxError ? 'Invalid JSON body' : 'Could not save or load data' }, error instanceof RangeError ? 413 : error instanceof SyntaxError ? 400 : 503);
   }
 });

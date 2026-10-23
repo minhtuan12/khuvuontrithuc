@@ -3,6 +3,8 @@ import { randomBytes, randomUUID } from 'node:crypto';
 // @ts-ignore The application server runs on Bun, which provides SQLite natively.
 import { Database } from 'bun:sqlite';
 import { validators, object, number, allowedMedia } from './deviceValidation';
+import { AccountError, type AccountService } from './accountService.ts';
+import { parseAccountCookie } from './accountHttp.ts';
 
 type Document = { value: unknown; version: number };
 export class DeviceStore {
@@ -12,6 +14,7 @@ export class DeviceStore {
     this.db.exec('PRAGMA journal_mode=WAL; PRAGMA busy_timeout=5000; CREATE TABLE IF NOT EXISTS devices(id TEXT PRIMARY KEY); CREATE TABLE IF NOT EXISTS documents(owner TEXT NOT NULL, key TEXT NOT NULL, value TEXT NOT NULL, version INTEGER NOT NULL, PRIMARY KEY(owner,key)); CREATE TABLE IF NOT EXISTS uploads(id TEXT PRIMARY KEY, owner TEXT NOT NULL, name TEXT NOT NULL, mime TEXT NOT NULL, data BLOB NOT NULL, created_at TEXT NOT NULL);');
   }
   close() { this.db.close(); }
+  ensureOwner(id: string) { this.db.query('INSERT OR IGNORE INTO devices(id) VALUES(?)').run(id); }
   device(id?: string): { id: string; created: boolean } {
     if (id && /^[a-f0-9]{64}$/.test(id) && this.db.query('SELECT id FROM devices WHERE id=?').get(id)) return { id, created: false };
     const next = randomBytes(32).toString('hex');
@@ -45,19 +48,35 @@ export class DeviceStore {
   file(owner: string, id: string) { return this.db.query('SELECT mime,data FROM uploads WHERE owner=? AND id=?').get(owner, id); }
 }
 
-export function createDeviceRouter(store: DeviceStore) {
+export function createDeviceRouter(store: DeviceStore, accounts?: AccountService) {
   const router = Router();
-  router.use('/api/device', (req, res, next) => {
+  router.use('/api/device', async (req, res, next) => {
     res.setHeader('Cache-Control', 'private, no-store');
     if (req.headers.origin) {
       try { if (new URL(req.headers.origin).host !== req.headers.host) return res.status(403).json({ error: 'Cross-origin access is not allowed' }); }
       catch { return res.status(403).json({ error: 'Invalid origin' }); }
     }
-    const cookie = req.headers.cookie?.split(';').map(item => item.trim()).find(item => item.startsWith('kvtt_device='))?.slice('kvtt_device='.length);
+    let cookie = req.headers.cookie?.split(';').map(item => item.trim()).find(item => item.startsWith('kvtt_device='))?.slice('kvtt_device='.length);
+    try {
+    const accountToken = parseAccountCookie(req.headers.cookie);
+    const user = accounts ? await accounts.session(accountToken) : null;
+    const expected = req.headers['x-kvtt-account'];
+    if (typeof expected === 'string' && expected !== (user?.id || 'guest')) return res.status(409).json({ error: 'Tài khoản đã thay đổi. Hãy tải lại dữ liệu.', code: 'ACCOUNT_CHANGED' });
+    if (user && accounts) {
+      const owner = await accounts.requireOwner(accountToken);
+      store.ensureOwner(owner);
+      res.locals.device = owner;
+      return next();
+    }
+    if (cookie && accounts && await accounts.repo.isAccountOwner(cookie)) cookie = undefined;
     const identity = store.device(cookie);
-    if (identity.created) res.cookie('kvtt_device', identity.id, { httpOnly: true, sameSite: 'strict', secure: req.secure, maxAge: 365 * 24 * 60 * 60 * 1000, path: '/' });
+    if (identity.created) res.cookie('kvtt_device', identity.id, { httpOnly: true, sameSite: 'strict', secure: req.secure || process.env.NODE_ENV === 'production', maxAge: 365 * 24 * 60 * 60 * 1000, path: '/' });
     res.locals.device = identity.id;
     next();
+    } catch (error) {
+      if (error instanceof AccountError) return res.status(error.status).json({ error: error.message });
+      return next(error);
+    }
   });
   router.get('/api/device/documents/:key', (req, res) => {
     if (!Object.hasOwn(validators, req.params.key)) return res.status(404).json({ error: 'Unknown data key' });
