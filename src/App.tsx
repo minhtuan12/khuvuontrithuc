@@ -679,8 +679,7 @@ const playBase64PCM = async (base64Data: string): Promise<void> => {
 };
 
 const speak = async (text: string, isPraise = false, lang = 'vi'): Promise<void> => {
-  // Automatic speech removed by user request
-  return Promise.resolve();
+  await readAssistantMessage(text, true, lang);
 };
 
 const getCurrentItemsList = (currentView: string, selectedAge: string | null, letterLang: string) => {
