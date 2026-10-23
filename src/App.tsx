@@ -1,9 +1,9 @@
 import { getLearnerStorage } from './lib/learnerStorage';
 import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { 
-  Volume2, ArrowLeft, X, Sparkles, Trophy, Star, Mic, Square, Video, 
-  Image as ImageIcon, Search, BookOpen, Heart, Activity, Palette, 
+import {
+  Volume2, ArrowLeft, X, Sparkles, Trophy, Star, Mic, Square, Video,
+  Image as ImageIcon, Search, BookOpen, Heart, Activity, Palette,
   GraduationCap, Lightbulb, Compass, Award, CheckCircle2, Play,
   Smile, Frown, AlertCircle, Clock, ShieldCheck, Flame, ExternalLink, HelpCircle, Settings
 } from 'lucide-react';
@@ -243,75 +243,75 @@ const LETTER_LESSONS_5_6 = [
 ];
 
 const CATEGORIES = [
-  { 
-    id: 'physical', 
-    title: 'PHÁT TRIỂN THỂ CHẤT', 
+  {
+    id: 'physical',
+    title: 'PHÁT TRIỂN THỂ CHẤT',
     subtitle: 'Vận động & Sức khỏe',
-    description: 'Vận động khỏe mạnh, thể dục nhịp điệu & rèn luyện thân thể', 
+    description: 'Vận động khỏe mạnh, thể dục nhịp điệu & rèn luyện thân thể',
     icon: '🏃‍♂️',
     icon3D: 'physical' as const,
-    color: 'bg-emerald-50', 
-    textColor: 'text-emerald-950', 
+    color: 'bg-emerald-50',
+    textColor: 'text-emerald-950',
     shadow: 'shadow-emerald-200/80',
     badge: '12+ Bài tập',
     border: 'border-emerald-400',
     btnColor: 'bg-emerald-600 hover:bg-emerald-700 text-white',
     accentColor: 'from-emerald-500 to-teal-500'
   },
-  { 
-    id: 'cognitive', 
-    title: 'PHÁT TRIỂN NHẬN THỨC', 
+  {
+    id: 'cognitive',
+    title: 'PHÁT TRIỂN NHẬN THỨC',
     subtitle: 'Toán học & Khoa học',
-    description: 'Toán học vui, khám phá khoa học & thế giới xung quanh', 
+    description: 'Toán học vui, khám phá khoa học & thế giới xung quanh',
     icon: '💡',
     icon3D: 'cognitive' as const,
-    color: 'bg-amber-50', 
-    textColor: 'text-amber-950', 
+    color: 'bg-amber-50',
+    textColor: 'text-amber-950',
     shadow: 'shadow-amber-200/80',
     badge: 'Toán & Khám phá',
     border: 'border-amber-400',
     btnColor: 'bg-amber-500 hover:bg-amber-600 text-white',
     accentColor: 'from-amber-400 to-yellow-500'
   },
-  { 
-    id: 'language', 
-    title: 'PHÁT TRIỂN NGÔN NGỮ', 
+  {
+    id: 'language',
+    title: 'PHÁT TRIỂN NGÔN NGỮ',
     subtitle: 'Chữ cái & Truyện kể',
-    description: 'Làm quen bảng chữ cái, truyện cổ tích & thơ mầm non', 
+    description: 'Làm quen bảng chữ cái, truyện cổ tích & thơ mầm non',
     icon: '🔤',
     icon3D: 'language' as const,
-    color: 'bg-pink-50', 
-    textColor: 'text-pink-950', 
+    color: 'bg-pink-50',
+    textColor: 'text-pink-950',
     shadow: 'shadow-pink-200/80',
     badge: 'Chữ & Truyện hay',
     border: 'border-pink-400',
     btnColor: 'bg-pink-600 hover:bg-pink-700 text-white',
     accentColor: 'from-pink-400 to-rose-500'
   },
-  { 
-    id: 'social', 
-    title: 'TÌNH CẢM - KỸ NĂNG XÃ HỘI', 
+  {
+    id: 'social',
+    title: 'TÌNH CẢM - KỸ NĂNG XÃ HỘI',
     subtitle: 'Cảm xúc & Kỹ năng sống',
-    description: 'Yêu thương, chia sẻ, an toàn sống & thói quen tốt', 
+    description: 'Yêu thương, chia sẻ, an toàn sống & thói quen tốt',
     icon: '🤝',
     icon3D: 'social' as const,
-    color: 'bg-purple-50', 
-    textColor: 'text-purple-950', 
+    color: 'bg-purple-50',
+    textColor: 'text-purple-950',
     shadow: 'shadow-purple-200/80',
     badge: 'Kỹ năng & An toàn',
     border: 'border-purple-400',
     btnColor: 'bg-purple-600 hover:bg-purple-700 text-white',
     accentColor: 'from-purple-400 to-indigo-500'
   },
-  { 
-    id: 'aesthetic', 
-    title: 'PHÁT TRIỂN THẨM MỸ', 
+  {
+    id: 'aesthetic',
+    title: 'PHÁT TRIỂN THẨM MỸ',
     subtitle: 'Nghệ thuật & Âm nhạc',
-    description: 'Ca hát múa sôi động, tô màu & tạo hình sáng tạo', 
+    description: 'Ca hát múa sôi động, tô màu & tạo hình sáng tạo',
     icon: '🎨',
     icon3D: 'aesthetic' as const,
-    color: 'bg-sky-50', 
-    textColor: 'text-sky-950', 
+    color: 'bg-sky-50',
+    textColor: 'text-sky-950',
     shadow: 'shadow-sky-200/80',
     badge: 'Âm nhạc & Tạo hình',
     border: 'border-sky-400',
@@ -649,29 +649,29 @@ const playBase64PCM = async (base64Data: string): Promise<void> => {
   if (!audioCtx) {
     audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)({ sampleRate: 24000 });
   }
-  
+
   if (audioCtx.state === 'suspended') {
     await audioCtx.resume();
   }
-  
+
   const binaryString = atob(base64Data);
   const len = binaryString.length;
   const bytes = new Uint8Array(len);
   for (let i = 0; i < len; i++) {
     bytes[i] = binaryString.charCodeAt(i);
   }
-  
+
   const buffer = new Int16Array(bytes.buffer);
   const audioBuffer = audioCtx.createBuffer(1, buffer.length, 24000);
   const channelData = audioBuffer.getChannelData(0);
   for (let i = 0; i < buffer.length; i++) {
     channelData[i] = buffer[i] / 32768.0;
   }
-  
+
   const source = audioCtx.createBufferSource();
   source.buffer = audioBuffer;
   source.connect(audioCtx.destination);
-  
+
   return new Promise<void>((resolve) => {
     source.onended = () => resolve();
     source.start();
@@ -690,7 +690,7 @@ const getCurrentItemsList = (currentView: string, selectedAge: string | null, le
     else if (selectedAge === '3-4') { stories = STORIES_3_4; poems = POEMS_3_4; }
     else if (selectedAge === '4-5') { stories = STORIES_4_5; poems = POEMS_4_5; }
     else if (selectedAge === '5-6') { stories = STORIES_5_6; poems = POEMS_5_6; }
-    
+
     const letters = letterLang === 'vi' ? LETTERS : ENGLISH_LETTERS;
     let initialList: any[] = [];
     if (selectedAge === '5-6') initialList = [...LETTER_LESSONS_5_6, ...letters, ...stories, ...poems];
@@ -698,7 +698,7 @@ const getCurrentItemsList = (currentView: string, selectedAge: string | null, le
     else initialList = [...letters, ...stories, ...poems];
     return initialList;
   }
-  
+
   if (currentView === 'physical') {
     if (selectedAge === 'toddler') return PHYSICAL_TODDLER_ACTIVITIES;
     if (selectedAge === '3-4') return PHYSICAL_3_4_ACTIVITIES;
@@ -739,16 +739,16 @@ export default function App({ startAtHome = false }: { startAtHome?: boolean }) 
       active.stream?.getTracks().forEach(track => track.stop());
     };
   }, []);
-  const deviceFetch = useMemo<typeof fetch>(() => (input,init) => {
-    if (getLearnerScope() !== ownerScope) return Promise.reject(new DOMException('Tài khoản đã thay đổi','AbortError'));
-    return fetchDeviceData(input,init);
+  const deviceFetch = useMemo<typeof fetch>(() => (input, init) => {
+    if (getLearnerScope() !== ownerScope) return Promise.reject(new DOMException('Tài khoản đã thay đổi', 'AbortError'));
+    return fetchDeviceData(input, init);
   }, [ownerScope]);
-  const routeFromPath = (): TeacherRoute => location.pathname==='/giao-vien/giao-an'?'lessons':location.pathname==='/giao-vien/hoc-sinh'?'students':location.pathname==='/giao-vien/hop-thu'?'inbox':location.pathname==='/giao-vien/chuan-bi-bai'?'prepare':location.pathname==='/giao-vien/tu-hoc'?'self-study':'home';
-  const startsInTeacherArea=isTeacher&&location.pathname.startsWith('/giao-vien');
-  const [showSplash, setShowSplash] = useState(!startAtHome&&!startsInTeacherArea);
-  const [currentView, setCurrentView] = useState(startsInTeacherArea?'teacher':'home');
-  const [currentTab, setCurrentTab] = useState(startsInTeacherArea?'teacher':'home');
-  const [teacherRoute,setTeacherRoute]=useState<TeacherRoute>(routeFromPath);
+  const routeFromPath = (): TeacherRoute => location.pathname === '/giao-vien/giao-an' ? 'lessons' : location.pathname === '/giao-vien/hoc-sinh' ? 'students' : location.pathname === '/giao-vien/hop-thu' ? 'inbox' : location.pathname === '/giao-vien/chuan-bi-bai' ? 'prepare' : location.pathname === '/giao-vien/tu-hoc' ? 'self-study' : 'home';
+  const startsInTeacherArea = isTeacher && location.pathname.startsWith('/giao-vien');
+  const [showSplash, setShowSplash] = useState(!startAtHome && !startsInTeacherArea);
+  const [currentView, setCurrentView] = useState(startsInTeacherArea ? 'teacher' : 'home');
+  const [currentTab, setCurrentTab] = useState(startsInTeacherArea ? 'teacher' : 'home');
+  const [teacherRoute, setTeacherRoute] = useState<TeacherRoute>(routeFromPath);
   const [selectedAge, setSelectedAge] = useState<string | null>(null);
   const [selectedSection, setSelectedSection] = useState<string | null>(null);
   const [selectedItem, setSelectedItem] = useState<any>(null);
@@ -756,7 +756,7 @@ export default function App({ startAtHome = false }: { startAtHome?: boolean }) 
   const [letterLang, setLetterLang] = useState<'vi' | 'en'>('vi');
   const [stars, setStars, starsData] = useDeviceDocument('stars', () => readStoredNumber('kvtt.stars.v1'));
   const [activeMathGame, setActiveMathGame] = useState<string | null>(null);
-  const [uploadedFiles, setUploadedFiles] = useState<{id: string, url: string, name: string, type: 'image' | 'video'}[]>([]);
+  const [uploadedFiles, setUploadedFiles] = useState<{ id: string, url: string, name: string, type: 'image' | 'video' }[]>([]);
   const [uploadBusy, setUploadBusy] = useState(false);
   const [uploadError, setUploadError] = useState('');
   const [emotionHistory, setEmotionHistory, emotionsData] = useDeviceDocument<EmotionRecord[]>('emotions', readEmotionHistory);
@@ -797,16 +797,16 @@ export default function App({ startAtHome = false }: { startAtHome?: boolean }) 
   const [englishInitialTarget, setEnglishInitialTarget] = useState<'kids' | 'teachers' | 'games'>('kids');
   const [englishInitialAge, setEnglishInitialAge] = useState<'3-4' | '4-5' | '5-6'>('3-4');
 
-  const openTeacherRoute=(route:TeacherRoute,path:string,replace=false)=>{
-    if(!isTeacher)return;
-    window.history[replace?'replaceState':'pushState']({},'',path);
-    setTeacherRoute(route);setCurrentView('teacher');setCurrentTab('teacher');setShowSplash(false);
+  const openTeacherRoute = (route: TeacherRoute, path: string, replace = false) => {
+    if (!isTeacher) return;
+    window.history[replace ? 'replaceState' : 'pushState']({}, '', path);
+    setTeacherRoute(route); setCurrentView('teacher'); setCurrentTab('teacher'); setShowSplash(false);
   };
-  useEffect(()=>{
-    if(!isTeacher&&location.pathname.startsWith('/giao-vien'))window.history.replaceState({},'','/');
-    const pop=()=>{if(isTeacher&&location.pathname.startsWith('/giao-vien')){setTeacherRoute(routeFromPath());setCurrentView('teacher');setCurrentTab('teacher');}else{setCurrentView('home');setCurrentTab('home');}};
-    window.addEventListener('popstate',pop);return()=>window.removeEventListener('popstate',pop);
-  },[isTeacher]);
+  useEffect(() => {
+    if (!isTeacher && location.pathname.startsWith('/giao-vien')) window.history.replaceState({}, '', '/');
+    const pop = () => { if (isTeacher && location.pathname.startsWith('/giao-vien')) { setTeacherRoute(routeFromPath()); setCurrentView('teacher'); setCurrentTab('teacher'); } else { setCurrentView('home'); setCurrentTab('home'); } };
+    window.addEventListener('popstate', pop); return () => window.removeEventListener('popstate', pop);
+  }, [isTeacher]);
 
   const openEnglishModule = (target: 'kids' | 'teachers' | 'games' = 'kids', age: '3-4' | '4-5' | '5-6' = '3-4') => {
     if (target === 'teachers' && !isTeacher) return;
@@ -902,7 +902,7 @@ export default function App({ startAtHome = false }: { startAtHome?: boolean }) 
         const updated = Array.from(new Set([...prev, ...newlyEarned.map(b => b.id)]));
         try {
           localStorage.setItem('mamnon_unlocked_badges', JSON.stringify(updated));
-        } catch {}
+        } catch { }
         return updated;
       });
       speak(`Tuyệt vời! Bé đã xuất sắc mở khóa huy hiệu: ${firstNew.title}!`);
@@ -912,7 +912,7 @@ export default function App({ startAtHome = false }: { startAtHome?: boolean }) 
           spread: 100,
           origin: { y: 0.5 }
         });
-      } catch {}
+      } catch { }
     }
   };
 
@@ -928,9 +928,9 @@ export default function App({ startAtHome = false }: { startAtHome?: boolean }) 
     const cat = categoryHint || currentView;
     const nameLower = (itemName || '').toLowerCase();
     const isMath = cat === 'math' || (cat === 'cognitive' && (
-      nameLower.includes('toán') || 
-      nameLower.includes('đếm') || 
-      nameLower.includes('số') || 
+      nameLower.includes('toán') ||
+      nameLower.includes('đếm') ||
+      nameLower.includes('số') ||
       nameLower.includes('hình') ||
       nameLower.includes('math') ||
       nameLower.includes('1-5') ||
@@ -965,7 +965,7 @@ export default function App({ startAtHome = false }: { startAtHome?: boolean }) 
 
       try {
         localStorage.setItem('mamnon_learning_stats', JSON.stringify(updated));
-      } catch {}
+      } catch { }
 
       checkBadgeUnlocks(updated, nextStars, unlockedBadgeIds);
       return updated;
@@ -1036,7 +1036,7 @@ export default function App({ startAtHome = false }: { startAtHome?: boolean }) 
       speak('Chào mừng bé và cô đến với phân hệ Tiếng Anh');
       return;
     }
-    
+
     const audioUrls: Record<string, string> = {
       physical: "https://www.image2url.com/r2/default/files/1777167115114-1c2c97ec-84f7-4844-a7f7-bf77d87b9c02.wav",
       cognitive: "https://www.image2url.com/r2/default/files/1777167238984-701fa9e6-3525-41d8-a041-d70665e56a82.wav",
@@ -1056,7 +1056,7 @@ export default function App({ startAtHome = false }: { startAtHome?: boolean }) 
   const getItemSpeechText = (item: any) => {
     let textToSpeak = item.name;
     let lang = 'vi';
-    
+
     const phoneticMap: Record<string, string> = {
       'a': 'a', 'ă': 'á', 'â': 'ớ', 'b': 'bờ', 'c': 'cờ',
       'd': 'dờ', 'đ': 'đờ', 'e': 'e', 'ê': 'ê', 'g': 'gờ',
@@ -1093,10 +1093,10 @@ export default function App({ startAtHome = false }: { startAtHome?: boolean }) 
       } else if (letterLang === 'vi') {
         const letterSound = phoneticMap[item.id] || item.id;
         const description = item.name.split(' – ')[1] || item.name;
-        const phoneticDescription = description.startsWith(item.id + ' ') 
-            ? description.replace(item.id + ' ', letterSound + ' ') 
-            : description;
-            
+        const phoneticDescription = description.startsWith(item.id + ' ')
+          ? description.replace(item.id + ' ', letterSound + ' ')
+          : description;
+
         textToSpeak = `Chữ ${letterSound}. ${phoneticDescription}`;
         lang = 'vi';
       } else {
@@ -1112,7 +1112,7 @@ export default function App({ startAtHome = false }: { startAtHome?: boolean }) 
     setSelectedItem(item);
     setPronunciationFeedback(null);
     setIsGeneratingAudio(true);
-    
+
     // Update progress when a lesson is opened
     setActivitiesCompleted(prev => {
       if (prev < dailyActivityTarget) return prev + 1;
@@ -1176,42 +1176,42 @@ export default function App({ startAtHome = false }: { startAtHome?: boolean }) 
       mediaRecorder.ondataavailable = (e) => chunks.push(e.data);
       mediaRecorder.onstop = async () => {
         try {
-        if (!isCurrentPractice()) return;
-        stream.getTracks().forEach(track => track.stop());
-        const mimeType = mediaRecorder.mimeType || chunks[0]?.type || 'audio/webm';
-        const audioBlob = new Blob(chunks, { type: mimeType });
-        const reader = new FileReader();
-        const base64Audio = await new Promise<string>((resolve, reject) => {
-          reader.onerror = () => reject(new Error('Không đọc được bản ghi âm.'));
-          reader.onloadend = () => resolve((reader.result as string).split(',')[1]);
-          reader.readAsDataURL(audioBlob);
-        });
-        if (!isCurrentPractice()) return;
+          if (!isCurrentPractice()) return;
+          stream.getTracks().forEach(track => track.stop());
+          const mimeType = mediaRecorder.mimeType || chunks[0]?.type || 'audio/webm';
+          const audioBlob = new Blob(chunks, { type: mimeType });
+          const reader = new FileReader();
+          const base64Audio = await new Promise<string>((resolve, reject) => {
+            reader.onerror = () => reject(new Error('Không đọc được bản ghi âm.'));
+            reader.onloadend = () => resolve((reader.result as string).split(',')[1]);
+            reader.readAsDataURL(audioBlob);
+          });
+          if (!isCurrentPractice()) return;
 
-        const targetWord = currentView === 'language' ? (letterLang === 'vi' ? selectedItem.word : selectedItem.word) : selectedItem.name;
-        
-        const response = await fetch('/api/pronunciation/feedback', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ audioBase64: base64Audio, targetWord, mimeType }),
-          signal: active.controller.signal,
-        });
-        if (!response.ok) throw new Error('Không thể nhận xét giọng đọc lúc này.');
-        const result = await response.json() as { feedback?: string };
-        if (!isCurrentPractice()) return;
-        if (typeof result.feedback !== 'string' || !result.feedback.trim()) throw new Error('Invalid feedback');
-        const feedback = result.feedback;
-        setPronunciationFeedback(feedback);
-        speak(feedback);
-        triggerCompletionReward(`Luyện phát âm: ${targetWord}`, 'speech');
+          const targetWord = currentView === 'language' ? (letterLang === 'vi' ? selectedItem.word : selectedItem.word) : selectedItem.name;
+
+          const response = await fetch('/api/pronunciation/feedback', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ audioBase64: base64Audio, targetWord, mimeType }),
+            signal: active.controller.signal,
+          });
+          if (!response.ok) throw new Error('Không thể nhận xét giọng đọc lúc này.');
+          const result = await response.json() as { feedback?: string };
+          if (!isCurrentPractice()) return;
+          if (typeof result.feedback !== 'string' || !result.feedback.trim()) throw new Error('Invalid feedback');
+          const feedback = result.feedback;
+          setPronunciationFeedback(feedback);
+          speak(feedback);
+          triggerCompletionReward(`Luyện phát âm: ${targetWord}`, 'speech');
         } catch {
           if (!isCurrentPractice()) return;
           setPronunciationFeedback('Chưa thể nhận xét lúc này. Bé có thể thử lại sau nhé!');
         } finally {
-        if (isCurrentPractice()) setIsPracticing(false);
-        if (pronunciation.current === active) pronunciation.current = null;
-        clearTimeout(active.timer);
-        stream.getTracks().forEach(t => t.stop());
+          if (isCurrentPractice()) setIsPracticing(false);
+          if (pronunciation.current === active) pronunciation.current = null;
+          clearTimeout(active.timer);
+          stream.getTracks().forEach(t => t.stop());
         }
       };
 
@@ -1231,9 +1231,9 @@ export default function App({ startAtHome = false }: { startAtHome?: boolean }) 
     setEmotionSpeechError('');
     setUserEmotion(emotion);
     setShowCheckIn(false);
-    
+
     const feedback = EMOTIONS.find(item => item.id === emotion)!.feedback;
-    
+
     setEmotionHistory(prev => [{
       emotion,
       date: new Date().toISOString(),
@@ -1263,7 +1263,7 @@ export default function App({ startAtHome = false }: { startAtHome?: boolean }) 
   // Searchable items index for fast lookup
   const allSearchableItems = useMemo(() => {
     const list: any[] = [];
-    
+
     // Stories
     const storyGroups = [
       { data: STORIES_TODDLER, age: 'Nhà trẻ' },
@@ -1397,8 +1397,8 @@ export default function App({ startAtHome = false }: { startAtHome?: boolean }) 
   const searchResults = useMemo(() => {
     if (!searchQuery.trim() || searchQuery.trim().length < 2) return [];
     const q = searchQuery.toLowerCase().trim();
-    return allSearchableItems.filter(item => 
-      item.title.toLowerCase().includes(q) || 
+    return allSearchableItems.filter(item =>
+      item.title.toLowerCase().includes(q) ||
       item.categoryTitle.toLowerCase().includes(q) ||
       item.age.toLowerCase().includes(q)
     ).slice(0, 8);
@@ -1442,30 +1442,30 @@ export default function App({ startAtHome = false }: { startAtHome?: boolean }) 
     <div className="flex flex-col items-center w-full pb-36 relative">
       {/* Background Ambience */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
-        <motion.div 
-          animate={{ rotate: 360 }} 
+        <motion.div
+          animate={{ rotate: 360 }}
           transition={{ repeat: Infinity, duration: 120, ease: "linear" }}
           className="absolute -top-12 -right-12 text-[140px] opacity-75 drop-shadow-sm select-none"
         >
           🌞
         </motion.div>
-        
-        <motion.div 
-          animate={{ x: [0, 80, 0] }} 
+
+        <motion.div
+          animate={{ x: [0, 80, 0] }}
           transition={{ repeat: Infinity, duration: 24, ease: "easeInOut" }}
           className="absolute top-16 left-8 text-5xl opacity-60 select-none"
         >
           ☁️
         </motion.div>
-        <motion.div 
-          animate={{ x: [0, -60, 0] }} 
+        <motion.div
+          animate={{ x: [0, -60, 0] }}
           transition={{ repeat: Infinity, duration: 28, ease: "easeInOut" }}
           className="absolute top-36 right-16 text-6xl opacity-50 select-none"
         >
           ☁️
         </motion.div>
-        <motion.div 
-          animate={{ y: [0, -15, 0] }} 
+        <motion.div
+          animate={{ y: [0, -15, 0] }}
           transition={{ repeat: Infinity, duration: 5, ease: "easeInOut" }}
           className="absolute top-28 left-1/3 text-5xl opacity-80 select-none"
         >
@@ -1478,7 +1478,7 @@ export default function App({ startAtHome = false }: { startAtHome?: boolean }) 
 
       {/* KHU VỰC 1: BANNER HOẠT HÌNH 3D CAO CẤP - THẾ GIỚI VUI HỌC CỦA BÉ */}
       <section className="w-full pt-4 pb-6 px-4 sm:px-6 relative z-10 max-w-7xl mx-auto">
-        
+
         {/* Top Header Branding Bar - Modern Preschool */}
         <div className="mb-6 bg-white/95 backdrop-blur-md rounded-[28px] px-5 sm:px-8 py-3.5 border border-sky-100 shadow-[0_4px_20px_rgba(14,165,233,0.06)] flex flex-wrap items-center justify-between gap-4">
           {/* Logo & School Name */}
@@ -1539,7 +1539,7 @@ export default function App({ startAtHome = false }: { startAtHome?: boolean }) 
           </div>
         </div>
 
-        <Hero3DScene 
+        <Hero3DScene
           onExploreClick={() => {
             const el = document.getElementById('functional-categories-section');
             if (el) {
@@ -1557,7 +1557,7 @@ export default function App({ startAtHome = false }: { startAtHome?: boolean }) 
 
         {/* Quick Search & Interaction Controls Bar */}
         <div className="mt-6 bg-white/95 backdrop-blur-md rounded-[28px] p-4 sm:p-5 border border-sky-100 shadow-[0_8px_24px_rgba(14,165,233,0.06)] flex flex-col lg:flex-row items-center justify-between gap-4">
-          
+
           {/* Quick Search Input */}
           <div className="relative w-full lg:max-w-md">
             <div className="relative flex items-center">
@@ -1620,7 +1620,7 @@ export default function App({ startAtHome = false }: { startAtHome?: boolean }) 
 
           {/* Action Chips: Mode, Emotion, Stars & Daily Progress */}
           <div className="flex flex-wrap items-center justify-center lg:justify-end gap-2.5 w-full lg:w-auto">
-            
+
             {/* Mode Switcher Pill */}
             <div className="bg-slate-100/90 p-1 rounded-2xl flex items-center border border-slate-200/80 shadow-inner">
               <button
@@ -1628,11 +1628,10 @@ export default function App({ startAtHome = false }: { startAtHome?: boolean }) 
                   setHomeMode('kids');
                   speak("Không gian Bé Vui Học");
                 }}
-                className={`px-3 py-1.5 rounded-xl text-xs font-black transition-all flex items-center gap-1.5 cursor-pointer ${
-                  homeMode === 'kids'
+                className={`px-3 py-1.5 rounded-xl text-xs font-black transition-all flex items-center gap-1.5 cursor-pointer ${homeMode === 'kids'
                     ? 'bg-white text-sky-900 shadow-xs border border-sky-100'
                     : 'text-slate-500 hover:text-slate-800'
-                }`}
+                  }`}
               >
                 <span>🎈</span>
                 <span>Bé Vui Học</span>
@@ -1640,13 +1639,12 @@ export default function App({ startAtHome = false }: { startAtHome?: boolean }) 
               {isTeacher && <button
                 onClick={() => {
                   setHomeMode('teachers');
-                  openTeacherRoute('home','/giao-vien');
+                  openTeacherRoute('home', '/giao-vien');
                 }}
-                className={`px-3 py-1.5 rounded-xl text-xs font-black transition-all flex items-center gap-1.5 cursor-pointer ${
-                  homeMode === 'teachers'
+                className={`px-3 py-1.5 rounded-xl text-xs font-black transition-all flex items-center gap-1.5 cursor-pointer ${homeMode === 'teachers'
                     ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-xs'
                     : 'text-slate-500 hover:text-purple-700'
-                }`}
+                  }`}
               >
                 <span>👩‍🏫</span>
                 <span>Góc Của Cô</span>
@@ -1664,7 +1662,7 @@ export default function App({ startAtHome = false }: { startAtHome?: boolean }) 
                 {userEmotion === 'vui' ? '😊' : userEmotion === 'buon' ? '😢' : userEmotion === 'tuc-gian' ? '😠' : '🎭'}
               </span>
               <span>
-                {userEmotion 
+                {userEmotion
                   ? `${userEmotion === 'vui' ? 'Vui vẻ' : userEmotion === 'buon' ? 'Buồn bã' : 'Tức giận'}`
                   : 'Cảm xúc'}
               </span>
@@ -1683,7 +1681,7 @@ export default function App({ startAtHome = false }: { startAtHome?: boolean }) 
                 <span className="text-emerald-800">{activitiesCompleted}/{dailyActivityTarget}</span>
               </div>
               <div className="w-14 h-2 bg-emerald-200 rounded-full overflow-hidden">
-                <div 
+                <div
                   className="h-full bg-emerald-600 rounded-full transition-all"
                   style={{ width: `${Math.min(100, (activitiesCompleted / dailyActivityTarget) * 100)}%` }}
                 />
@@ -1698,19 +1696,18 @@ export default function App({ startAtHome = false }: { startAtHome?: boolean }) 
       {/* EMOTION SUGGESTIONS (IF SELECTED) - COMPACT & NEAT TOAST */}
       <AnimatePresence>
         {userEmotion && (
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: -10, scale: 0.98 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -10, scale: 0.98 }}
             className="w-full max-w-7xl mx-auto px-4 sm:px-6 mb-8 relative z-10"
           >
-            <div className={`rounded-3xl p-5 sm:p-6 border-3 shadow-md flex flex-col md:flex-row items-start md:items-center justify-between gap-4 relative ${
-              userEmotion === 'vui' 
-                ? 'bg-gradient-to-r from-amber-50 via-yellow-50 to-emerald-50 border-amber-300' 
+            <div className={`rounded-3xl p-5 sm:p-6 border-3 shadow-md flex flex-col md:flex-row items-start md:items-center justify-between gap-4 relative ${userEmotion === 'vui'
+                ? 'bg-gradient-to-r from-amber-50 via-yellow-50 to-emerald-50 border-amber-300'
                 : userEmotion === 'tuc-gian'
                   ? 'bg-gradient-to-r from-rose-50 via-orange-50 to-pink-50 border-rose-300'
                   : 'bg-gradient-to-r from-sky-50 via-indigo-50 to-purple-50 border-sky-300'
-            }`}>
+              }`}>
               <div className="flex items-center gap-3">
                 <span className="text-3xl sm:text-4xl">
                   {userEmotion === 'vui' ? '🌟' : userEmotion === 'tuc-gian' ? '🌬️' : '✨'}
@@ -1778,7 +1775,7 @@ export default function App({ startAtHome = false }: { startAtHome?: boolean }) 
       {/* PHẦN 1: NĂM LĨNH VỰC PHÁT TRIỂN TOÀN DIỆN CHO TRẺ MẦM NON (CHUẨN BỘ GD&ĐT) */}
       {/* ========================================================================= */}
       <section id="functional-categories-section" className="w-full px-4 sm:px-6 mb-12 max-w-7xl mx-auto z-10">
-        
+
         {/* Section Header */}
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-3 mb-6">
           <div>
@@ -1856,7 +1853,7 @@ export default function App({ startAtHome = false }: { startAtHome?: boolean }) 
       {/* ========================================================================= */}
       <section className="w-full px-4 sm:px-6 mb-12 max-w-7xl mx-auto z-10">
         <div className="bg-gradient-to-br from-indigo-50/95 via-sky-50/90 to-purple-50/95 rounded-[36px] p-6 sm:p-8 border-4 border-indigo-200/90 shadow-xl shadow-indigo-950/5 relative overflow-hidden">
-          
+
           {/* Subtle Ambient Stars */}
           <div className="absolute top-4 right-6 text-3xl opacity-40 pointer-events-none">✨</div>
           <div className="absolute bottom-4 left-6 text-2xl opacity-30 pointer-events-none">🎈</div>
@@ -1895,7 +1892,7 @@ export default function App({ startAtHome = false }: { startAtHome?: boolean }) 
 
           {/* 4 Dedicated Cards Grid: 3 Age Tracks + 1 Game Arcade */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 relative z-10 mb-6">
-            
+
             {/* Track 1: 3-4 Tuổi */}
             <motion.div
               whileHover={{ y: -5 }}
@@ -2055,7 +2052,7 @@ export default function App({ startAtHome = false }: { startAtHome?: boolean }) 
     <div className="fixed bottom-0 left-0 w-full z-40 pb-6 pt-10 px-4 pointer-events-none">
       {/* Stars Display */}
       {currentTab === 'home' && !showSplash && <div className="absolute top-[-80px] right-6 pointer-events-auto">
-        <motion.div 
+        <motion.div
           whileHover={{ scale: 1.1 }}
           className="bg-white/90 backdrop-blur-md px-6 py-3 rounded-full shadow-lg border-2 border-yellow-200 flex items-center gap-3"
         >
@@ -2071,10 +2068,10 @@ export default function App({ startAtHome = false }: { startAtHome?: boolean }) 
           { id: 'assistant', icon: '🤖', label: 'Trợ lý AI', activeColor: 'bg-amber-600' },
           { id: 'achievements', icon: '🏆', label: 'Thành tích', activeColor: 'bg-yellow-500' },
           { id: 'parents', icon: '👨‍👩‍👧', label: 'Phụ huynh', activeColor: 'bg-rose-500' },
-          ...(isTeacher?[{id:'teacher',icon:'👩‍🏫',label:'Cô giáo',activeColor:'bg-teal-600'}]:[]),
+          ...(isTeacher ? [{ id: 'teacher', icon: '👩‍🏫', label: 'Cô giáo', activeColor: 'bg-teal-600' }] : []),
         ].map(tab => {
-          const isActive = (currentTab === tab.id && (tab.id !== 'home' || currentView !== 'english')) || 
-                           (tab.id === 'english' && currentTab === 'home' && currentView === 'english');
+          const isActive = (currentTab === tab.id && (tab.id !== 'home' || currentView !== 'english')) ||
+            (tab.id === 'english' && currentTab === 'home' && currentView === 'english');
           return (
             <motion.button
               key={tab.id}
@@ -2083,29 +2080,28 @@ export default function App({ startAtHome = false }: { startAtHome?: boolean }) 
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => {
-                if(tab.id==='teacher'){openTeacherRoute('home','/giao-vien');return;}
+                if (tab.id === 'teacher') { openTeacherRoute('home', '/giao-vien'); return; }
                 if (tab.id === 'english') {
                   setCurrentTab('home');
                   setCurrentView('english');
                   setSelectedAge(null);
                   setSelectedSection(null);
-                  speak('Tiếng Anh vui cùng bé và cô');
+                  speak('Tiếng Anh');
                   return;
                 }
                 setCurrentTab(tab.id as any);
                 speak(tab.label);
-                if(location.pathname.startsWith('/giao-vien'))window.history.pushState({},'','/');
+                if (location.pathname.startsWith('/giao-vien')) window.history.pushState({}, '', '/');
                 if (tab.id === 'home') {
                   setCurrentView('home');
                   setSelectedAge(null);
                   setSelectedSection(null);
                 }
               }}
-              className={`flex items-center gap-1.5 py-2 px-3 sm:px-4 rounded-full transition-all ${
-                isActive 
-                  ? `${tab.activeColor} text-white shadow-md font-black` 
+              className={`flex items-center gap-1.5 py-2 px-3 sm:px-4 rounded-full transition-all ${isActive
+                  ? `${tab.activeColor} text-white shadow-md font-black`
                   : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50 font-bold'
-              }`}
+                }`}
             >
               <span aria-hidden="true" className={`text-xl sm:text-2xl drop-shadow-xs select-none ${tab.id === 'english' ? 'font-black leading-none' : ''}`}>{tab.icon}</span>
               {isActive && (
@@ -2143,8 +2139,8 @@ export default function App({ startAtHome = false }: { startAtHome?: boolean }) 
             {category?.title}
           </h2>
         </div>
-        
-        <motion.h3 
+
+        <motion.h3
           initial={{ y: -10, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           className="text-3xl sm:text-4xl font-black text-sky-800 mb-10 text-center px-4 drop-shadow-sm"
@@ -2177,7 +2173,7 @@ export default function App({ startAtHome = false }: { startAtHome?: boolean }) 
             >
               <div className="absolute -top-12 -right-12 w-40 h-40 bg-white/30 rounded-full blur-2xl group-hover:bg-white/40 transition-colors"></div>
               <div className="absolute top-4 left-4 text-2xl opacity-50">⭐</div>
-              
+
               <span className="text-8xl drop-shadow-lg group-hover:scale-110 transition-transform duration-300">{age.icon}</span>
               <h2 className="text-4xl font-black text-slate-800/80 drop-shadow-sm tracking-wide bg-white/40 px-6 py-2 rounded-full backdrop-blur-sm">{age.name}</h2>
             </motion.button>
@@ -2190,7 +2186,7 @@ export default function App({ startAtHome = false }: { startAtHome?: boolean }) 
   const getCognitiveSections = () => {
     const sections = JSON.parse(JSON.stringify(COGNITIVE_SECTIONS));
     const mathSection = sections.find((s: any) => s.title.includes('Làm quen toán'));
-    
+
     const scienceSection = sections.find((s: any) => s.title.includes('Khám phá khoa học'));
     const classificationSection = sections.find((s: any) => s.title.includes('Phân loại – so sánh'));
 
@@ -2352,7 +2348,7 @@ export default function App({ startAtHome = false }: { startAtHome?: boolean }) 
         ];
       }
     }
-    
+
     return sections;
   };
 
@@ -2444,7 +2440,7 @@ export default function App({ startAtHome = false }: { startAtHome?: boolean }) 
           else if (selectedAge === '3-4') sections = AESTHETIC_3_4_SECTIONS;
           else if (selectedAge === '4-5') sections = AESTHETIC_4_5_SECTIONS;
           else if (selectedAge === '5-6') sections = AESTHETIC_5_6_SECTIONS;
-          
+
           if (sections.length === 0) {
             return (
               <div className="bg-white/80 backdrop-blur-md p-12 rounded-[3rem] shadow-xl border-4 border-white text-center max-w-lg mx-auto mt-10">
@@ -2818,8 +2814,8 @@ export default function App({ startAtHome = false }: { startAtHome?: boolean }) 
                   <video src={file.url} controls preload="metadata" className="w-full h-full object-cover" />
                 )}
                 <div className="pointer-events-none absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                   <Star size={40} className="text-yellow-400 fill-yellow-400" />
-                   {file.type === 'video' && <Video size={40} className="text-white absolute top-2 right-2" />}
+                  <Star size={40} className="text-yellow-400 fill-yellow-400" />
+                  {file.type === 'video' && <Video size={40} className="text-white absolute top-2 right-2" />}
                 </div>
               </motion.div>
             ))}
@@ -2901,7 +2897,7 @@ export default function App({ startAtHome = false }: { startAtHome?: boolean }) 
         className="bg-white rounded-[4rem] p-12 max-w-2xl w-full shadow-2xl border-8 border-white text-center relative overflow-hidden"
       >
         <div className="absolute top-0 left-0 w-full h-4 bg-sky-200"></div>
-        
+
         <div className="mb-8">
           <span className="text-[10rem] block animate-bounce">🐰</span>
           <h2 className="text-4xl font-black text-sky-800 mb-4">Mắt tớ mỏi rồi bé ơi!</h2>
@@ -2946,7 +2942,7 @@ export default function App({ startAtHome = false }: { startAtHome?: boolean }) 
   const renderLearningSections = () => {
     const category = CATEGORIES.find(c => c.id === currentView);
     const ageGroup = AGE_GROUPS.find(a => a.id === selectedAge);
-    
+
     return (
       <div className="flex flex-col items-center w-full pt-12 pb-40 relative z-10 px-4">
         <div className="flex items-center mb-12 gap-4 sticky top-4 z-20 bg-white/80 backdrop-blur-md p-4 rounded-[28px] shadow-sm border-2 border-white w-full max-w-4xl mx-auto">
@@ -3021,7 +3017,7 @@ export default function App({ startAtHome = false }: { startAtHome?: boolean }) 
             <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 50, ease: "linear" }} className="absolute -top-20 -right-20 text-[200px] opacity-50">🌞</motion.div>
             <motion.div animate={{ x: [0, 50, 0] }} transition={{ repeat: Infinity, duration: 10, ease: "easeInOut" }} className="absolute top-1/4 left-10 text-6xl opacity-70">☁️</motion.div>
             <motion.div animate={{ x: [0, -50, 0] }} transition={{ repeat: Infinity, duration: 12, ease: "easeInOut" }} className="absolute bottom-1/4 right-10 text-7xl opacity-70">☁️</motion.div>
-            
+
             <motion.div
               animate={{ y: [0, -20, 0], scale: [1, 1.05, 1] }}
               transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
@@ -3077,7 +3073,7 @@ export default function App({ startAtHome = false }: { startAtHome?: boolean }) 
             </motion.button>
           </motion.div>
         ) : currentTab === 'teacher' && isTeacher ? (
-          <TeacherWorkspace route={teacherRoute} onNavigate={openTeacherRoute} onBack={() => { window.history.pushState({},'', '/'); setCurrentTab('home'); setCurrentView('home'); setHomeMode('kids'); }} onEnglish={() => openEnglishModule('teachers')} />
+          <TeacherWorkspace route={teacherRoute} onNavigate={openTeacherRoute} onBack={() => { window.history.pushState({}, '', '/'); setCurrentTab('home'); setCurrentView('home'); setHomeMode('kids'); }} onEnglish={() => openEnglishModule('teachers')} />
         ) : currentTab === 'assistant' ? (
           <AIAssistant
             onBack={() => {
@@ -3152,7 +3148,7 @@ export default function App({ startAtHome = false }: { startAtHome?: boolean }) 
               transition={{ duration: 0.3 }}
               className="min-h-screen relative z-10"
             >
-              <EnglishModule 
+              <EnglishModule
                 onLessonComplete={lesson => triggerCompletionReward(lesson.name, 'english')}
                 onGameComplete={title => triggerCompletionReward(title, 'english')}
                 initialTarget={englishInitialTarget}
@@ -3161,7 +3157,7 @@ export default function App({ startAtHome = false }: { startAtHome?: boolean }) 
                   setCurrentView('home');
                   setSelectedAge(null);
                   setSelectedSection(null);
-                }} 
+                }}
               />
             </motion.div>
           ) : currentView === 'home' ? (
@@ -3240,9 +3236,9 @@ export default function App({ startAtHome = false }: { startAtHome?: boolean }) 
                 <motion.div key={`social-${selectedAge}`} initial={{ opacity: 0, x: 50 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -50 }} className="min-h-screen relative z-10 pb-20">
                   {renderGrid(
                     selectedAge === 'toddler' ? SOCIAL_TODDLER_ACTIVITIES :
-                    selectedAge === '3-4' ? SOCIAL_3_4_ACTIVITIES :
-                    selectedAge === '4-5' ? SOCIAL_4_5_ACTIVITIES :
-                    SOCIAL_5_6_ACTIVITIES, 
+                      selectedAge === '3-4' ? SOCIAL_3_4_ACTIVITIES :
+                        selectedAge === '4-5' ? SOCIAL_4_5_ACTIVITIES :
+                          SOCIAL_5_6_ACTIVITIES,
                     'social'
                   )}
                 </motion.div>
@@ -3273,7 +3269,7 @@ export default function App({ startAtHome = false }: { startAtHome?: boolean }) 
           ) : selectedSection === 'games' && (currentView === 'cognitive' || currentView === 'language' || currentView === 'physical' || currentView === 'social' || currentView === 'aesthetic') ? (
             <motion.div key="interactive-games" initial={{ opacity: 0, x: 50 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -50 }} className="min-h-screen relative z-10 pb-20">
               {activeMathGame ? (
-                <MathGame 
+                <MathGame
                   game={MATH_GAMES_DATA.find(g => g.id === activeMathGame)!}
                   onBack={() => setActiveMathGame(null)}
                   onComplete={(newStars) => {
@@ -3302,22 +3298,22 @@ export default function App({ startAtHome = false }: { startAtHome?: boolean }) 
                       Trò chơi tương tác
                     </h2>
                   </div>
-                  
+
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                     {(() => {
                       const filteredGames = MATH_GAMES_DATA.filter(game => {
                         const isAgeMatch = !game.ageGroups || (selectedAge && game.ageGroups.includes(selectedAge));
                         if (!isAgeMatch) return false;
-                        
+
                         const isPhysicalGame = game.id.startsWith('physical-');
                         const isSocialGame = game.category === 'social' || game.id.startsWith('social-') || game.id.startsWith('skill-') || game.id.includes('an-toan') || game.id.includes('phong-tranh') || game.id.includes('ky-nang') || game.title.toLowerCase().includes('kỹ năng');
                         const isAestheticGame = game.id.startsWith('aesthetic-') || game.title.toLowerCase().includes('tạo hình') || game.title.toLowerCase().includes('âm nhạc');
                         const isLanguageGame = game.category === 'language' || game.id.startsWith('language-') || game.id.startsWith('story-') || game.id.startsWith('poem-') || game.title.toLowerCase().includes('truyện') || game.title.toLowerCase().includes('thơ') || (game.id.includes('chữ cái') && !game.id.includes('toán'));
-                        
+
                         if (currentView === 'language') {
                           return isLanguageGame;
                         }
-                        
+
                         if (currentView === 'physical') return isPhysicalGame;
                         if (currentView === 'social') return isSocialGame;
                         if (currentView === 'aesthetic') return isAestheticGame;
@@ -3326,7 +3322,7 @@ export default function App({ startAtHome = false }: { startAtHome?: boolean }) 
                           if (game.category === 'math' || game.category === 'discovery' || game.id.startsWith('cognitive-') || game.id.startsWith('math-') || game.id.startsWith('cog-')) return true;
                           return !isPhysicalGame && !isSocialGame && !isAestheticGame && !isLanguageGame;
                         }
-                        
+
                         return true;
                       });
 
@@ -3359,24 +3355,24 @@ export default function App({ startAtHome = false }: { startAtHome?: boolean }) 
                           <div className="absolute -top-12 -right-12 w-40 h-40 bg-sky-50 rounded-full blur-2xl group-hover:bg-sky-100 transition-colors"></div>
                           <span className="text-8xl drop-shadow-lg group-hover:scale-110 transition-transform duration-300">
                             {
-                              game.id.includes('numbers') ? '🔢' : 
-                              game.id.includes('compare') ? '⚖️' : 
-                              game.id.includes('shapes') ? '🔺' : 
-                              game.id.includes('patterns') ? '🧩' : 
-                              game.id.includes('addition') ? '➕' : 
-                              game.id.includes('count') ? '🖐️' :
-                              game.id.includes('split') ? '✂️' :
-                              game.id.includes('ordinal') ? '🔢' :
-                              game.id.includes('measure') ? '📏' :
-                              game.id.includes('right-left') ? '↔️' :
-                              game.id.includes('big-small') ? '🐘' :
-                              game.id.includes('one-many') ? '🔢' :
-                              game.id.includes('animals') ? '🐥' :
-                              game.id.includes('vehicles') ? '🚲' :
-                              game.id.startsWith('physical-') ? '🏃' :
-                              game.id.startsWith('game-') ? (game.title.includes('Truyện') ? '📖' : '📜') :
-                              game.id.includes('language') ? '📚' :
-                              game.id === 'counting-1-5' ? '🍎' : '🧩'
+                              game.id.includes('numbers') ? '🔢' :
+                                game.id.includes('compare') ? '⚖️' :
+                                  game.id.includes('shapes') ? '🔺' :
+                                    game.id.includes('patterns') ? '🧩' :
+                                      game.id.includes('addition') ? '➕' :
+                                        game.id.includes('count') ? '🖐️' :
+                                          game.id.includes('split') ? '✂️' :
+                                            game.id.includes('ordinal') ? '🔢' :
+                                              game.id.includes('measure') ? '📏' :
+                                                game.id.includes('right-left') ? '↔️' :
+                                                  game.id.includes('big-small') ? '🐘' :
+                                                    game.id.includes('one-many') ? '🔢' :
+                                                      game.id.includes('animals') ? '🐥' :
+                                                        game.id.includes('vehicles') ? '🚲' :
+                                                          game.id.startsWith('physical-') ? '🏃' :
+                                                            game.id.startsWith('game-') ? (game.title.includes('Truyện') ? '📖' : '📜') :
+                                                              game.id.includes('language') ? '📚' :
+                                                                game.id === 'counting-1-5' ? '🍎' : '🧩'
                             }
                           </span>
                           <h3 className="text-3xl font-black text-sky-800 text-center leading-tight">{game.title}</h3>
@@ -3390,7 +3386,7 @@ export default function App({ startAtHome = false }: { startAtHome?: boolean }) 
                         const groupedGames = {
                           poem: filteredGames.filter(g => g.subcategory === 'poem' || g.title.toLowerCase().includes('thơ') || g.id.startsWith('poem-')),
                           story: filteredGames.filter(g => g.subcategory === 'story' || g.title.toLowerCase().includes('truyện') || g.id.startsWith('story-')),
-                          alphabet: (selectedAge === '4-5' || selectedAge === '5-6') 
+                          alphabet: (selectedAge === '4-5' || selectedAge === '5-6')
                             ? filteredGames.filter(g => g.subcategory === 'alphabet' || g.title.toLowerCase().includes('chữ cái') || g.id.startsWith('language-') || g.id.includes('chữ-cái'))
                             : []
                         };
@@ -3407,7 +3403,7 @@ export default function App({ startAtHome = false }: { startAtHome?: boolean }) 
                                 </div>
                               </section>
                             )}
-                            
+
                             {groupedGames.story.length > 0 && (
                               <section>
                                 <h3 className="text-2xl font-black text-sky-600 mb-6 flex items-center gap-2 drop-shadow-sm">
@@ -3435,14 +3431,14 @@ export default function App({ startAtHome = false }: { startAtHome?: boolean }) 
 
                       if (currentView === 'cognitive' && selectedAge !== 'toddler') {
                         const mathKeywords = ['toán', 'số', 'đếm', 'phạm vi', 'hình', 'quy tắc', 'qui tắc', 'quy luật', 'phép cộng', 'tách', 'gộp', 'so sánh', 'dài', 'ngắn', 'nặng', 'nhẹ', 'to', 'nhỏ', 'phía', 'xếp tương ứng', '1-1', '1:1', 'ordinal', 'pattern', 'math', 'qty'];
-                        
+
                         const mathGames = filteredGames.filter(g => {
                           if (g.category === 'math') return true;
                           if (g.category === 'discovery') return false;
-                          return mathKeywords.some(k => g.title.toLowerCase().includes(k)) || 
-                                 ['numbers', 'shapes', 'compare', 'count', 'math', 'qty', 'patterns'].some(p => g.id.toLowerCase().includes(p));
+                          return mathKeywords.some(k => g.title.toLowerCase().includes(k)) ||
+                            ['numbers', 'shapes', 'compare', 'count', 'math', 'qty', 'patterns'].some(p => g.id.toLowerCase().includes(p));
                         });
-                        
+
                         const discoveryGames = filteredGames.filter(g => !mathGames.includes(g));
 
                         return (
@@ -3461,7 +3457,7 @@ export default function App({ startAtHome = false }: { startAtHome?: boolean }) 
                                 </div>
                               </section>
                             )}
-                            
+
                             {discoveryGames.length > 0 && (
                               <section>
                                 <div className="flex items-center gap-4 mb-8">
@@ -3563,9 +3559,9 @@ export default function App({ startAtHome = false }: { startAtHome?: boolean }) 
               >
                 <X size={32} strokeWidth={3} />
               </button>
-              
+
               <div className="mb-8">
-                <motion.div 
+                <motion.div
                   animate={{ scale: [1, 1.5, 1] }}
                   transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
                   className="text-[10rem] block"
@@ -3630,7 +3626,7 @@ export default function App({ startAtHome = false }: { startAtHome?: boolean }) 
             }}
           >
             <div className="absolute inset-0 bg-gradient-to-br from-white/40 to-transparent pointer-events-none"></div>
-            
+
             <div className="absolute top-4 left-4 right-4 sm:top-6 sm:left-6 sm:right-6 flex justify-between items-center z-20 pointer-events-none">
               <motion.button
                 whileHover={{ scale: 1.1 }}
@@ -3644,7 +3640,7 @@ export default function App({ startAtHome = false }: { startAtHome?: boolean }) 
               >
                 <ArrowLeft size={32} strokeWidth={3} />
               </motion.button>
-              
+
               <button
                 onClick={(e) => {
                   e.stopPropagation();
@@ -3678,13 +3674,13 @@ export default function App({ startAtHome = false }: { startAtHome?: boolean }) 
                     </motion.button>
                   </div>
                   <div className="flex-1 w-full bg-black">
-                    <iframe 
-                      width="100%" 
-                      height="100%" 
-                      src={`https://www.youtube.com/embed/${selectedItem.videoId}?autoplay=1`} 
-                      title={selectedItem.name} 
-                      frameBorder="0" 
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                    <iframe
+                      width="100%"
+                      height="100%"
+                      src={`https://www.youtube.com/embed/${selectedItem.videoId}?autoplay=1`}
+                      title={selectedItem.name}
+                      frameBorder="0"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                       allowFullScreen
                     ></iframe>
                   </div>
@@ -3693,7 +3689,7 @@ export default function App({ startAtHome = false }: { startAtHome?: boolean }) 
                 <div className="w-full h-full flex flex-col rounded-3xl overflow-hidden shadow-2xl border-4 sm:border-8 border-white bg-white">
                   <div className="flex justify-between items-center p-3.5 sm:p-4 bg-white/95 backdrop-blur-md border-b-2 border-slate-100 shrink-0 gap-2">
                     <h3 className="text-base sm:text-xl font-black text-slate-800 flex items-center gap-2 truncate">
-                      <span>{selectedItem.emoji || '🎮'}</span> 
+                      <span>{selectedItem.emoji || '🎮'}</span>
                       <span className="truncate">{selectedItem.name}</span>
                     </h3>
                     <div className="flex items-center gap-2 shrink-0">
@@ -3721,12 +3717,12 @@ export default function App({ startAtHome = false }: { startAtHome?: boolean }) 
                     </div>
                   </div>
                   <div className="flex-1 w-full bg-white">
-                    <iframe 
-                      width="100%" 
-                      height="100%" 
-                      src={selectedItem.externalLink} 
-                      title={selectedItem.name} 
-                      frameBorder="0" 
+                    <iframe
+                      width="100%"
+                      height="100%"
+                      src={selectedItem.externalLink}
+                      title={selectedItem.name}
+                      frameBorder="0"
                       allowFullScreen
                     ></iframe>
                   </div>
@@ -3738,7 +3734,7 @@ export default function App({ startAtHome = false }: { startAtHome?: boolean }) 
                   </span>
                   <div className="flex flex-wrap justify-center gap-4 max-w-2xl bg-white/40 p-8 rounded-[3rem]">
                     {Array.from({ length: selectedItem.value || 0 }).map((_, i) => (
-                      <motion.span 
+                      <motion.span
                         key={i}
                         initial={{ scale: 0 }}
                         animate={{ scale: 1 }}
@@ -3763,7 +3759,7 @@ export default function App({ startAtHome = false }: { startAtHome?: boolean }) 
                         e.stopPropagation();
                         if (!isGeneratingAudio) {
                           setIsGeneratingAudio(true);
-                          
+
                           const letterAudioUrls: Record<string, string> = {
                             'A': 'https://www.image2url.com/r2/default/files/1777169658486-52b7bedb-200b-4635-baa0-7784b6d6c37b.wav',
                             'Ă': 'https://www.image2url.com/r2/default/files/1777169774368-2f308ba6-b694-4b04-8796-d22f6a349875.wav',
@@ -3796,7 +3792,7 @@ export default function App({ startAtHome = false }: { startAtHome?: boolean }) 
                     <span className="text-7xl sm:text-8xl drop-shadow-lg">{selectedItem.emoji}</span>
                     <span className="text-5xl sm:text-6xl font-bold text-slate-700">{selectedItem.word}</span>
                   </div>
-                  
+
                   {/* Pronunciation Practice Button */}
                   <div className="flex flex-col items-center gap-4 mt-4">
                     <motion.button
@@ -3813,7 +3809,7 @@ export default function App({ startAtHome = false }: { startAtHome?: boolean }) 
                       <span className="text-2xl font-black">Bé tập đọc</span>
                     </motion.button>
                     {pronunciationFeedback && (
-                      <motion.div 
+                      <motion.div
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         className="bg-white/90 px-6 py-3 rounded-2xl shadow-md border-2 border-pink-100 text-xl font-bold text-pink-600"
@@ -3824,7 +3820,7 @@ export default function App({ startAtHome = false }: { startAtHome?: boolean }) 
                   </div>
                 </div>
               ) : (
-                <motion.span 
+                <motion.span
                   animate={{ y: [0, -20, 0], rotate: [0, -5, 5, 0] }}
                   transition={{ repeat: Infinity, duration: 3 }}
                   className="text-[15rem] sm:text-[20rem] drop-shadow-2xl"
@@ -3836,14 +3832,14 @@ export default function App({ startAtHome = false }: { startAtHome?: boolean }) 
 
             {(!selectedItem.videoId && !selectedItem.externalLink) && (
               <div className="p-8 pb-12 w-full flex justify-center z-10">
-                <motion.div 
+                <motion.div
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   className={`bg-white/90 backdrop-blur-md px-12 py-6 rounded-full flex items-center justify-center gap-6 shadow-xl border-4 border-white cursor-pointer ${isGeneratingAudio ? 'opacity-70' : ''}`}
                 >
                   <Volume2 size={48} className={`text-sky-500 ${isGeneratingAudio ? 'animate-pulse' : ''}`} strokeWidth={3} />
                   <h3 className="text-4xl sm:text-5xl font-black text-slate-800 capitalize">
-                    {currentView === 'language' 
+                    {currentView === 'language'
                       ? (letterLang === 'vi' ? selectedItem.name.split(' – ')[1] || selectedItem.name : selectedItem.word)
                       : selectedItem.name}
                   </h3>
@@ -3868,7 +3864,7 @@ export default function App({ startAtHome = false }: { startAtHome?: boolean }) 
                     else if (selectedAge === '5-6') sections = AESTHETIC_5_6_SECTIONS;
                     items = (sections || []).flatMap((s: any) => s.items);
                   }
-                  
+
                   const currentIndex = items.findIndex((i: any) => i.id === selectedItem.id);
                   if (currentIndex > 0) {
                     handleItemClick(items[currentIndex - 1]);
@@ -3898,7 +3894,7 @@ export default function App({ startAtHome = false }: { startAtHome?: boolean }) 
                     else if (selectedAge === '5-6') sections = AESTHETIC_5_6_SECTIONS;
                     items = (sections || []).flatMap((s: any) => s.items);
                   }
-                  
+
                   const currentIndex = items.findIndex((i: any) => i.id === selectedItem.id);
                   if (currentIndex !== -1 && currentIndex < items.length - 1) {
                     handleItemClick(items[currentIndex + 1]);
@@ -3933,13 +3929,13 @@ export default function App({ startAtHome = false }: { startAtHome?: boolean }) 
             >
               <div className="absolute -top-10 -right-10 w-40 h-40 bg-sky-50 rounded-full blur-3xl"></div>
               <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-yellow-50 rounded-full blur-3xl"></div>
-              
+
               <span className="text-9xl mb-6 block drop-shadow-lg">⏰😴</span>
               <h2 className="text-4xl font-black text-sky-800 mb-4">Hết giờ học rồi!</h2>
               <p className="text-xl text-slate-600 font-bold mb-8 leading-relaxed">
                 Bé đã học rất chăm chỉ trong {sessionTimeLimit} phút vừa qua. Bây giờ là lúc để đôi mắt và cơ thể được nghỉ ngơi nhé!
               </p>
-              
+
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
