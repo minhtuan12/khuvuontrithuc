@@ -1,6 +1,7 @@
 ﻿// @ts-ignore Bun provides its own test runner.
 import {expect,test} from 'bun:test';
 import {DeviceDocument} from '../src/lib/deviceData';
+import {setLearnerScope} from '../src/lib/learnerStorage';
 const tick=()=>new Promise(r=>setTimeout(r,0));
 function cache(){const data=new Map<string,string>();return {getItem:(k:string)=>data.get(k)??null,setItem:(k:string,v:string)=>{data.set(k,v)}};}
 test('hydrates before migration and preserves pending edits with serialized CAS writes',async()=>{
@@ -16,7 +17,12 @@ test('migrates missing document and retains cached unsaved edits after failure',
  const doc=new DeviceDocument('stars',()=>5,{fetch:fetcher as typeof fetch,storage});await doc.start();await tick();expect(doc.snapshot().error).toBeTruthy();expect(doc.snapshot().value).toBe(5);expect(storage.getItem('kvtt.device-cache.v1.stars')).toContain('5');fail=false;await doc.retry();await tick();expect(doc.snapshot().error).toBe('');
 });
 test('conflict keeps draft and blocks automatic overwrite',async()=>{
+ setLearnerScope('account-test');
  let writes=0;const doc=new DeviceDocument('stars',()=>1,{storage:cache(),fetch:(async (_u:any,i?:RequestInit)=>{if(!i?.method)return Response.json({value:2,version:1});writes++;return Response.json({error:'conflict',value:3,version:2},{status:409});}) as typeof fetch});await doc.start();doc.set(4);await tick();await doc.retry();expect(writes).toBe(1);expect(doc.snapshot().value).toBe(4);expect(doc.snapshot().error).toBeTruthy();
+ setLearnerScope('guest');
+});
+test('guest conflict silently refreshes the server value',async()=>{
+ setLearnerScope('guest');const doc=new DeviceDocument('stars',()=>1,{storage:cache(),fetch:(async(_u:any,i?:RequestInit)=>i?.method?Response.json({error:'conflict',value:9,version:3},{status:409}):Response.json({value:2,version:1})) as typeof fetch});await doc.start();doc.set(4);await tick();expect(doc.snapshot()).toMatchObject({value:9,error:'',saving:false});
 });
 
 test('coalesces edits while a write is pending and uses returned CAS version',async()=>{
@@ -33,8 +39,10 @@ test('offline startup keeps cache and does not PUT without a server version',asy
 });
 
 test('editing a stale offline draft during hydration still reports conflict',async()=>{
+ setLearnerScope('account-test');
  const storage=cache();storage.setItem('kvtt.device-cache.v1.stars',JSON.stringify({value:8,version:3,dirty:true}));let release!:(r:Response)=>void;let writes=0;
  const doc=new DeviceDocument('stars',()=>0,{storage,fetch:(async(_u:any,i?:RequestInit)=>{if(i?.method){writes++;return Response.json({value:9,version:5});}return new Promise<Response>(r=>release=r);}) as typeof fetch});const starting=doc.start();doc.set(9);release(Response.json({value:20,version:4}));await starting;expect(writes).toBe(0);expect(doc.snapshot().value).toBe(9);expect(doc.snapshot().error).toBeTruthy();
+ setLearnerScope('guest');
 });
 test('parallel first-visit session bootstrap shares exactly one request',async()=>{
  const {ensureDeviceSession}=await import('../src/lib/deviceData');let calls=0;let release!:(r:Response)=>void;
@@ -45,8 +53,10 @@ test('explicit remote restore backs up local draft and never writes',async()=>{
  const storage=cache();let writes=0;let value=2;const doc=new DeviceDocument('stars',()=>1,{storage,fetch:(async(_u:any,i?:RequestInit)=>{if(i?.method){writes++;return Response.json({error:'conflict'},{status:409});}return Response.json({value,version:2});}) as typeof fetch});await doc.start();doc.set(8);await tick();value=4;await doc.restoreRemote();expect(doc.snapshot().value).toBe(4);expect(doc.snapshot().error).toBe('');expect(writes).toBe(1);expect(storage.getItem('kvtt.device-cache.v1.stars.draft-backup')).toContain('8');
 });
 test('an edit during the first GET cannot overwrite an existing server document',async()=>{
+ setLearnerScope('account-test');
  let release!:(r:Response)=>void;let writes=0;
  const doc=new DeviceDocument('stars',()=>0,{storage:cache(),fetch:(async(_u:any,i?:RequestInit)=>{if(i?.method){writes++;return Response.json({value:1,version:6});}return new Promise<Response>(r=>release=r);}) as typeof fetch});
  const started=doc.start();doc.set(1);release(Response.json({value:20,version:5}));await started;expect(writes).toBe(0);expect(doc.snapshot().value).toBe(1);expect(doc.snapshot().error).toBeTruthy();
+ setLearnerScope('guest');
 });
 

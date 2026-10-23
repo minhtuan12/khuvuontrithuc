@@ -126,13 +126,15 @@ test('private seed command validates target and input then produces no secret ou
     await expect(runTeacherSeed([`--sqlite=${filename}`],{},async()=>'different-test-password')).rejects.toMatchObject({status:409});
   }finally{rmSync(directory,{recursive:true,force:true});}
 });
-test('teacher role is server controlled, reserved teacher seed is private and repeatable', async () => {
+test('teacher registration grants teacher access while reserved teacher seed remains private and repeatable', async () => {
   const repo=new SqliteAccountRepository(':memory:'); const service=new AccountService(repo);
   try {
     await expect(service.requireTeacher(undefined)).rejects.toMatchObject({status:401});
     const learner=await service.register(input);
     await expect(service.requireTeacher(learner.token)).rejects.toMatchObject({status:403});
-    await expect(service.register({...input,username:'fake.teacher',role:'teacher'})).rejects.toMatchObject({status:400});
+    const registeredTeacher=await service.register({...input,username:'new.teacher',role:'teacher'});
+    expect((await service.requireTeacher(registeredTeacher.token)).role).toBe('teacher');
+    await expect(service.register({...input,username:'fake.teacher',role:'admin'})).rejects.toMatchObject({status:400});
     await expect(service.register({...input,username:' NGANT '})).rejects.toMatchObject({status:409});
     const seeded=await service.seedTeacher('private-test-password');
     expect(seeded.created).toBe(true); expect(seeded.user).toMatchObject({username:'ngant',fullName:'Cô Nga',role:'teacher'});

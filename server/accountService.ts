@@ -35,14 +35,14 @@ export class AccountService {
   constructor(public readonly repo:AccountRepository) {}
   async register(input:unknown) {
     const {username,password,body}=credentials(input);
-    if(Object.hasOwn(body,'role')) throw new AccountError(400,'Không thể chọn quyền tài khoản khi đăng ký.');
     if(username==='ngant') throw new AccountError(409,'Tên đăng nhập đã được dành riêng.');
     const fullName=typeof body.fullName==='string'?body.fullName.trim():'';
     const gender=body.gender==null||body.gender===''?null:body.gender;
-    if(fullName.length<2||fullName.length>100||/[\u0000-\u001f\u007f]/.test(fullName)||![null,'male','female','other'].includes(gender as any)) throw new AccountError(400,'Vui lòng nhập họ tên 2–100 ký tự và giới tính hợp lệ.');
+    const role=body.role===undefined?'learner':body.role;
+    if(fullName.length<2||fullName.length>100||/[\u0000-\u001f\u007f]/.test(fullName)||![null,'male','female','other'].includes(gender as any)||!['learner','teacher'].includes(role as string)) throw new AccountError(400,'Vui lòng kiểm tra họ tên, giới tính và loại tài khoản.');
     if(!await this.repo.consumeLoginAttempt('register:'+username,Date.now())) throw new AccountError(429,'Bạn thử quá nhiều lần. Vui lòng đợi 15 phút.');
     const salt=randomHex(16);
-    const account:StoredAccount={id:crypto.randomUUID(),username,fullName,gender:gender as PublicAccount['gender'],role:'learner',ownerId:randomHex(32),passwordSalt:salt,passwordHash:await passwordHash(password,salt)};
+    const account:StoredAccount={id:crypto.randomUUID(),username,fullName,gender:gender as PublicAccount['gender'],role:role as AccountRole,ownerId:randomHex(32),passwordSalt:salt,passwordHash:await passwordHash(password,salt)};
     if(!await this.repo.createAccount(account)) throw new AccountError(409,'Tên đăng nhập đã được sử dụng.');
     return this.issue(account);
   }

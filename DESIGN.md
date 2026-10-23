@@ -31,3 +31,5 @@ Parent totals come from actual learning counters, persisted stars, and recorded 
 ## Teacher workspace
 
 `TeacherWorkspace` owns the role-gated teacher navigation; `teacher-workspace.css` reuses the cream garden frames, green Baloo headings and Nunito body. Library/editor/upload and teacher statistics/questions share labeled native controls, 44px actions and inline request states. `TeacherConfirm` owns native modal confirmation for destructive actions and unsaved edits. The existing account dialog owns login; no PIN dialog is introduced. Guests and learner accounts do not mount teacher workflows.
+
+The bottom navigation exposes **Cô giáo** only to authenticated teacher accounts. `/giao-vien` is the teacher overview; `/giao-vien/giao-an`, `/giao-vien/hoc-sinh`, `/giao-vien/hop-thu`, `/giao-vien/chuan-bi-bai`, and `/giao-vien/tu-hoc` are reload-safe routes. The overview uses the existing pale garden surface, restrained green heading and four operational cards; it does not introduce a separate admin visual brand.

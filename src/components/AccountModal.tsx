@@ -5,9 +5,9 @@ import './account-modal.css';
 export interface AccountModalProps {
   open: boolean;
   onClose: () => void;
-  user: { id: string; username: string; fullName: string; gender: null | 'male' | 'female' | 'other' } | null;
+  user: { id: string; username: string; fullName: string; gender: null | 'male' | 'female' | 'other'; role: 'learner' | 'teacher' } | null;
   onLogin: (input: { username: string; password: string }) => Promise<void>;
-  onRegister: (input: { username: string; fullName: string; password: string; gender?: string | null }) => Promise<void>;
+  onRegister: (input: { username: string; fullName: string; password: string; gender?: string | null; role: 'learner' | 'teacher' }) => Promise<void>;
   onLogout: () => Promise<void>;
 }
 
@@ -23,6 +23,7 @@ export default function AccountModal({ open, onClose, user, onLogin, onRegister,
   const [fullName, setFullName] = useState('');
   const [password, setPassword] = useState('');
   const [gender, setGender] = useState('');
+  const [role, setRole] = useState<'learner' | 'teacher'>('learner');
   const [visible, setVisible] = useState(false);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState('');
@@ -95,7 +96,7 @@ export default function AccountModal({ open, onClose, user, onLogin, onRegister,
       dialog.current?.querySelector<HTMLInputElement>(`[name="${first}"]`)?.focus();
       return;
     }
-    void perform(() => mode === 'login' ? onLogin({ username: name, password }) : onRegister({ username: name, fullName: fullName.trim(), password, gender: gender || null }));
+    void perform(() => mode === 'login' ? onLogin({ username: name, password }) : onRegister({ username: name, fullName: fullName.trim(), password, gender: gender || null, role }));
   }
 
   const registering = mode === 'register';
@@ -115,7 +116,7 @@ export default function AccountModal({ open, onClose, user, onLogin, onRegister,
       <h2 id={`${id}-title`}>{user ? 'Tài khoản của bạn' : registering ? 'Cùng gieo mầm tri thức' : 'Mừng bạn trở lại!'}</h2>
       <p id={`${id}-description`} className="account-description">{description}</p>
       {user ? <>
-        <dl className="account-profile"><div><dt>Họ và tên</dt><dd>{user.fullName}</dd></div><div><dt>Tên đăng nhập</dt><dd>{user.username}</dd></div></dl>
+        <dl className="account-profile"><div><dt>Họ và tên</dt><dd>{user.fullName}</dd></div><div><dt>Tên đăng nhập</dt><dd>{user.username}</dd></div><div><dt>Loại tài khoản</dt><dd>{user.role==='teacher'?'Giáo viên':'Học sinh / gia đình'}</dd></div></dl>
         <p className="account-note">Khi đăng xuất, bạn sẽ trở về khu vườn khách trước đó trên thiết bị này.</p>
         <button className="account-primary" type="button" disabled={pending} onClick={() => void perform(onLogout)}><LogOut size={18} aria-hidden="true" />{pending ? 'Đang đăng xuất…' : 'Đăng xuất'}</button>
       </> : <>
@@ -126,6 +127,7 @@ export default function AccountModal({ open, onClose, user, onLogin, onRegister,
           <fieldset disabled={pending} className="account-fields">
             <div className="account-field"><label htmlFor={`${id}-username`}>Tên đăng nhập</label><input id={`${id}-username`} name="username" value={username} onChange={event => setUsername(event.target.value)} autoComplete="username" autoCapitalize="none" spellCheck={false} maxLength={32} required aria-invalid={!!errors.username} aria-describedby={errors.username ? `${id}-username-error` : registering ? `${id}-username-help` : undefined} />{fieldError('username')}{registering && !errors.username && <small id={`${id}-username-help`}>3–32 chữ cái không dấu, số hoặc dấu _ . -</small>}</div>
             {registering && <div className="account-field"><label htmlFor={`${id}-fullName`}>Họ và tên</label><input id={`${id}-fullName`} name="fullName" value={fullName} onChange={event => setFullName(event.target.value)} autoComplete="name" maxLength={100} required aria-invalid={!!errors.fullName} aria-describedby={errors.fullName ? `${id}-fullName-error` : undefined} />{fieldError('fullName')}</div>}
+            {registering && <div className="account-field"><label htmlFor={`${id}-role`}>Đăng ký dành cho</label><select id={`${id}-role`} value={role} onChange={event => setRole(event.target.value as 'learner' | 'teacher')}><option value="learner">Học sinh / gia đình</option><option value="teacher">Giáo viên</option></select><small>Tài khoản giáo viên được mở Khu vực cô giáo, kho giáo án, danh sách học sinh và hộp thư phụ huynh.</small></div>}
             <div className="account-field"><label htmlFor={`${id}-password`}>Mật khẩu</label><div className="account-password"><input id={`${id}-password`} name="password" type={visible ? 'text' : 'password'} value={password} onChange={event => setPassword(event.target.value)} autoComplete={registering ? 'new-password' : 'current-password'} maxLength={128} minLength={registering ? 8 : undefined} required aria-invalid={!!errors.password} aria-describedby={errors.password ? `${id}-password-error` : registering ? `${id}-password-help` : undefined} /><button type="button" aria-label={visible ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'} aria-pressed={visible} onClick={() => setVisible(value => !value)}>{visible ? <EyeOff size={20} /> : <Eye size={20} />}</button></div>{fieldError('password')}{registering && !errors.password && <small id={`${id}-password-help`}>Từ 8 đến 128 ký tự. Hãy giữ mật khẩu cho riêng bạn.</small>}</div>
             {registering && <div className="account-field"><label htmlFor={`${id}-gender`}>Giới tính <span>(không bắt buộc)</span></label><select id={`${id}-gender`} value={gender} onChange={event => setGender(event.target.value)}><option value="">Không chia sẻ</option><option value="male">Nam</option><option value="female">Nữ</option><option value="other">Khác</option></select></div>}
             <button className="account-primary" type="submit">{pending ? 'Đang kết nối…' : registering ? 'Tạo tài khoản' : 'Đăng nhập'}</button>

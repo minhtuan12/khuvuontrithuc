@@ -83,7 +83,10 @@ export class DeviceDocument<T> {
  this.stopped=false;const epoch=++this.epoch;const revision=this.revision;this.emit({loading:true,error:''});
  try{const response=await this.fetcher(this.url(),{credentials:'same-origin',cache:'no-store'});if(!response.ok)throw Error('read');const doc=await response.json();if(this.stopped||epoch!==this.epoch)return;
  if(!Number.isInteger(doc.version)||doc.version<0||!('value' in doc))throw Error('invalid');
- if(this.dirty && this.version!==doc.version && doc.version>0){this.conflict=true;this.emit({error:'Dữ liệu đã đổi ở cửa sổ khác. Hãy đối chiếu thay đổi hoặc tải bản đã lưu.'});}
+ if(this.dirty && this.version!==doc.version && doc.version>0){
+   if(getLearnerScope()==='guest'){this.version=doc.version;this.dirty=false;this.conflict=false;this.emit({value:doc.value,error:''});}
+   else {this.conflict=true;this.emit({error:'Dữ liệu đã đổi ở cửa sổ khác. Hãy đối chiếu thay đổi hoặc tải bản đã lưu.'});}
+ }
  else {this.version=doc.version;if(!this.dirty && revision===this.revision && doc.version>0)this.emit({value:doc.value});if(doc.version===0)this.dirty=true;}
  this.hydrated=true;this.cache();this.emit({loading:false});await this.flush();
  }catch{if(!this.stopped&&epoch===this.epoch)this.emit({loading:false,error:'Chưa kết nối được máy chủ. Thay đổi vẫn được giữ trên thiết bị; hãy thử lại.'});}
@@ -92,7 +95,10 @@ export class DeviceDocument<T> {
  if(this.stopped||!this.hydrated||!this.dirty||this.writing||this.conflict)return;
  this.writing=true;this.emit({saving:true,error:''});
  try{while(this.dirty&&!this.stopped&&!this.conflict){const revision=this.revision;const value=this.state.value;const response=await this.fetcher(this.url(),{method:'PUT',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify({value,baseVersion:this.version})});
- if(response.status===409){this.conflict=true;throw Error('conflict');}if(!response.ok)throw Error('write');const doc=await response.json();if(!Number.isInteger(doc.version)||doc.version<=this.version)throw Error('invalid');this.version=doc.version;if(revision===this.revision)this.dirty=false;this.cache();}
+ if(response.status===409){
+   if(getLearnerScope()==='guest'){const remote=await response.json();if(!Number.isInteger(remote.version)||!('value' in remote))throw Error('invalid');this.version=remote.version;this.dirty=false;this.conflict=false;this.emit({value:remote.value,error:''});this.cache();continue;}
+   this.conflict=true;throw Error('conflict');
+ }if(!response.ok)throw Error('write');const doc=await response.json();if(!Number.isInteger(doc.version)||doc.version<=this.version)throw Error('invalid');this.version=doc.version;if(revision===this.revision)this.dirty=false;this.cache();}
  }catch{this.emit({error:this.conflict?'Dữ liệu đã đổi ở cửa sổ khác. Hãy đối chiếu thay đổi hoặc tải bản đã lưu.':'Chưa lưu được lên máy chủ. Thay đổi vẫn được giữ trên thiết bị; hãy thử lại.'});}
  finally{this.writing=false;this.emit({saving:false});}
  }

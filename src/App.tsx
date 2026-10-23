@@ -19,7 +19,7 @@ import { getSearchDestination } from './lib/navigation';
 import { readLearningStats, readUnlockedBadges } from './lib/learningStorage';
 import { useDeviceDocument } from './lib/useDeviceDocument';
 import { useAccount } from './lib/accountContext';
-import TeacherWorkspace from './screens/TeacherWorkspace';
+import TeacherWorkspace, { type TeacherRoute } from './screens/TeacherWorkspace';
 import { deviceFetch as fetchDeviceData } from './lib/deviceData';
 import { getLearnerScope } from './lib/learnerStorage';
 import { EMOTIONS, getTodayStudySeconds, localDay, readEmotionHistory, readStoredNumber, type EmotionId, type EmotionRecord } from './lib/wellbeing';
@@ -744,9 +744,12 @@ export default function App({ startAtHome = false }: { startAtHome?: boolean }) 
     if (getLearnerScope() !== ownerScope) return Promise.reject(new DOMException('Tài khoản đã thay đổi','AbortError'));
     return fetchDeviceData(input,init);
   }, [ownerScope]);
-  const [showSplash, setShowSplash] = useState(!startAtHome);
-  const [currentView, setCurrentView] = useState('home');
-  const [currentTab, setCurrentTab] = useState('home');
+  const routeFromPath = (): TeacherRoute => location.pathname==='/giao-vien/giao-an'?'lessons':location.pathname==='/giao-vien/hoc-sinh'?'students':location.pathname==='/giao-vien/hop-thu'?'inbox':location.pathname==='/giao-vien/chuan-bi-bai'?'prepare':location.pathname==='/giao-vien/tu-hoc'?'self-study':'home';
+  const startsInTeacherArea=isTeacher&&location.pathname.startsWith('/giao-vien');
+  const [showSplash, setShowSplash] = useState(!startAtHome&&!startsInTeacherArea);
+  const [currentView, setCurrentView] = useState(startsInTeacherArea?'teacher':'home');
+  const [currentTab, setCurrentTab] = useState(startsInTeacherArea?'teacher':'home');
+  const [teacherRoute,setTeacherRoute]=useState<TeacherRoute>(routeFromPath);
   const [selectedAge, setSelectedAge] = useState<string | null>(null);
   const [selectedSection, setSelectedSection] = useState<string | null>(null);
   const [selectedItem, setSelectedItem] = useState<any>(null);
@@ -795,8 +798,22 @@ export default function App({ startAtHome = false }: { startAtHome?: boolean }) 
   const [englishInitialTarget, setEnglishInitialTarget] = useState<'kids' | 'teachers' | 'games'>('kids');
   const [englishInitialAge, setEnglishInitialAge] = useState<'3-4' | '4-5' | '5-6'>('3-4');
 
+  const openTeacherRoute=(route:TeacherRoute,path:string,replace=false)=>{
+    if(!isTeacher)return;
+    window.history[replace?'replaceState':'pushState']({},'',path);
+    setTeacherRoute(route);setCurrentView('teacher');setCurrentTab('teacher');setShowSplash(false);
+  };
+  useEffect(()=>{
+    if(!isTeacher&&location.pathname.startsWith('/giao-vien'))window.history.replaceState({},'','/');
+    const pop=()=>{if(isTeacher&&location.pathname.startsWith('/giao-vien')){setTeacherRoute(routeFromPath());setCurrentView('teacher');setCurrentTab('teacher');}else{setCurrentView('home');setCurrentTab('home');}};
+    window.addEventListener('popstate',pop);return()=>window.removeEventListener('popstate',pop);
+  },[isTeacher]);
+
   const openEnglishModule = (target: 'kids' | 'teachers' | 'games' = 'kids', age: '3-4' | '4-5' | '5-6' = '3-4') => {
     if (target === 'teachers' && !isTeacher) return;
+    if (window.location.pathname.startsWith('/giao-vien')) {
+      window.history.pushState({}, '', '/');
+    }
     setEnglishInitialTarget(target);
     setEnglishInitialAge(age);
     setCurrentTab('home');
@@ -1624,8 +1641,7 @@ export default function App({ startAtHome = false }: { startAtHome?: boolean }) 
               {isTeacher && <button
                 onClick={() => {
                   setHomeMode('teachers');
-                  setCurrentView('teacher');
-                  speak("Chào mừng cô đến với phân hệ giáo viên mầm non!");
+                  openTeacherRoute('home','/giao-vien');
                 }}
                 className={`px-3 py-1.5 rounded-xl text-xs font-black transition-all flex items-center gap-1.5 cursor-pointer ${
                   homeMode === 'teachers'
@@ -2049,13 +2065,14 @@ export default function App({ startAtHome = false }: { startAtHome?: boolean }) 
         </motion.div>
       </div>}
 
-      <div className="max-w-md sm:max-w-lg mx-auto bg-white/95 backdrop-blur-md rounded-full p-2 border-2 border-white/90 shadow-[0_12px_36px_rgba(14,165,233,0.12)] flex items-center justify-between relative z-10 pointer-events-auto px-2 sm:px-3">
+      <div className={`${isTeacher ? 'sm:max-w-2xl' : 'sm:max-w-lg'} max-w-md mx-auto bg-white/95 backdrop-blur-md rounded-full p-2 border-2 border-white/90 shadow-[0_12px_36px_rgba(14,165,233,0.12)] flex items-center justify-between relative z-10 pointer-events-auto px-2 sm:px-3`}>
         {[
           { id: 'home', icon: '🏠', label: 'Trang chủ', activeColor: 'bg-emerald-600' },
           { id: 'english', icon: 'Aa', label: 'Tiếng Anh', activeColor: 'bg-indigo-600' },
           { id: 'assistant', icon: '🤖', label: 'Trợ lý AI', activeColor: 'bg-amber-600' },
           { id: 'achievements', icon: '🏆', label: 'Thành tích', activeColor: 'bg-yellow-500' },
           { id: 'parents', icon: '👨‍👩‍👧', label: 'Phụ huynh', activeColor: 'bg-rose-500' },
+          ...(isTeacher?[{id:'teacher',icon:'👩‍🏫',label:'Cô giáo',activeColor:'bg-teal-600'}]:[]),
         ].map(tab => {
           const isActive = (currentTab === tab.id && (tab.id !== 'home' || currentView !== 'english')) || 
                            (tab.id === 'english' && currentTab === 'home' && currentView === 'english');
@@ -2067,6 +2084,7 @@ export default function App({ startAtHome = false }: { startAtHome?: boolean }) 
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => {
+                if(tab.id==='teacher'){openTeacherRoute('home','/giao-vien');return;}
                 if (tab.id === 'english') {
                   setCurrentTab('home');
                   setCurrentView('english');
@@ -2077,6 +2095,7 @@ export default function App({ startAtHome = false }: { startAtHome?: boolean }) 
                 }
                 setCurrentTab(tab.id as any);
                 speak(tab.label);
+                if(location.pathname.startsWith('/giao-vien'))window.history.pushState({},'','/');
                 if (tab.id === 'home') {
                   setCurrentView('home');
                   setSelectedAge(null);
@@ -2987,8 +3006,6 @@ export default function App({ startAtHome = false }: { startAtHome?: boolean }) 
     );
   };
 
-  if (currentView === 'teacher' && isTeacher) return <TeacherWorkspace onBack={() => { setCurrentView('home'); setHomeMode('kids'); }} onEnglish={() => openEnglishModule('teachers')} />;
-
   return (
     <div className="min-h-screen font-sans selection:bg-transparent bg-polka-white relative overflow-x-hidden">
       <AnimatePresence mode="wait">
@@ -3050,8 +3067,6 @@ export default function App({ startAtHome = false }: { startAtHome?: boolean }) 
                 }
                 setShowSplash(false);
                 setShowCheckIn(true);
-                const welcomeAudio = new Audio('/audio/welcome.wav');
-                welcomeAudio.play().catch(e => console.error("Audio play failed", e));
               }}
               className="bg-white text-sky-600 font-black text-xl sm:text-4xl py-5 sm:py-8 px-6 sm:px-16 rounded-full shadow-2xl border-4 sm:border-8 border-white hover:bg-sky-50 transition-colors flex items-center gap-4 shrink-0"
               disabled={dataLoading}
@@ -3059,6 +3074,8 @@ export default function App({ startAtHome = false }: { startAtHome?: boolean }) 
               {dataLoading ? 'Đang tải dữ liệu…' : 'Bắt đầu học thôi! 🚀'}
             </motion.button>
           </motion.div>
+        ) : currentTab === 'teacher' && isTeacher ? (
+          <TeacherWorkspace route={teacherRoute} onNavigate={openTeacherRoute} onBack={() => { window.history.pushState({},'', '/'); setCurrentTab('home'); setCurrentView('home'); setHomeMode('kids'); }} onEnglish={() => openEnglishModule('teachers')} />
         ) : currentTab === 'assistant' ? (
           <AIAssistant
             onBack={() => {
