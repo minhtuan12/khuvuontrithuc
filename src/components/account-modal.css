@@ -1,74 +1,460 @@
 .account-modal {
-  --account-green: #047857; --account-ink: #193b65; --account-muted: #4b6279; --account-sky: #e8f6ff; --account-pink: #fff0f5;
-  position: fixed; width: min(480px, calc(100% - 24px)); max-height: calc(100dvh - 24px); margin: auto; padding: 0;
-  border: 5px solid white; border-radius: 30px; background: white; color: var(--account-ink); box-shadow: 0 24px 80px #193b6540;
-  overflow-y: auto; scrollbar-gutter: stable; font-family: 'Nunito', sans-serif; user-select: text;
+    --account-green: #047857;
+    --account-ink: #193b65;
+    --account-muted: #4b6279;
+    --account-sky: #e8f6ff;
+    --account-pink: #fff0f5;
+    position: fixed;
+    width: min(480px, calc(100% - 24px));
+    max-height: calc(100dvh - 24px);
+    margin: auto;
+    padding: 0;
+    border: 5px solid white;
+    border-radius: 30px;
+    background: white;
+    color: var(--account-ink);
+    box-shadow: 0 24px 80px #193b6540;
+    overflow-y: auto;
+    scrollbar-gutter: stable;
+    font-family: "Nunito", sans-serif;
+    user-select: text;
 }
-.account-modal::backdrop { background: #16334b85; backdrop-filter: blur(6px); }
-.account-landscape { height: 106px; overflow: hidden; border-radius: 24px 24px 38% 8%; background: var(--account-sky); }
-.account-landscape img { width: 100%; height: 100%; object-fit: cover; object-position: center 64%; }
-.account-modal button { cursor: pointer; min-height: 44px; font: inherit; font-weight: 800; transition: background-color .15s, box-shadow .15s; }
-.account-modal button:disabled { cursor: wait; opacity: .65; }
-.account-modal :is(button, input, select):focus-visible { outline: 3px solid var(--account-green); outline-offset: 3px; }
-.account-modal button:active:not(:disabled) { box-shadow: inset 0 2px 4px #193b6520; }
-.account-close { position: absolute; top: 10px; right: 10px; display: grid; place-items: center; width: 44px; border: 2px solid #dbe9ef; border-radius: 50%; background: white; color: var(--account-ink); }
-.account-close:hover:not(:disabled) { background: var(--account-pink); }
-.account-content { padding: 20px 26px 8px; }
-.account-eyebrow { display: flex; align-items: center; gap: 7px; color: var(--account-green); font-size: 11px; font-weight: 900; letter-spacing: .07em; }
-.account-content h2 { margin: 8px 0; font-family: 'Baloo 2', 'Nunito', sans-serif; font-size: 30px; color: var(--account-green); }
-.account-description { margin: 0 0 18px; color: var(--account-muted); font-size: 14px; line-height: 1.6; }
-.account-modes { display: grid; grid-template-columns: 1fr 1fr; padding: 4px; gap: 4px; background: var(--account-sky); border-radius: 17px; margin-bottom: 18px; }
-.account-modes button { border: 0; border-radius: 13px; background: transparent; color: var(--account-ink); }
-.account-modes button[aria-pressed='true'] { background: white; color: var(--account-green); box-shadow: 0 2px 6px #193b6512; }
-.account-modes button:hover:not(:disabled) { background: #f5fcff; }
-.account-role-choice { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-.account-role-card { display: flex; min-width: 0; min-height: 190px !important; padding: 17px !important; border: 2px solid #cfe3da; border-radius: 20px; background: #f7fcf8; color: var(--account-ink); text-align: left; flex-direction: column; align-items: flex-start; justify-content: flex-start; gap: 12px; }
-.account-role-card--teacher { border-color: #dcd2ee; background: #fbf8ff; }
-.account-role-card:hover:not(:disabled) { border-color: var(--account-green); background: #eef9f2; box-shadow: 0 8px 22px #193b6514; }
-.account-role-card--teacher:hover:not(:disabled) { border-color: #8259ad; background: #f5effc; }
-.account-role-card__icon { display: grid; place-items: center; width: 48px; height: 48px; border-radius: 15px; background: #dff4e7; color: var(--account-green); }
-.account-role-card--teacher .account-role-card__icon { background: #eee5fa; color: #7045a0; }
-.account-role-card > span:nth-child(2) { min-width: 0; }
-.account-role-card strong,.account-role-card small { display: block; }
-.account-role-card strong { font-family: 'Baloo 2', 'Nunito', sans-serif; font-size: 21px; line-height: 1.2; }
-.account-role-card small { margin-top: 4px; color: var(--account-muted); font-size: 12px; font-weight: 650; line-height: 1.45; }
-.account-role-card__action { margin-top: auto; color: var(--account-green); font-size: 12px; font-weight: 900; }
-.account-role-card--teacher .account-role-card__action { color: #7045a0; }
-.account-back-role { justify-self: start; min-height: 36px !important; padding: 5px 0; border: 0; background: transparent; color: var(--account-muted); font-size: 13px !important; }
-.account-back-role:hover:not(:disabled) { color: var(--account-green); }
-.account-fields { display: grid; gap: 15px; padding: 0; margin: 0; border: 0; min-width: 0; }
-.account-field { display: grid; gap: 6px; min-width: 0; }
-.account-field label { font-size: 14px; font-weight: 800; }
-.account-field label span { font-weight: 500; color: var(--account-muted); }
-.account-field :is(input, select) { width: 100%; min-width: 0; min-height: 46px; border: 2px solid #d7e5ec; border-radius: 13px; background: #fbfdff; padding: 9px 12px; color: var(--account-ink); font: inherit; font-size: 16px; }
-.account-field input[aria-invalid='true'] { border-color: #b42345; }
-.account-field small { color: var(--account-muted); font-size: 12px; line-height: 1.5; }
-.account-field-error { font-size: 12px; line-height: 1.5; color: #a3193c; }
-.account-password { position: relative; }
-.account-password input { padding-right: 52px; }
-.account-password button { position: absolute; right: 2px; top: 1px; display: grid; place-items: center; width: 46px; border: 0; border-radius: 11px; color: var(--account-muted); background: transparent; }
-.account-password button:hover:not(:disabled) { background: var(--account-sky); }
-.account-primary { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; min-height: 48px !important; padding: 10px 18px; border: 2px solid var(--account-green); border-radius: 16px; background: var(--account-green); color: white; }
-.account-primary:hover:not(:disabled) { background: #065f46; }
-.account-note { padding: 12px 14px; margin: 16px 0 0; background: var(--account-pink); border-radius: 14px; font-size: 12px; line-height: 1.6; color: var(--account-muted); }
-.account-profile-summary { display: flex; align-items: center; gap: 13px; margin-top: 18px; padding: 15px 16px; border: 2px solid #cae8d7; border-radius: 20px; background: linear-gradient(135deg, #edfbf3, #f7fcf1); }
-.account-profile-summary--teacher { border-color: #d8d0ed; background: linear-gradient(135deg, #f6f0ff, #fff9ee); }
-.account-avatar { display: grid; place-items: center; width: 52px; height: 52px; flex: 0 0 52px; border-radius: 17px; background: var(--account-green); color: white; font-family: 'Baloo 2', 'Nunito', sans-serif; font-size: 27px; font-weight: 900; box-shadow: 0 5px 14px #04785725; }
-.account-profile-summary > div { min-width: 0; }
-.account-profile-summary strong,.account-profile-summary span { display: block; }
-.account-profile-summary strong { overflow-wrap: anywhere; color: var(--account-ink); font-size: 18px; line-height: 1.25; }
-.account-profile-summary > div span { margin-top: 2px; color: var(--account-muted); font-size: 13px; font-weight: 700; }
-.account-profile { display: grid; gap: 0; margin: 12px 0 16px; padding: 4px 18px; border: 2px solid #dce9e4; border-radius: 20px; background: white; }
-.account-profile > div { display: grid; grid-template-columns: minmax(130px, .9fr) minmax(0, 1.15fr); gap: 14px; align-items: center; min-height: 64px; padding: 11px 0; }
-.account-profile > div + div { border-top: 1px solid #e6eee9; }
-.account-profile dt { display: flex; align-items: center; gap: 8px; color: var(--account-muted); font-size: 13px; font-weight: 750; }
-.account-profile dt svg { flex: 0 0 auto; color: var(--account-green); }
-.account-profile dd { margin: 0; overflow-wrap: anywhere; color: var(--account-ink); font-size: 16px; font-weight: 850; text-align: right; }
-.account-role { display: inline-flex; justify-content: center; padding: 6px 10px; border-radius: 999px; background: #e8f7ee; color: #05724f; font-size: 12px; line-height: 1.2; text-align: center; }
-.account-role--teacher { background: #f1eaff; color: #7045a0; }
-.account-profile + .account-note { margin-bottom: 18px; }
-.account-feedback { min-height: 24px; margin-top: 8px; }
-.account-feedback p { padding: 10px 12px; margin: 0 0 8px; border-radius: 12px; color: #a3193c; background: #fff0f3; font-size: 13px; line-height: 1.5; overflow-wrap: anywhere; }
-@media (max-width: 480px) { .account-content { padding: 18px 17px 6px; } .account-content h2 { font-size: 27px; } .account-role-choice { grid-template-columns: 1fr; } .account-role-card { min-height: 142px !important; } .account-profile { padding: 5px 14px; } .account-profile > div { grid-template-columns: 1fr; gap: 4px; padding: 13px 0; } .account-profile dd { padding-left: 26px; text-align: left; } .account-role { justify-content: flex-start; } }
-@media (max-height: 650px) { .account-landscape { height: 65px; } .account-content { padding-top: 14px; } }
-@media (prefers-reduced-motion: reduce) { .account-modal button { transition: none; } }
+.account-modal::backdrop {
+    background: #16334b85;
+    backdrop-filter: blur(6px);
+}
+.account-landscape {
+    height: 106px;
+    overflow: hidden;
+    border-radius: 24px 24px 38% 8%;
+    background: var(--account-sky);
+}
+.account-landscape img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center 64%;
+}
+.account-modal button {
+    cursor: pointer;
+    min-height: 44px;
+    font: inherit;
+    font-weight: 800;
+    transition:
+        background-color 0.15s,
+        box-shadow 0.15s;
+}
+.account-modal button:disabled {
+    cursor: wait;
+    opacity: 0.65;
+}
+.account-modal :is(button, input, select):focus-visible {
+    outline: 3px solid var(--account-green);
+    outline-offset: 3px;
+}
+.account-modal button:active:not(:disabled) {
+    box-shadow: inset 0 2px 4px #193b6520;
+}
+.account-close {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    display: grid;
+    place-items: center;
+    width: 44px;
+    border: 2px solid #dbe9ef;
+    border-radius: 50%;
+    background: white;
+    color: var(--account-ink);
+}
+.account-close:hover:not(:disabled) {
+    background: var(--account-pink);
+}
+.account-content {
+    padding: 20px 26px 8px;
+}
+.account-eyebrow {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    color: var(--account-green);
+    font-size: 11px;
+    font-weight: 900;
+    letter-spacing: 0.07em;
+}
+.account-content h2 {
+    margin: 8px 0;
+    font-family: "Baloo 2", "Nunito", sans-serif;
+    font-size: 30px;
+    color: var(--account-green);
+}
+.account-description {
+    margin: 0 0 18px;
+    color: var(--account-muted);
+    font-size: 14px;
+    line-height: 1.6;
+}
+.account-modes {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    padding: 4px;
+    gap: 4px;
+    background: var(--account-sky);
+    border-radius: 17px;
+    margin-bottom: 18px;
+}
+.account-modes button {
+    border: 0;
+    border-radius: 13px;
+    background: transparent;
+    color: var(--account-ink);
+}
+.account-modes button[aria-pressed="true"] {
+    background: white;
+    color: var(--account-green);
+    box-shadow: 0 2px 6px #193b6512;
+}
+.account-modes button:hover:not(:disabled) {
+    background: #f5fcff;
+}
+.account-role-choice {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+.account-role-card {
+    display: flex;
+    min-width: 0;
+    min-height: 190px !important;
+    padding: 17px !important;
+    border: 2px solid #cfe3da;
+    border-radius: 20px;
+    background: #f7fcf8;
+    color: var(--account-ink);
+    text-align: left;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+    gap: 12px;
+}
+.account-role-card--teacher {
+    border-color: #dcd2ee;
+    background: #fbf8ff;
+}
+.account-role-card:hover:not(:disabled) {
+    border-color: var(--account-green);
+    background: #eef9f2;
+    box-shadow: 0 8px 22px #193b6514;
+}
+.account-role-card--teacher:hover:not(:disabled) {
+    border-color: #8259ad;
+    background: #f5effc;
+}
+.account-role-card__icon {
+    display: grid;
+    place-items: center;
+    width: 48px;
+    height: 48px;
+    border-radius: 15px;
+    background: #dff4e7;
+    color: var(--account-green);
+}
+.account-role-card--teacher .account-role-card__icon {
+    background: #eee5fa;
+    color: #7045a0;
+}
+.account-role-card > span:nth-child(2) {
+    min-width: 0;
+}
+.account-role-card strong,
+.account-role-card small {
+    display: block;
+}
+.account-role-card strong {
+    font-family: "Baloo 2", "Nunito", sans-serif;
+    font-size: 21px;
+    line-height: 1.2;
+}
+.account-role-card small {
+    margin-top: 4px;
+    color: var(--account-muted);
+    font-size: 12px;
+    font-weight: 650;
+    line-height: 1.45;
+}
+.account-role-card__action {
+    margin-top: auto;
+    color: var(--account-green);
+    font-size: 12px;
+    font-weight: 900;
+}
+.account-role-card--teacher .account-role-card__action {
+    color: #7045a0;
+}
+.account-back-role {
+    display: flex;
+    gap: 4px;
+    justify-self: start;
+    min-height: 36px !important;
+    padding: 5px 0;
+    border: 0;
+    background: transparent;
+    color: var(--account-muted);
+    font-size: 13px !important;
+}
+.account-back-role:hover:not(:disabled) {
+    color: var(--account-green);
+}
+.account-fields {
+    display: grid;
+    gap: 15px;
+    padding: 0;
+    margin: 0;
+    border: 0;
+    min-width: 0;
+}
+.account-field {
+    display: grid;
+    gap: 6px;
+    min-width: 0;
+}
+.account-field label {
+    font-size: 14px;
+    font-weight: 800;
+}
+.account-field label span {
+    font-weight: 500;
+    color: var(--account-muted);
+}
+.account-field :is(input, select) {
+    width: 100%;
+    min-width: 0;
+    min-height: 46px;
+    border: 2px solid #d7e5ec;
+    border-radius: 13px;
+    background: #fbfdff;
+    padding: 9px 12px;
+    color: var(--account-ink);
+    font: inherit;
+    font-size: 16px;
+}
+.account-field input[aria-invalid="true"] {
+    border-color: #b42345;
+}
+.account-field small {
+    color: var(--account-muted);
+    font-size: 12px;
+    line-height: 1.5;
+}
+.account-field-error {
+    font-size: 12px;
+    line-height: 1.5;
+    color: #a3193c;
+}
+.account-password {
+    position: relative;
+}
+.account-password input {
+    padding-right: 52px;
+}
+.account-password button {
+    position: absolute;
+    right: 2px;
+    top: 1px;
+    display: grid;
+    place-items: center;
+    width: 46px;
+    border: 0;
+    border-radius: 11px;
+    color: var(--account-muted);
+    background: transparent;
+}
+.account-password button:hover:not(:disabled) {
+    background: var(--account-sky);
+}
+.account-primary {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    min-height: 48px !important;
+    padding: 10px 18px;
+    border: 2px solid var(--account-green);
+    border-radius: 16px;
+    background: var(--account-green);
+    color: white;
+}
+.account-primary:hover:not(:disabled) {
+    background: #065f46;
+}
+.account-note {
+    padding: 12px 14px;
+    margin: 16px 0 0;
+    background: var(--account-pink);
+    border-radius: 14px;
+    font-size: 12px;
+    line-height: 1.6;
+    color: var(--account-muted);
+}
+.account-profile-summary {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    margin-top: 18px;
+    padding: 15px 16px;
+    border: 2px solid #cae8d7;
+    border-radius: 20px;
+    background: linear-gradient(135deg, #edfbf3, #f7fcf1);
+}
+.account-profile-summary--teacher {
+    border-color: #d8d0ed;
+    background: linear-gradient(135deg, #f6f0ff, #fff9ee);
+}
+.account-avatar {
+    display: grid;
+    place-items: center;
+    width: 52px;
+    height: 52px;
+    flex: 0 0 52px;
+    border-radius: 17px;
+    background: var(--account-green);
+    color: white;
+    font-family: "Baloo 2", "Nunito", sans-serif;
+    font-size: 27px;
+    font-weight: 900;
+    box-shadow: 0 5px 14px #04785725;
+}
+.account-profile-summary > div {
+    min-width: 0;
+}
+.account-profile-summary strong,
+.account-profile-summary span {
+    display: block;
+}
+.account-profile-summary strong {
+    overflow-wrap: anywhere;
+    color: var(--account-ink);
+    font-size: 18px;
+    line-height: 1.25;
+}
+.account-profile-summary > div span {
+    margin-top: 2px;
+    color: var(--account-muted);
+    font-size: 13px;
+    font-weight: 700;
+}
+.account-profile {
+    display: grid;
+    gap: 0;
+    margin: 12px 0 16px;
+    padding: 4px 18px;
+    border: 2px solid #dce9e4;
+    border-radius: 20px;
+    background: white;
+}
+.account-profile > div {
+    display: grid;
+    grid-template-columns: minmax(130px, 0.9fr) minmax(0, 1.15fr);
+    gap: 14px;
+    align-items: center;
+    min-height: 64px;
+    padding: 11px 0;
+}
+.account-profile > div + div {
+    border-top: 1px solid #e6eee9;
+}
+.account-profile dt {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--account-muted);
+    font-size: 13px;
+    font-weight: 750;
+}
+.account-profile dt svg {
+    flex: 0 0 auto;
+    color: var(--account-green);
+}
+.account-profile dd {
+    margin: 0;
+    overflow-wrap: anywhere;
+    color: var(--account-ink);
+    font-size: 16px;
+    font-weight: 850;
+    text-align: right;
+}
+.account-role {
+    display: inline-flex;
+    justify-content: center;
+    padding: 6px 10px;
+    border-radius: 999px;
+    background: #e8f7ee;
+    color: #05724f;
+    font-size: 12px;
+    line-height: 1.2;
+    text-align: center;
+}
+.account-role--teacher {
+    background: #f1eaff;
+    color: #7045a0;
+}
+.account-profile + .account-note {
+    margin-bottom: 18px;
+}
+.account-feedback {
+    min-height: 24px;
+    margin-top: 8px;
+}
+.account-feedback p {
+    padding: 10px 12px;
+    margin: 0 0 8px;
+    border-radius: 12px;
+    color: #a3193c;
+    background: #fff0f3;
+    font-size: 13px;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+}
+@media (max-width: 480px) {
+    .account-content {
+        padding: 18px 17px 6px;
+    }
+    .account-content h2 {
+        font-size: 27px;
+    }
+    .account-role-choice {
+        grid-template-columns: 1fr;
+    }
+    .account-role-card {
+        min-height: 142px !important;
+    }
+    .account-profile {
+        padding: 5px 14px;
+    }
+    .account-profile > div {
+        grid-template-columns: 1fr;
+        gap: 4px;
+        padding: 13px 0;
+    }
+    .account-profile dd {
+        padding-left: 26px;
+        text-align: left;
+    }
+    .account-role {
+        justify-content: flex-start;
+    }
+}
+@media (max-height: 650px) {
+    .account-landscape {
+        height: 65px;
+    }
+    .account-content {
+        padding-top: 14px;
+    }
+}
+@media (prefers-reduced-motion: reduce) {
+    .account-modal button {
+        transition: none;
+    }
+}
