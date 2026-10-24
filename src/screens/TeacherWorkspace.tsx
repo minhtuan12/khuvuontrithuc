@@ -27,7 +27,7 @@ export default function TeacherWorkspace({route,onNavigate,onBack,onEnglish}:{ro
  if(!allowed)return null;
  function navigate(value:TeacherRoute,path:string){if(dirty)setNext({route:value,path});else onNavigate(value,path);}
  const active=ROUTES.find(item=>item.id===route);
- return <main className="teacher-workspace tw-page">
+ return <main className={`teacher-workspace tw-page${route==='students'?' tw-page-wide':''}`}>
   <header className="tw-admin-hero"><div><span className="tw-kicker">KHU VƯỜN TRI THỨC</span><h1>{route==='home'?'Khu vực cô giáo':active?.title||'Góc của cô'}</h1><p>{route==='home'?'Quản lý lớp học, tiếp nhận thông tin và chuẩn bị nội dung trong một không gian riêng dành cho giáo viên.':active?.description}</p></div><div className="tw-hero-mark" aria-hidden="true"><GraduationCap size={42}/></div></header>
   {route==='home'?<>
    <section className="tw-dashboard-grid" aria-label="Các chức năng dành cho giáo viên">{ROUTES.map(({id,path,title,description,icon:Icon,accent})=><button className={`tw-dashboard-card is-${accent}`} key={id} onClick={()=>navigate(id,path)}><span className="tw-dashboard-icon"><Icon size={27}/></span><span><strong>{title}</strong><small>{description}</small></span></button>)}</section>
