@@ -21,6 +21,21 @@
 .account-modes button { border: 0; border-radius: 13px; background: transparent; color: var(--account-ink); }
 .account-modes button[aria-pressed='true'] { background: white; color: var(--account-green); box-shadow: 0 2px 6px #193b6512; }
 .account-modes button:hover:not(:disabled) { background: #f5fcff; }
+.account-role-choice { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.account-role-card { display: flex; min-width: 0; min-height: 190px !important; padding: 17px !important; border: 2px solid #cfe3da; border-radius: 20px; background: #f7fcf8; color: var(--account-ink); text-align: left; flex-direction: column; align-items: flex-start; justify-content: flex-start; gap: 12px; }
+.account-role-card--teacher { border-color: #dcd2ee; background: #fbf8ff; }
+.account-role-card:hover:not(:disabled) { border-color: var(--account-green); background: #eef9f2; box-shadow: 0 8px 22px #193b6514; }
+.account-role-card--teacher:hover:not(:disabled) { border-color: #8259ad; background: #f5effc; }
+.account-role-card__icon { display: grid; place-items: center; width: 48px; height: 48px; border-radius: 15px; background: #dff4e7; color: var(--account-green); }
+.account-role-card--teacher .account-role-card__icon { background: #eee5fa; color: #7045a0; }
+.account-role-card > span:nth-child(2) { min-width: 0; }
+.account-role-card strong,.account-role-card small { display: block; }
+.account-role-card strong { font-family: 'Baloo 2', 'Nunito', sans-serif; font-size: 21px; line-height: 1.2; }
+.account-role-card small { margin-top: 4px; color: var(--account-muted); font-size: 12px; font-weight: 650; line-height: 1.45; }
+.account-role-card__action { margin-top: auto; color: var(--account-green); font-size: 12px; font-weight: 900; }
+.account-role-card--teacher .account-role-card__action { color: #7045a0; }
+.account-back-role { justify-self: start; min-height: 36px !important; padding: 5px 0; border: 0; background: transparent; color: var(--account-muted); font-size: 13px !important; }
+.account-back-role:hover:not(:disabled) { color: var(--account-green); }
 .account-fields { display: grid; gap: 15px; padding: 0; margin: 0; border: 0; min-width: 0; }
 .account-field { display: grid; gap: 6px; min-width: 0; }
 .account-field label { font-size: 14px; font-weight: 800; }
@@ -54,6 +69,6 @@
 .account-profile + .account-note { margin-bottom: 18px; }
 .account-feedback { min-height: 24px; margin-top: 8px; }
 .account-feedback p { padding: 10px 12px; margin: 0 0 8px; border-radius: 12px; color: #a3193c; background: #fff0f3; font-size: 13px; line-height: 1.5; overflow-wrap: anywhere; }
-@media (max-width: 480px) { .account-content { padding: 18px 17px 6px; } .account-content h2 { font-size: 27px; } .account-profile { padding: 5px 14px; } .account-profile > div { grid-template-columns: 1fr; gap: 4px; padding: 13px 0; } .account-profile dd { padding-left: 26px; text-align: left; } .account-role { justify-content: flex-start; } }
+@media (max-width: 480px) { .account-content { padding: 18px 17px 6px; } .account-content h2 { font-size: 27px; } .account-role-choice { grid-template-columns: 1fr; } .account-role-card { min-height: 142px !important; } .account-profile { padding: 5px 14px; } .account-profile > div { grid-template-columns: 1fr; gap: 4px; padding: 13px 0; } .account-profile dd { padding-left: 26px; text-align: left; } .account-role { justify-content: flex-start; } }
 @media (max-height: 650px) { .account-landscape { height: 65px; } .account-content { padding-top: 14px; } }
 @media (prefers-reduced-motion: reduce) { .account-modal button { transition: none; } }

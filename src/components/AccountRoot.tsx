@@ -77,6 +77,13 @@ export default function AccountRoot() {
     try {
       const next = await accountRequest(action, body);
       if (!mounted.current) return;
+      if (action === 'login' && next && body && typeof body === 'object') {
+        const requestedRole = (body as { role?: unknown }).role;
+        if ((requestedRole === 'learner' || requestedRole === 'teacher') && next.role !== requestedRole) {
+          await accountRequest('logout');
+          throw new Error(requestedRole === 'teacher' ? 'Tài khoản này không phải tài khoản giáo viên.' : 'Tài khoản này không phải tài khoản học sinh.');
+        }
+      }
       applyIdentity(next);
       try { window.localStorage.setItem('kvtt.account.changed', crypto.randomUUID()); } catch { /* BroadcastChannel still works when storage is unavailable. */ }
       channel.current?.postMessage('changed');

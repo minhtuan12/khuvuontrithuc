@@ -1,12 +1,12 @@
 import { useEffect, useId, useRef, useState, type FormEvent } from 'react';
-import { AtSign, Eye, EyeOff, Flower2, GraduationCap, LogOut, UserRound, X } from 'lucide-react';
+import { ArrowLeft, AtSign, Eye, EyeOff, Flower2, GraduationCap, LogOut, School, UserRound, X } from 'lucide-react';
 import './account-modal.css';
 
 export interface AccountModalProps {
   open: boolean;
   onClose: () => void;
   user: { id: string; username: string; fullName: string; gender: null | 'male' | 'female' | 'other'; role: 'learner' | 'teacher' } | null;
-  onLogin: (input: { username: string; password: string }) => Promise<void>;
+  onLogin: (input: { username: string; password: string; role: 'learner' | 'teacher' }) => Promise<void>;
   onRegister: (input: { username: string; fullName: string; password: string; gender?: string | null; role: 'learner' | 'teacher' }) => Promise<void>;
   onLogout: () => Promise<void>;
 }
@@ -24,6 +24,7 @@ export default function AccountModal({ open, onClose, user, onLogin, onRegister,
   const [password, setPassword] = useState('');
   const [gender, setGender] = useState('');
   const [role, setRole] = useState<'learner' | 'teacher'>('learner');
+  const [loginRole, setLoginRole] = useState<'learner' | 'teacher' | null>(null);
   const [visible, setVisible] = useState(false);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState('');
@@ -52,6 +53,7 @@ export default function AccountModal({ open, onClose, user, onLogin, onRegister,
       setError('');
       setErrors({});
       setPending(false);
+      setLoginRole(null);
     }
   }, [open]);
 
@@ -96,10 +98,12 @@ export default function AccountModal({ open, onClose, user, onLogin, onRegister,
       dialog.current?.querySelector<HTMLInputElement>(`[name="${first}"]`)?.focus();
       return;
     }
-    void perform(() => mode === 'login' ? onLogin({ username: name, password }) : onRegister({ username: name, fullName: fullName.trim(), password, gender: gender || null, role }));
+    if (mode === 'login' && !loginRole) return;
+    void perform(() => mode === 'login' ? onLogin({ username: name, password, role: loginRole! }) : onRegister({ username: name, fullName: fullName.trim(), password, gender: gender || null, role }));
   }
 
   const registering = mode === 'register';
+  const choosingLoginRole = mode === 'login' && !loginRole;
   function fieldError(field: Field) {
     return errors[field] ? <span className="account-field-error" id={`${id}-${field}-error`}>{errors[field]}</span> : null;
   }
@@ -113,8 +117,8 @@ export default function AccountModal({ open, onClose, user, onLogin, onRegister,
     <button className="account-close" type="button" aria-label="Đóng tài khoản" disabled={pending} onClick={() => { if (!busy.current) onClose(); }} autoFocus><X size={22} /></button>
     <div className="account-content">
       <span className="account-eyebrow"><Flower2 size={17} aria-hidden="true" /> KHU VƯỜN CỦA BẠN</span>
-      <h2 id={`${id}-title`}>{user ? 'Tài khoản của bạn' : registering ? 'Cùng gieo mầm tri thức' : 'Mừng bạn trở lại!'}</h2>
-      <p id={`${id}-description`} className="account-description">{description}</p>
+      <h2 id={`${id}-title`}>{user ? 'Tài khoản của bạn' : registering ? 'Cùng gieo mầm tri thức' : choosingLoginRole ? 'Bạn đăng nhập với tư cách nào?' : loginRole === 'teacher' ? 'Đăng nhập giáo viên' : 'Đăng nhập học sinh'}</h2>
+      <p id={`${id}-description`} className="account-description">{user || registering ? description : choosingLoginRole ? 'Chọn đúng loại tài khoản để vào không gian dành riêng cho bạn.' : loginRole === 'teacher' ? 'Truy cập kho giáo án, danh sách học sinh và hộp thư phụ huynh.' : 'Tiếp tục hành trình học tập và khu vườn thành tích của bé.'}</p>
       {user ? <>
         <div className={`account-profile-summary account-profile-summary--${user.role}`}>
           <span className="account-avatar" aria-hidden="true">{user.fullName.trim().charAt(0).toLocaleUpperCase('vi-VN') || <UserRound size={26} />}</span>
@@ -129,10 +133,22 @@ export default function AccountModal({ open, onClose, user, onLogin, onRegister,
         <button className="account-primary" type="button" disabled={pending} onClick={() => void perform(onLogout)}><LogOut size={18} aria-hidden="true" />{pending ? 'Đang đăng xuất…' : 'Đăng xuất'}</button>
       </> : <>
         <div className="account-modes" role="group" aria-label="Chọn đăng nhập hoặc tạo tài khoản">
-          {(['login', 'register'] as const).map(value => <button key={value} type="button" aria-pressed={mode === value} disabled={pending} onClick={() => { setMode(value); setErrors({}); setError(''); setPassword(''); setVisible(false); }}>{value === 'login' ? 'Đăng nhập' : 'Tạo tài khoản'}</button>)}
+          {(['login', 'register'] as const).map(value => <button key={value} type="button" aria-pressed={mode === value} disabled={pending} onClick={() => { setMode(value); setLoginRole(null); setErrors({}); setError(''); setPassword(''); setVisible(false); }}>{value === 'login' ? 'Đăng nhập' : 'Tạo tài khoản'}</button>)}
         </div>
-        <form noValidate onSubmit={submit} aria-busy={pending}>
+        {choosingLoginRole ? <div className="account-role-choice" role="group" aria-label="Chọn loại tài khoản đăng nhập">
+          <button className="account-role-card account-role-card--learner" type="button" onClick={() => setLoginRole('learner')}>
+            <span className="account-role-card__icon" aria-hidden="true"><GraduationCap size={28} /></span>
+            <span><strong>Học sinh</strong><small>Vào khu vui học, bài học và thành tích của bé</small></span>
+            <span className="account-role-card__action">Chọn học sinh</span>
+          </button>
+          <button className="account-role-card account-role-card--teacher" type="button" onClick={() => setLoginRole('teacher')}>
+            <span className="account-role-card__icon" aria-hidden="true"><School size={28} /></span>
+            <span><strong>Giáo viên</strong><small>Vào kho giáo án, học sinh và hộp thư phụ huynh</small></span>
+            <span className="account-role-card__action">Chọn giáo viên</span>
+          </button>
+        </div> : <form noValidate onSubmit={submit} aria-busy={pending}>
           <fieldset disabled={pending} className="account-fields">
+            {!registering && <button className="account-back-role" type="button" onClick={() => { setLoginRole(null); setPassword(''); setError(''); setErrors({}); }}><ArrowLeft size={17} aria-hidden="true" /> Chọn loại tài khoản khác</button>}
             <div className="account-field"><label htmlFor={`${id}-username`}>Tên đăng nhập</label><input id={`${id}-username`} name="username" value={username} onChange={event => setUsername(event.target.value)} autoComplete="username" autoCapitalize="none" spellCheck={false} maxLength={32} required aria-invalid={!!errors.username} aria-describedby={errors.username ? `${id}-username-error` : registering ? `${id}-username-help` : undefined} />{fieldError('username')}{registering && !errors.username && <small id={`${id}-username-help`}>3–32 chữ cái không dấu, số hoặc dấu _ . -</small>}</div>
             {registering && <div className="account-field"><label htmlFor={`${id}-fullName`}>Họ và tên</label><input id={`${id}-fullName`} name="fullName" value={fullName} onChange={event => setFullName(event.target.value)} autoComplete="name" maxLength={100} required aria-invalid={!!errors.fullName} aria-describedby={errors.fullName ? `${id}-fullName-error` : undefined} />{fieldError('fullName')}</div>}
             {registering && <div className="account-field"><label htmlFor={`${id}-role`}>Đăng ký dành cho</label><select id={`${id}-role`} value={role} onChange={event => setRole(event.target.value as 'learner' | 'teacher')}><option value="learner">Học sinh / gia đình</option><option value="teacher">Giáo viên</option></select><small>Tài khoản giáo viên được mở Khu vực cô giáo, kho giáo án, danh sách học sinh và hộp thư phụ huynh.</small></div>}
@@ -140,7 +156,7 @@ export default function AccountModal({ open, onClose, user, onLogin, onRegister,
             {registering && <div className="account-field"><label htmlFor={`${id}-gender`}>Giới tính <span>(không bắt buộc)</span></label><select id={`${id}-gender`} value={gender} onChange={event => setGender(event.target.value)}><option value="">Không chia sẻ</option><option value="male">Nam</option><option value="female">Nữ</option><option value="other">Khác</option></select></div>}
             <button className="account-primary" type="submit">{pending ? 'Đang kết nối…' : registering ? 'Tạo tài khoản' : 'Đăng nhập'}</button>
           </fieldset>
-        </form>
+        </form>}
         <p className="account-note">Tiến trình của tài khoản và khu vườn khách được lưu riêng. Dữ liệu khách không tự chuyển vào tài khoản.</p>
       </>}
       <div className="account-feedback" aria-live="polite" aria-atomic="true">{error && <p role="alert">{error}</p>}</div>
