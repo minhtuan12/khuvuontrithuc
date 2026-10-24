@@ -71,7 +71,7 @@ async function speakWithVietnameseFemaleVoice(text: string, voice: ResponsiveVoi
       cancelPlayback = null;
       error ? reject(error) : resolve();
     };
-    const timeout = setTimeout(() => finish(new Error('Chưa phát được giọng nữ tiếng Việt. Hãy thử nghe lại.')), Math.max(20000, text.length * 200));
+    const timeout = setTimeout(() => finish(), Math.max(20000, text.length * 200));
     cancelPlayback = () => finish();
     voice.speak(text.replace(/[*#_`]/g, '').trim(), 'Vietnamese Female', {
       rate: 0.9,
@@ -111,11 +111,11 @@ export async function readAssistantMessage(text: string, requested = false, lang
       utterance.onerror = null;
       error ? reject(error) : resolve();
     };
-    const timeout = setTimeout(() => { finish(new Error('Chưa phát được âm thanh. Hãy kiểm tra âm lượng và thử nghe lại.')); synthesis.cancel(); }, Math.max(20000, text.length * 200));
+    const timeout = setTimeout(() => { finish(); synthesis.cancel(); }, Math.max(20000, text.length * 200));
     cancelPlayback = () => finish();
     utterance.onend = () => finish();
     utterance.onerror = event => finish(event.error === 'interrupted' || event.error === 'canceled' ? undefined : new Error('Không đọc được âm thanh. Hãy kiểm tra giọng đọc tiếng Việt trên thiết bị và thử lại.'));
     try { synthesis.resume(); synthesis.speak(utterance); }
-    catch { finish(new Error('Chưa phát được âm thanh. Hãy thử nghe lại.')); }
+    catch { finish(); }
   });
 }

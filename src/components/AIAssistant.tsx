@@ -1,8 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { stopAssistantSpeech } from '../lib/assistantSpeech';
 import { motion, AnimatePresence } from 'motion/react';
-import { 
-  Send, Sparkles, Mic, Square, Volume2, RotateCcw, 
+import {
+  Send, Sparkles, Mic, Square, Volume2, RotateCcw,
   ArrowLeft, MessageCircle, BookOpen, Users, Lightbulb,
   CheckCircle2, Bot, User, Trash2
 } from 'lucide-react';
@@ -59,16 +59,16 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ onBack, speak }) => {
   useEffect(() => {
     mounted.current = true;
     return () => {
-    mounted.current = false;
-    playbackId.current++;
-    stopAssistantSpeech();
-    requestController.current?.abort();
-    const recorder = mediaRecorderRef.current;
-    if (recorder) {
-      recorder.onstop = null;
-      if (recorder.state !== 'inactive') recorder.stop();
-      recorder.stream.getTracks().forEach(track => track.stop());
-    }
+      mounted.current = false;
+      playbackId.current++;
+      stopAssistantSpeech();
+      requestController.current?.abort();
+      const recorder = mediaRecorderRef.current;
+      if (recorder) {
+        recorder.onstop = null;
+        if (recorder.state !== 'inactive') recorder.stop();
+        recorder.stream.getTracks().forEach(track => track.stop());
+      }
     };
   }, []);
 
@@ -80,7 +80,7 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ onBack, speak }) => {
   // Initial welcome greeting speech
   useEffect(() => {
     const welcome = 'Chào bé yêu và bố mẹ! Tớ là Bạn Đồng Hành AI trong Khu Vườn Tri Thức. Bé hãy hỏi tớ bất cứ điều gì nhé!';
-    speak(welcome).catch(() => {});
+    speak(welcome).catch(() => { });
   }, []);
 
   const handleSendMessage = async (textToSend?: string) => {
@@ -141,7 +141,7 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ onBack, speak }) => {
       setMessages(prev => [...prev, assistantMessage]);
 
       // Automatically speak the first sentence or read aloud
-      speak(aiResponseText).catch(() => {});
+      speak(aiResponseText).catch(() => { });
 
     } catch (error) {
       if (!mounted.current) return;
@@ -171,7 +171,7 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ onBack, speak }) => {
     try {
       await speak(text, true);
     } catch (error) {
-      if (mounted.current && requestId === playbackId.current) setPlaybackError(error instanceof Error ? error.message : 'Chưa phát được âm thanh. Hãy thử lại.');
+      if (mounted.current && requestId === playbackId.current) { };
     } finally {
       if (mounted.current && requestId === playbackId.current) setPlayingMessageId(null);
     }
@@ -187,7 +187,7 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ onBack, speak }) => {
         time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       }
     ]);
-    speak('Tớ đã sẵn sàng cho cuộc trò chuyện mới rồi! Bé hãy đặt câu hỏi nhé!').catch(() => {});
+    speak('Tớ đã sẵn sàng cho cuộc trò chuyện mới rồi! Bé hãy đặt câu hỏi nhé!').catch(() => { });
   };
 
   // Voice recording logic
@@ -238,10 +238,10 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ onBack, speak }) => {
           if (!mounted.current) return;
           if (typeof data.text !== 'string' || !data.text.trim()) throw new Error('Empty voice reply');
           setMessages(prev => [...prev,
-            { id: `user-voice-${Date.now()}`, role: 'user', text: '🎙️ [Bé đã nói qua Micro]', time: new Date().toLocaleTimeString() },
-            { id: `assistant-voice-${Date.now()}`, role: 'assistant', text: data.text, time: new Date().toLocaleTimeString() }
+          { id: `user-voice-${Date.now()}`, role: 'user', text: '🎙️ [Bé đã nói qua Micro]', time: new Date().toLocaleTimeString() },
+          { id: `assistant-voice-${Date.now()}`, role: 'assistant', text: data.text, time: new Date().toLocaleTimeString() }
           ]);
-          speak(data.text).catch(() => {});
+          speak(data.text).catch(() => { });
         } catch (err) {
           if (!mounted.current) return;
           setMessages(prev => [...prev, { id: `voice-error-${Date.now()}`, role: 'assistant', text: 'Tớ chưa nghe được câu hỏi. Bé thử lại hoặc nhập câu hỏi nhé!', time: new Date().toLocaleTimeString() }]);
@@ -297,7 +297,7 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ onBack, speak }) => {
           >
             <ArrowLeft size={24} strokeWidth={2.5} />
           </motion.button>
-          
+
           <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-tr from-amber-400 via-yellow-300 to-amber-500 text-slate-900 flex items-center justify-center text-3xl sm:text-4xl shadow-md border-2 border-white shrink-0">
             🤖
           </div>
@@ -327,11 +327,10 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ onBack, speak }) => {
                 setActiveMode('kids');
                 speak('Chế độ hỏi đáp cùng bé');
               }}
-              className={`px-3 py-1.5 rounded-xl text-xs font-black transition-all cursor-pointer ${
-                activeMode === 'kids'
+              className={`px-3 py-1.5 rounded-xl text-xs font-black transition-all cursor-pointer ${activeMode === 'kids'
                   ? 'bg-white text-sky-800 shadow-xs'
                   : 'text-slate-500 hover:text-slate-800'
-              }`}
+                }`}
             >
               🎈 Bé Hỏi Đáp
             </button>
@@ -341,11 +340,10 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ onBack, speak }) => {
                 setActiveMode('story');
                 speak('Chế độ kể chuyện sáng tạo');
               }}
-              className={`px-3 py-1.5 rounded-xl text-xs font-black transition-all cursor-pointer ${
-                activeMode === 'story'
+              className={`px-3 py-1.5 rounded-xl text-xs font-black transition-all cursor-pointer ${activeMode === 'story'
                   ? 'bg-white text-purple-800 shadow-xs'
                   : 'text-slate-500 hover:text-slate-800'
-              }`}
+                }`}
             >
               📖 Kể Chuyện
             </button>
@@ -355,11 +353,10 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ onBack, speak }) => {
                 setActiveMode('parents');
                 speak('Chế độ phụ huynh và cô giáo');
               }}
-              className={`px-3 py-1.5 rounded-xl text-xs font-black transition-all cursor-pointer ${
-                activeMode === 'parents'
+              className={`px-3 py-1.5 rounded-xl text-xs font-black transition-all cursor-pointer ${activeMode === 'parents'
                   ? 'bg-white text-emerald-800 shadow-xs'
                   : 'text-slate-500 hover:text-slate-800'
-              }`}
+                }`}
             >
               👩‍🏫 Cho Bố Mẹ & Cô
             </button>
@@ -378,7 +375,7 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ onBack, speak }) => {
 
       {/* Main Chat Box Container */}
       <div className="w-full bg-white/90 backdrop-blur-md rounded-[36px] shadow-2xl border-4 border-white flex flex-col overflow-hidden min-h-[580px] h-[68vh] relative">
-        
+
         {/* Chat Messages Scrolling Area */}
         <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-5">
           {messages.map((message) => {
@@ -395,11 +392,10 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ onBack, speak }) => {
               >
                 {/* Avatar */}
                 <div
-                  className={`w-10 h-10 sm:w-12 sm:h-12 rounded-2xl flex items-center justify-center text-xl sm:text-2xl shadow-sm shrink-0 border-2 border-white ${
-                    isUser
+                  className={`w-10 h-10 sm:w-12 sm:h-12 rounded-2xl flex items-center justify-center text-xl sm:text-2xl shadow-sm shrink-0 border-2 border-white ${isUser
                       ? 'bg-gradient-to-tr from-sky-400 to-blue-500 text-white'
                       : 'bg-gradient-to-tr from-amber-300 via-yellow-200 to-amber-400 text-slate-800'
-                  }`}
+                    }`}
                 >
                   {isUser ? '🧒' : '🤖'}
                 </div>
@@ -407,11 +403,10 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ onBack, speak }) => {
                 {/* Message Bubble */}
                 <div className={`max-w-[85%] sm:max-w-[78%] flex flex-col ${isUser ? 'items-end' : 'items-start'}`}>
                   <div
-                    className={`p-4 sm:p-5 rounded-[24px] shadow-sm relative text-sm sm:text-base leading-relaxed font-bold ${
-                      isUser
+                    className={`p-4 sm:p-5 rounded-[24px] shadow-sm relative text-sm sm:text-base leading-relaxed font-bold ${isUser
                         ? 'bg-gradient-to-r from-sky-500 to-blue-600 text-white rounded-tr-none'
                         : 'bg-gradient-to-br from-amber-50/90 via-white to-sky-50/70 text-slate-800 border-2 border-amber-200/80 rounded-tl-none shadow-md shadow-amber-900/5'
-                    }`}
+                      }`}
                   >
                     <div className="whitespace-pre-wrap">{message.text}</div>
 
@@ -426,11 +421,10 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ onBack, speak }) => {
                           whileHover={{ scale: 1.08 }}
                           whileTap={{ scale: 0.92 }}
                           onClick={() => handleSpeakMessage(message.id, message.text)}
-                          className={`px-3 py-1 rounded-full text-xs font-black flex items-center gap-1.5 transition-all shadow-xs cursor-pointer ${
-                            isPlaying
+                          className={`px-3 py-1 rounded-full text-xs font-black flex items-center gap-1.5 transition-all shadow-xs cursor-pointer ${isPlaying
                               ? 'bg-amber-500 text-white animate-pulse'
                               : 'bg-white hover:bg-amber-100 text-amber-800 border border-amber-300'
-                          }`}
+                            }`}
                         >
                           <Volume2 size={14} className={isPlaying ? 'animate-bounce' : ''} />
                           <span>{isPlaying ? 'Dừng đọc' : 'Nghe đọc 🔊'}</span>
@@ -491,18 +485,17 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ onBack, speak }) => {
 
         {/* Interactive Bottom Input Bar */}
         <div className="p-3 sm:p-4 bg-white/95 border-t-2 border-amber-100 flex items-center gap-2.5 shrink-0">
-          
+
           {/* Voice Input Button */}
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             disabled={isLoading}
             onClick={isRecording ? stopRecording : startRecording}
-            className={`p-3.5 rounded-2xl shadow-sm transition-all border cursor-pointer shrink-0 ${
-              isRecording
+            className={`p-3.5 rounded-2xl shadow-sm transition-all border cursor-pointer shrink-0 ${isRecording
                 ? 'bg-rose-500 text-white animate-pulse border-rose-600 shadow-rose-300'
                 : 'bg-amber-50 hover:bg-amber-100 text-amber-800 border-amber-200'
-            }`}
+              }`}
             title={isRecording ? 'Dừng ghi âm' : 'Nói câu hỏi qua Micro'}
             aria-label={isRecording ? 'Dừng ghi âm' : 'Nói câu hỏi qua Micro'}
           >
