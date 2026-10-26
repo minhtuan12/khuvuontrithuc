@@ -27,10 +27,9 @@ const dateLabel = (date: string) => {
 export default function ParentDashboard({ onBack, stars = 0, emotionHistory = [], speak, stats, studySeconds = 0, onOpenSettings, onCheckIn, onOpenActivity }: Props) {
   const [tab, setTab] = useState<Tab>('overview');
   const [notice, setNotice] = useState('');
-  const [storageError, setStorageError] = useState('');
   const read = <T,>(key: string, validate: (value: unknown) => value is T): T[] => {
     try { const value: unknown = JSON.parse(localStorage.getItem(key) || '[]'); if (!Array.isArray(value) || !value.every(validate)) throw new Error(); return value; }
-    catch { setStorageError('Không đọc được nội dung đã lưu. Bạn vẫn có thể viết mới và thử lưu lại.'); return []; }
+    catch { return []; }
   };
   const [posts, setPosts, postsData] = useDeviceDocument<Post[]>('family-posts', () => read('garden-parent-posts-v1', (p): p is Post => !!p && typeof p === 'object' && typeof (p as Post).id === 'string' && typeof (p as Post).content === 'string' && typeof (p as Post).liked === 'boolean' && Array.isArray((p as Post).comments) && (p as Post).comments.every(c => typeof c === 'string')));
   const [notes, setNotes, notesData] = useDeviceDocument<Note[]>('teacher-notes', () => read('garden-parent-notes-v1', (p): p is Note => !!p && typeof p === 'object' && typeof (p as Note).id === 'string' && typeof (p as Note).content === 'string' && typeof (p as Note).date === 'string'));
@@ -44,8 +43,8 @@ export default function ParentDashboard({ onBack, stars = 0, emotionHistory = []
   const [note, setNote] = useState('');
   const [comments, setComments] = useState<Record<string, string>>({});
   const persist = (key: string, value: unknown, done: () => void, message: string) => {
-    try { localStorage.setItem(key, JSON.stringify(value)); setStorageError(''); }
-    catch { setStorageError('Không lưu được bản dự phòng trên thiết bị.'); }
+    try { localStorage.setItem(key, JSON.stringify(value)); }
+    catch {}
     done();
     setNotice('Đang lưu thay đổi lên máy chủ…');
     setPendingNotice(message);
@@ -62,9 +61,8 @@ export default function ParentDashboard({ onBack, stars = 0, emotionHistory = []
     <main className="parent-main">
       <section className="parent-hero"><div className="parent-hero-copy"><span className="parent-eyebrow">CÙNG CON LỚN LÊN MỖI NGÀY</span><h1>Ba mẹ cùng con<br />ươm những điều hay.</h1><p>Mỗi khám phá nhỏ là một mầm xanh. Cùng nhìn lại hành trình của con hôm nay nhé!</p><button className="parent-primary" onClick={() => { setTab('emotions'); speak('Nhật ký cảm xúc của bé'); }}><Heart size={18} /> Lắng nghe cảm xúc của con</button></div><img src="/illustrations/garden-story.jpg" alt="Khu vườn cổ tích đầy cây xanh và hoa" /></section>
       <nav className="parent-tabs" aria-label="Nội dung dành cho phụ huynh">{tabs.map(({ id, label, icon: Icon }) => <button key={id} aria-current={tab === id ? 'page' : undefined} onClick={() => { setTab(id); setNotice(''); speak(label); }}><Icon size={19} />{label}</button>)}</nav>
-      {storageError && <p role="alert" className="parent-alert">{storageError}</p>}{notice && <p role="status" className="parent-notice">{notice}</p>}
+      {notice && <p role="status" className="parent-notice">{notice}</p>}
       {(postsData.loading || notesData.loading) && <p role="status">Đang tải nội dung đã lưu…</p>}
-      {[postsData, notesData].filter(item => item.error).map((item, index) => <p key={index} role="alert" className="parent-alert">{item.error} <button type="button" onClick={item.retry}>Thử lưu lại</button> · <button type="button" onClick={item.restoreRemote}>Tải bản đã lưu</button></p>)}
       {tab === 'overview' && <>
         <div className="parent-section-title"><div><span className="parent-eyebrow">NHỮNG MẦM XANH CỦA CON</span><h2>Hành trình khám phá</h2></div><span className="parent-chip">Đã ghi nhận trên ứng dụng</span></div>
         <div className="parent-stats">{[{ icon: Star, value: stars, unit: 'ngôi sao', label: 'Niềm vui tích lũy', color: 'sun' }, { icon: BookOpen, value: total, unit: 'lượt hoàn thành', label: 'Từng bước khám phá', color: 'leaf' }, { icon: Clock, value: Math.floor(Math.max(0, studySeconds) / 60), unit: 'phút hôm nay', label: 'Thời gian cùng ứng dụng', color: 'sky' }].map(({ icon: Icon, value, unit, label, color }) => <article className={`parent-stat ${color}`} key={label}><span className="parent-stat-icon"><Icon /></span><div><p>{label}</p><strong>{value} <small>{unit}</small></strong></div></article>)}</div>

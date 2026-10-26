@@ -1,6 +1,6 @@
 // @ts-nocheck -- This regression suite runs with Bun's built-in test runner.
 import { beforeEach, expect, test } from 'bun:test';
-import { getEnglishSession, getGuestEnglishProgress, recordEnglishProgress } from '../src/lib/englishSync';
+import { getEnglishSession, getGuestEnglishProgress, recordEnglishProgress, resetEnglishProgressForAccountChange } from '../src/lib/englishSync';
 import { ENGLISH_LESSONS_BY_AGE } from '../src/lib/englishCatalog';
 
 const values = new Map<string, string>();
@@ -10,7 +10,7 @@ globalThis.localStorage = {
   removeItem: key => values.delete(key),
 };
 globalThis.window = new EventTarget();
-beforeEach(() => values.clear());
+beforeEach(() => { values.clear(); resetEnglishProgressForAccountChange(); });
 
 test('invalid stored sessions are treated as signed out', () => {
   values.set('kvtt.supabase.session.v1', JSON.stringify({ access_token: 'invalid' }));

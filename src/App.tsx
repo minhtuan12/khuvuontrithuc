@@ -764,7 +764,6 @@ export default function App({ startAtHome = false }: { startAtHome?: boolean }) 
   const studySeconds = studyTime.day === localDay() ? studyTime.seconds : 0;
   const setStudySeconds = (update: number | ((previous: number) => number)) => setStudyTime(previous => ({ day: localDay(), seconds: typeof update === 'function' ? update(previous.day === localDay() ? previous.seconds : 0) : update }));
   const studyDay = useRef(localDay());
-  const [storageError, setStorageError] = useState('');
   const [emotionSpeechError, setEmotionSpeechError] = useState('');
   const [pageVisible, setPageVisible] = useState(() => document.visibilityState !== 'hidden');
   const [sessionTimeLeft, setSessionTimeLeft] = useState(30 * 60); // 30 minutes
@@ -826,7 +825,6 @@ export default function App({ startAtHome = false }: { startAtHome?: boolean }) 
   const [unlockedBadgeIds, setUnlockedBadgeIds, badgesData] = useDeviceDocument<string[]>('badges', readUnlockedBadges);
   const deviceData = [starsData, emotionsData, studyData, settingsData, statsData, badgesData, dailyActivityData];
   const dataLoading = deviceData.some(item => item.loading);
-  const dataFailure = deviceData.find(item => item.error);
 
   useEffect(() => { setSessionTimeLeft(sessionTimeLimit * 60); }, [sessionTimeLimit]);
   useEffect(() => {
@@ -995,17 +993,17 @@ export default function App({ startAtHome = false }: { startAtHome?: boolean }) 
 
   useEffect(() => {
     try { localStorage.setItem('kvtt.stars.v1', String(stars)); }
-    catch { setStorageError('Chưa lưu được dữ liệu trên thiết bị. Dữ liệu vẫn có trong lượt mở này.'); }
+    catch {}
   }, [stars]);
 
   useEffect(() => {
     try { localStorage.setItem('kvtt.emotions.v1', JSON.stringify(emotionHistory)); }
-    catch { setStorageError('Chưa lưu được nhật ký trên thiết bị. Cảm xúc vẫn có trong lượt mở này.'); }
+    catch {}
   }, [emotionHistory]);
 
   useEffect(() => {
     try { localStorage.setItem('kvtt.study-time.v1', JSON.stringify({ day: studyDay.current, seconds: studySeconds })); }
-    catch { setStorageError('Chưa lưu được thời gian học trên thiết bị.'); }
+    catch {}
   }, [studySeconds]);
 
   useEffect(() => {
@@ -3977,8 +3975,7 @@ export default function App({ startAtHome = false }: { startAtHome?: boolean }) 
           </span>
         </div>
       </div>}
-      {(storageError || emotionSpeechError) && <div role="status" className="fixed bottom-28 left-4 right-4 z-[110] mx-auto max-w-lg rounded-2xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm font-bold text-amber-950">{storageError || emotionSpeechError}</div>}
-      {dataFailure && <div role="alert" className="fixed bottom-28 left-4 right-4 z-[111] mx-auto max-w-xl rounded-2xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm font-bold text-amber-950">{dataFailure.error}<div className="mt-2 flex gap-3"><button type="button" onClick={() => deviceData.forEach(item => item.retry())} className="min-h-11 underline">Thử lưu lại</button><button type="button" onClick={() => deviceData.filter(item => item.error).forEach(item => item.restoreRemote())} className="min-h-11 underline">Tải bản đã lưu</button></div></div>}
+      {emotionSpeechError && <div role="status" className="fixed bottom-28 left-4 right-4 z-[110] mx-auto max-w-lg rounded-2xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm font-bold text-amber-950">{emotionSpeechError}</div>}
     </div>
   );
 }

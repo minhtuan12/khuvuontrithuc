@@ -540,8 +540,6 @@ export const EnglishGamesPlayground: React.FC<EnglishGamesPlaygroundProps> = ({
 
   return (
     <div className="space-y-6">
-      {starsSync.error && <p role="status" className="rounded-xl bg-amber-50 p-3 text-amber-900">{starsSync.error} <button type="button" onClick={starsSync.retry} className="underline">Thử lại</button><button type="button" onClick={starsSync.restoreRemote} className="ml-3 underline">Tải bản đã lưu</button></p>}
-      {gardenSync.error && <p role="status" className="rounded-xl bg-amber-50 p-3 text-amber-900">{gardenSync.error} <button type="button" onClick={gardenSync.retry} className="min-h-11 px-3 underline">Thử lưu lại</button><button type="button" onClick={gardenSync.restoreRemote} className="min-h-11 px-3 underline">Tải bản đã lưu</button></p>}
       {/* Playground Header Banner */}
       <div className="bg-gradient-to-r from-purple-600 via-indigo-600 to-sky-500 rounded-3xl p-6 sm:p-8 text-white shadow-xl relative overflow-hidden border-4 border-white">
         <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">

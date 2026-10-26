@@ -754,7 +754,6 @@ export default function EnglishModule({ onBack, onLessonComplete, onGameComplete
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-sky-50 via-indigo-50/30 to-emerald-50/20 text-slate-800 pb-24">
-      {starsSync.error && <p role="status" className="m-4 rounded-xl bg-amber-50 p-3 text-amber-900">{starsSync.error} <button type="button" onClick={starsSync.retry} className="underline">Thử lại</button><button type="button" onClick={starsSync.restoreRemote} className="ml-3 underline">Tải bản đã lưu</button></p>}
       {/* Top Banner Navigation */}
       <header className="sticky top-0 z-30 bg-white/90 backdrop-blur-md border-b-2 border-indigo-100 shadow-sm px-4 py-3 sm:px-8">
         <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3">

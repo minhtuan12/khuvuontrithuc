@@ -15,6 +15,7 @@ if (originalKey === undefined) delete process.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 else process.env.VITE_SUPABASE_PUBLISHABLE_KEY = originalKey;
 const values = new Map();
 function setup() {
+  api.resetEnglishProgressForAccountChange();
   values.clear();
   globalThis.localStorage = {
     getItem: (k) => values.get(k) ?? null,
@@ -222,7 +223,7 @@ test("transient refresh failure keeps account available for retry", async () => 
   await expect(api.syncEnglishProgress()).rejects.toThrow();
   expect(api.getEnglishSession()?.user.id).toBe("A");
 });
-test("guest progress hydrates and writes the device HTTP document without a Supabase token", async () => {
+test("guest progress stays in memory without device HTTP or browser persistence", async () => {
   setup();
   const calls = [];
   globalThis.fetch = async (url, init) => {
@@ -234,19 +235,12 @@ test("guest progress hydrates and writes the device HTTP document without a Supa
     return json({ version: 0, value: {} });
   };
   await api.recordEnglishProgress(lesson.id, true);
-  for (let i = 0; i < 10 && !calls.some((c) => c.init.method === "PUT"); i++)
-    await new Promise((r) => setTimeout(r, 0));
-  const write = calls.find((c) => c.init.method === "PUT");
-  expect(write).toBeTruthy();
-  expect(write.init.headers.Authorization).toBeUndefined();
-  expect(JSON.parse(write.init.body)).toMatchObject({
-    baseVersion: 0,
-    value: { [lesson.id]: { lessonId: lesson.id, ageBand: "3-4" } },
-  });
+  expect(calls).toEqual([]);
+  expect(values.get("kvtt.english.progress.v1.guest")).toBeUndefined();
   expect(api.getGuestEnglishProgress()[lesson.id].completedAt).toBeTruthy();
 });
 
-test("guest conflict refreshes silently without overwriting the server copy", async () => {
+test("guest progress sync remains memory-only even when a device endpoint exists", async () => {
   setup();
   let version = 1;
   let remote = {};
@@ -275,10 +269,10 @@ test("guest conflict refreshes silently without overwriting the server copy", as
   await api.recordEnglishProgress(lesson.id, true);
   expect(api.getEnglishProgressSyncError()).toBe("");
   expect(remote).toEqual({});
-  expect(writes).toHaveLength(1);
+  expect(writes).toHaveLength(0);
 });
 
-test("guest migration excludes corrupt legacy entries from the HTTP write", async () => {
+test("guest progress ignores legacy persisted entries without migrating them", async () => {
   setup();
   values.set("kvtt.english.progress.v1.guest", JSON.stringify({ bad: null }));
   const writes = [];
@@ -291,10 +285,8 @@ test("guest migration excludes corrupt legacy entries from the HTTP write", asyn
     }
     return json({ version: 0, value: {} });
   };
-  await api.syncEnglishProgress();
-  expect(writes).toHaveLength(1);
-  expect(writes[0].bad).toBeUndefined();
-  expect(Object.keys(writes[0])).toEqual([]);
+  expect(await api.syncEnglishProgress()).toEqual({});
+  expect(writes).toHaveLength(0);
 });
 
 test("teacher API rejects malformed list and save representations", async () => {

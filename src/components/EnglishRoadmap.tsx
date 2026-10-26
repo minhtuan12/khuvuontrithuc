@@ -2,7 +2,7 @@
 import { ArrowRight, Check, Ear, Flower2, MessageCircle, MousePointer2, Sparkles } from 'lucide-react';
 import { ENGLISH_AGES, getEnglishRoadmap, type EnglishAge } from '../lib/englishCatalog';
 import type { EnglishLessonTheme } from '../constants/englishData';
-import { getEnglishProgressSyncError, getEnglishSession, getGuestEnglishProgress, restoreGuestEnglishProgress, syncEnglishProgress, type EnglishProgress } from '../lib/englishSync';
+import { getGuestEnglishProgress, syncEnglishProgress, type EnglishProgress } from '../lib/englishSync';
 
 import { Mascot } from './RoadmapMascot';
 import './english-roadmap.css';
@@ -23,15 +23,11 @@ const topicArtwork: Record<string, string> = {
 export default function EnglishRoadmap({ initialAge, initialGroup = '', onGroupChange, onOpenLesson }: EnglishRoadmapProps) {
   const [age, setAge] = useState<EnglishAge>(initialAge);
   const [progress, setProgress] = useState<Record<string, EnglishProgress>>(getGuestEnglishProgress);
-  const [syncError, setSyncError] = useState(getEnglishProgressSyncError);
   useEffect(() => {
-    const update = () => { setProgress(getGuestEnglishProgress()); setSyncError(getEnglishProgressSyncError()); };
+    const update = () => { setProgress(getGuestEnglishProgress()); };
     const synchronize = () => {
       update();
-      void syncEnglishProgress().then(update).catch(() => {
-        update();
-        setSyncError('Chưa đồng bộ được tiến độ. Hãy thử lại.');
-      });
+      void syncEnglishProgress().then(update).catch(update);
     };
     window.addEventListener('english-progress-changed', update);
     window.addEventListener('english-session-changed', synchronize);
@@ -54,7 +50,6 @@ export default function EnglishRoadmap({ initialAge, initialGroup = '', onGroupC
 
   return (
     <section aria-labelledby="english-roadmap-title" className="english-roadmap">
-      {syncError && <p role="status" className="rounded-xl bg-amber-50 p-3 text-amber-900">{syncError} <button type="button" onClick={() => void syncEnglishProgress().then(() => setSyncError(getEnglishProgressSyncError())).catch(() => setSyncError('Chưa đồng bộ được tiến độ. Hãy thử lại.'))} className="underline">Thử lại</button>{!getEnglishSession() && <button type="button" onClick={() => void restoreGuestEnglishProgress()} className="ml-3 underline">Tải bản đã lưu</button>}</p>}
       <div className="roadmap-layout">
         <div className="roadmap-topline"><span className="path-eyebrow"><Sparkles size={16} aria-hidden="true" /> MỖI NGÀY MỘT KHÁM PHÁ</span></div>
         <div className="roadmap-welcome">

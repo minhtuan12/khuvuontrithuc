@@ -46,7 +46,7 @@ try {
     await b.click(index === questions.length - 1 ? 'Hoàn thành trò chơi' : 'Câu tiếp theo');
   }
   await b.waitFor(`JSON.parse(localStorage.getItem('mamnon_learning_stats')).englishCount === ${englishCountBefore + 1}`);
-  assert(await b.evaluate(`Boolean(JSON.parse(localStorage.getItem('kvtt.english.progress.v1.guest'))[${JSON.stringify(ENGLISH_DATA_3_4[0].id)}]?.completedAt)`), 'English game completion records the exact lesson');
+  assert(await b.evaluate("localStorage.getItem('kvtt.english.progress.v1.guest') === null"), 'signed-out English progress is not persisted');
   if (await b.evaluate("document.body.innerText.includes('Tiếp tục học vui vẻ')")) await b.click('Tiếp tục học vui vẻ');
   await b.click('Phụ huynh');
   await b.waitFor("document.querySelector('.parent-stats')");

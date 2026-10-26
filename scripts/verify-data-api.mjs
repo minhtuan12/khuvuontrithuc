@@ -79,18 +79,16 @@ try {
   await b.evaluate("fetch('/api/device/documents/teacher-notes').then(r=>r.json()).then(d=>fetch('/api/device/documents/teacher-notes',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({baseVersion:d.version,value:[{id:'other-tab',content:'Ghi chú mới từ cửa sổ khác',date:new Date().toISOString()},...d.value]})}))");
   await fill('#parent-note', 'Bản nháp chưa đối chiếu');
   await b.click('Lưu ghi chú');
-  await b.waitFor("document.body.innerText.includes('Dữ liệu đã đổi ở cửa sổ khác')");
-  assert(!(await documentValue('teacher-notes')).value.some(n => n.content === 'Bản nháp chưa đối chiếu'), 'stale UI write cannot overwrite a newer server version');
-  await b.click('Tải bản đã lưu');
   await b.waitFor("document.querySelector('.parent-posts')?.textContent.includes('Ghi chú mới từ cửa sổ khác')");
-  assert(await b.evaluate("localStorage.getItem('kvtt.device-cache.v1.teacher-notes.draft-backup').includes('Bản nháp chưa đối chiếu')"), 'explicit conflict recovery loads server value and backs up the local draft');
+  assert(!(await documentValue('teacher-notes')).value.some(n => n.content === 'Bản nháp chưa đối chiếu'), 'stale UI write cannot overwrite a newer server version');
+  assert(!(await b.evaluate("document.body.innerText.includes('Dữ liệu đã đổi ở cửa sổ khác')")), 'newer server data is accepted without a conflict warning');
   await b.click('Trang chủ');
   await b.click('Khám phá Toán học & Khoa học');
   await b.click('4 - 5 Tuổi');
   await b.click('Ghi nhận kết quả');
   await b.waitFor(`document.querySelector('img[src=${JSON.stringify(files[0].url)}]')`);
   assert(true, 'uploaded image returns to the records screen after full reload');
-  assert(b.errors.length === 0, 'no uncaught UI exceptions during API success, offline and conflict flows');
+  assert(b.errors.length === 0, 'no uncaught UI exceptions during API success, offline and stale-write flows');
 } catch (error) {
   console.log('STOP', error.message);
   console.log((await b.evaluate('document.body.innerText')).slice(-1800));

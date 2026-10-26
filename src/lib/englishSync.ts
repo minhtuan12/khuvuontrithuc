@@ -1,14 +1,13 @@
 import { learnerStorage as localStorage } from './learnerStorage';
 import { findEnglishLesson, type EnglishAge } from './englishCatalog';
 import { DeviceDocument, deviceFetch } from './deviceData';
-import { getLearnerScope, getLearnerStorage } from './learnerStorage';
+import { getLearnerScope } from './learnerStorage';
 
 const projectUrl = import.meta.env.VITE_SUPABASE_URL?.replace(/\/$/, '');
 const publishableKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 const sessionKey = 'kvtt.supabase.session.v1';
 const progressKeyPrefix = 'kvtt.english.progress.v1';
 let guestDocument: DeviceDocument<Record<string, EnglishProgress>> | null = null;
-let guestStorage: Storage | null = null;
 let guestScope = '';
 let guestStarted = false;
 let progressSyncError = '';
@@ -16,38 +15,25 @@ export function getEnglishProgressSyncError(): string { return progressSyncError
 export function resetEnglishProgressForAccountChange() {
   guestDocument?.dispose();
   guestDocument = null;
-  guestStorage = null;
   guestScope = '';
   guestStarted = false;
   progressSyncError = '';
   refreshFlight = null;
 }
-export async function restoreGuestEnglishProgress(): Promise<void> {
-  if (getEnglishSession()) return;
-  // The controller backs up the device draft and rejects restoration if edited in flight.
-  // Its subscription updates the legacy cache before notifying the roadmap.
-  await guestProgressDocument().restoreRemote();
-}
-
 function guestProgressDocument() {
-  let backing: Storage | null = null;
-  let storage: Storage | undefined;
-  try { backing = globalThis.localStorage; storage = getLearnerStorage(); } catch { /* API and memory remain available when browser storage is blocked. */ }
   const scope = getLearnerScope();
-  if (guestDocument && guestStorage === backing && guestScope === scope) return guestDocument;
+  if (guestDocument && guestScope === scope) return guestDocument;
   guestDocument?.dispose();
   guestDocument = null;
-  guestStorage = backing;
   guestScope = scope;
   guestStarted = false;
-  guestDocument = new DeviceDocument<Record<string, EnglishProgress>>('english-progress', getGuestEnglishProgress, { storage, fetch: (input,init) => {
+  guestDocument = new DeviceDocument<Record<string, EnglishProgress>>('english-progress', getGuestEnglishProgress, { persist:false, fetch: (input,init) => {
     if (getLearnerScope() !== scope) return Promise.reject(new DOMException('Tài khoản đã thay đổi', 'AbortError'));
     return deviceFetch(input,init);
   } });
   const document = guestDocument;
   document.subscribe(() => {
     const state = document.snapshot();
-    try { storage?.setItem(`${progressKeyPrefix}.guest`, JSON.stringify(state.value)); } catch {}
     if (getLearnerScope() !== scope) return;
     progressSyncError = state.error;
     window.dispatchEvent(new Event('english-progress-changed'));
@@ -192,6 +178,7 @@ async function validToken(): Promise<string | null> {
 
 export function getGuestEnglishProgress(): Record<string, EnglishProgress> {
   const inMemory = () => guestDocument && guestScope === getLearnerScope() && !getEnglishSession() ? { ...guestDocument.snapshot().value } : {};
+  if (!getEnglishSession()) return inMemory();
   try {
     const value = localStorage.getItem(localProgressKey());
     if (!value) return inMemory();
@@ -220,9 +207,9 @@ export async function recordEnglishProgress(lessonId: string, completed: boolean
     completedAt: completed ? now : previous?.completedAt || null,
   };
   progress[lessonId] = item;
-  try { localStorage.setItem(localProgressKey(), JSON.stringify(progress)); } catch { /* The document retains changes in memory and saves through the API. */ }
-  window.dispatchEvent(new Event('english-progress-changed'));
   const owner = getEnglishSession()?.user.id;
+  if (owner) try { localStorage.setItem(localProgressKey(), JSON.stringify(progress)); } catch { /* The document retains changes in memory until cloud sync. */ }
+  window.dispatchEvent(new Event('english-progress-changed'));
   if (!owner) {
     guestProgressDocument().set(previous => ({ ...previous, [lessonId]: item }));
     await syncGuestProgress();

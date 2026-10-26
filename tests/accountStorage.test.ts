@@ -67,13 +67,13 @@ test('bootstrap pins expected identity and refreshes on ACCOUNT_CHANGED',async()
  }finally{if(originalWindow)Object.defineProperty(globalThis,'window',originalWindow);else Reflect.deleteProperty(globalThis,'window');}
 });
 
-test('English progress keeps syncing and retains in-memory completion when browser storage is blocked',async()=>{
+test('signed-out English progress stays in memory without calling the device persistence API',async()=>{
  const originalWindow=Object.getOwnPropertyDescriptor(globalThis,'window');Object.defineProperty(globalThis,'window',{configurable:true,value:new EventTarget()});
  Object.defineProperty(globalThis,'localStorage',{configurable:true,get(){throw new DOMException('blocked','SecurityError');}});
  resetEnglishProgressForAccountChange();const id=ENGLISH_LESSONS_BY_AGE['3-4'][0].id;const writes:any[]=[];let version=0;
  globalThis.fetch=(async(url,init)=>{if(url==='/api/device/session')return Response.json({ready:true});if(init?.method==='PUT'){const body=JSON.parse(init.body as string);writes.push(body);return Response.json({version:++version});}return Response.json({value:null,version:0});}) as typeof fetch;
  try{
-  await recordEnglishProgress(id,true);const completed=getGuestEnglishProgress()[id]?.completedAt;expect(completed).toBeTruthy();expect(writes.length).toBe(1);expect(writes[0].value[id].completedAt).toBe(completed);
+  await recordEnglishProgress(id,true);const completed=getGuestEnglishProgress()[id]?.completedAt;expect(completed).toBeTruthy();expect(writes.length).toBe(0);
   await recordEnglishProgress(id,false);expect(getGuestEnglishProgress()[id].completedAt).toBe(completed);expect((await syncEnglishProgress())[id].completedAt).toBe(completed);
   setLearnerScope('account-b');expect(getGuestEnglishProgress()).toEqual({});expect(await syncEnglishProgress()).toEqual({});
  }finally{resetEnglishProgressForAccountChange();if(originalWindow)Object.defineProperty(globalThis,'window',originalWindow);else Reflect.deleteProperty(globalThis,'window');}
